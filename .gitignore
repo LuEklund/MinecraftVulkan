@@ -1,0 +1,76 @@
+# Visual Studio Specific
+.vs/
+*.vcxproj.user
+*.vcxproj.filters
+*.userosscache
+*.suo
+*.log
+*.tlog/
+*.idb
+*.ipch/
+*.aps
+*.ncb
+*.opendb
+*.opensdf
+*.obj/
+*.o
+*.pdb
+*.ilk
+*.map
+*.exp
+*.lib
+*.sdf
+*.sqlite
+*.ipdb
+*.iobj
+BuildLog.*
+*.lastbuildstate
+
+# Vulkan Specific
+*.spv
+*.cache
+*.shaderc
+*.glslcache/
+*.spirv/
+
+# OS Specific
+Thumbs.db
+ehthumbs.db
+.DS_Store
+._*
+
+# CMake Build Directories
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Temporary Files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+
+# Generated files
+bin/
+build/
+dist/
+
+# Dependencies
+*.dll
+*.dylib
+*.so
+*.a
+*.la
+*.lo
+*.class
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+
+# IDE Specific Settings
+.idea/
+*.iml
