@@ -1,5 +1,6 @@
 #include "MvApp.h"
 #include <stdexcept>
+#include <array>
 
 MvApp::MvApp()
 {
@@ -27,12 +28,12 @@ void MvApp::Run()
 	while (!m_window->ShouldClose())
 	{
 		glfwPollEvents();
+		DrawFrame();
 	}
+	vkDeviceWaitIdle(m_Device->GetDevice());
 }
 
-void MvApp::DrawFrame()
-{
-}
+
 
 void MvApp::CreatepipelineLayout()
 {
@@ -61,4 +62,68 @@ void MvApp::CreatePipeline()
 
 void MvApp::CreateCommandBuffers()
 {
+	m_CommandBuffers.resize(m_swapChain->GetimageCount());
+
+	VkCommandBufferAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandPool = m_Device->GetCommandPool();
+	allocInfo.commandBufferCount = static_cast<uint32_t>(m_CommandBuffers.size());
+
+	if (vkAllocateCommandBuffers(m_Device->GetDevice(), &allocInfo, m_CommandBuffers.data()) != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to allocate command buffers!");
+	}
+
+	for (size_t i = 0; i < m_CommandBuffers.size(); i++)
+	{
+		VkCommandBufferBeginInfo beginInfo{};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+		if (vkBeginCommandBuffer(m_CommandBuffers[i], &beginInfo) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to begin recording command buffer!");
+		}
+
+		VkRenderPassBeginInfo renderPassInfo{};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass = m_swapChain->GetRenderPass();
+		renderPassInfo.framebuffer = m_swapChain->getFrameBuffer(i);
+
+		renderPassInfo.renderArea.offset = { 0, 0 };
+		renderPassInfo.renderArea.extent = m_swapChain->GetSwapChainExtent();
+		// renderPassInfo.renderArea.exent = {static_cast<int32_t>(m_swapChain->GetWidth()), static_cast<int32_t>(m_swapChain->GetHeigth())};
+
+		std::array<VkClearValue, 2> clearValues{};
+		clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+		clearValues[1].depthStencil = { 1.0f, 0 };
+		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+		renderPassInfo.pClearValues = clearValues.data();
+
+		vkCmdBeginRenderPass(m_CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		m_pipeline->Bind(m_CommandBuffers[i]);
+		vkCmdDraw(m_CommandBuffers[i], 3, 1, 0, 0);
+
+		vkCmdEndRenderPass(m_CommandBuffers[i]);
+		if (vkEndCommandBuffer(m_CommandBuffers[i]) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to record command buffer!");
+		}
+	}
+}
+
+void MvApp::DrawFrame()
+{
+	uint32_t imageIndex;
+	VkResult res = m_swapChain->acquireNextImage(&imageIndex);
+	if (res != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to acquire swap chain image!");
+	}
+
+	res = m_swapChain->submitCommandBuffers(&m_CommandBuffers[imageIndex], &imageIndex);
+	if (res != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to acquire swap chain image!");
+	}
 }

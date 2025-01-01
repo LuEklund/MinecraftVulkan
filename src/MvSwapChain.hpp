@@ -12,7 +12,7 @@
 
 class MvSwapChain {
  public:
-  static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
+  static constexpr int MAX_FRAMES_IN_FLIGHT = 3;
 
   MvSwapChain(MvDevice& deviceRef, VkExtent2D windowExtent);
   ~MvSwapChain();
@@ -23,9 +23,9 @@ class MvSwapChain {
   VkFramebuffer getFrameBuffer(int index) { return swapChainFramebuffers[index]; }
   VkRenderPass GetRenderPass() { return renderPass; }
   VkImageView getImageView(int index) { return swapChainImageViews[index]; }
-  size_t imageCount() { return swapChainImages.size(); }
+  size_t GetimageCount() { return swapChainImages.size(); }
   VkFormat getSwapChainImageFormat() { return swapChainImageFormat; }
-  VkExtent2D getSwapChainExtent() { return swapChainExtent; }
+  VkExtent2D GetSwapChainExtent() { return swapChainExtent; }
   uint32_t GetWidth() { return swapChainExtent.width; }
   uint32_t GetHeigth() { return swapChainExtent.height; }
 

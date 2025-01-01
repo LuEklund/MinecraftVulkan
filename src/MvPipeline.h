@@ -29,6 +29,8 @@ public:
 	MvPipeline(const MvPipeline&) = delete;
 	MvPipeline& operator=(const MvPipeline&) = delete;
 
+	void Bind(VkCommandBuffer commandBuffer);
+
 	static PipelineConfigInfo DefaultPipelineConfigInfo(uint32_t width, uint32_t heigth);
 
 private:
@@ -39,8 +41,8 @@ private:
 	VkShaderModule m_vertexShaderModule;
 	VkShaderModule m_fragmentShaderModule;
 
-	std::string m_vertexShader = "src/shaders/vert.spv";
-	std::string m_fragmentShader = "src/shaders/frag.spv";
+	std::string m_vertexShader = "shaders/vert.spv";
+	std::string m_fragmentShader = "shaders/frag.spv";
 
 	static std::vector<char> readFile(const std::string &filePath);
 

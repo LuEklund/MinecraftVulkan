@@ -38,7 +38,7 @@ class MvDevice {
   MvDevice(MvDevice &&) = delete;
   MvDevice &operator=(MvDevice &&) = delete;
 
-  VkCommandPool getCommandPool() { return commandPool; }
+  VkCommandPool GetCommandPool() { return commandPool; }
   VkDevice GetDevice() { return device_; }
   VkSurfaceKHR surface() { return surface_; }
   VkQueue graphicsQueue() { return graphicsQueue_; }
