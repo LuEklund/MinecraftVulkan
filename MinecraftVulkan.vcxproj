@@ -151,6 +151,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MvApp.cpp" />
     <ClCompile Include="src\MvDevice.cpp" />
+    <ClCompile Include="src\MvModel.cpp" />
     <ClCompile Include="src\MvPipeline.cpp" />
     <ClCompile Include="src\MvSwapChain.cpp" />
     <ClCompile Include="src\MvWindow.cpp" />
@@ -158,6 +159,7 @@
   <ItemGroup>
     <ClInclude Include="src\MvApp.h" />
     <ClInclude Include="src\MvDevice.hpp" />
+    <ClInclude Include="src\MvModel.hpp" />
     <ClInclude Include="src\MvPipeline.h" />
     <ClInclude Include="src\MvSwapChain.hpp" />
     <ClInclude Include="src\MvWindow.h" />

@@ -4,6 +4,7 @@
 #include "MvPipeline.h"
 #include "MvDevice.hpp"
 #include "MvSwapChain.hpp"
+#include "MvModel.hpp"
 
 #include <memory>
 
@@ -18,14 +19,11 @@ public:
 
 	void Run();
 private:
-	
-	//Window
-	static constexpr int WIDTH = 800;
-	static constexpr int HEIGHT = 600;
-	MvWindow* m_window;
-	void DrawFrame();
 
-	//PipeLine
+	//1. Device
+	std::unique_ptr<MvDevice> m_Device;
+
+	//2. Pipeline
 	std::unique_ptr<MvPipeline> m_pipeline;
 	VkPipelineLayout m_pipelineLayout;
 	std::vector<VkCommandBuffer> m_CommandBuffers;
@@ -33,10 +31,18 @@ private:
 	void CreatePipeline();
 	void CreateCommandBuffers();
 
-	//SwapChain
-	MvSwapChain* m_swapChain;
+	//3. SwapChain
+	std::unique_ptr<MvSwapChain> m_swapChain;
 
-	//EngineDevice
-	MvDevice* m_Device;
+	//4. Window
+	std::unique_ptr<MvWindow> m_window;
+	static constexpr int WIDTH = 800;
+	static constexpr int HEIGHT = 600;
+	void DrawFrame();
+
+	//5. Model
+	void LoadModels();
+	std::unique_ptr<MvModel> m_model;
+
 };
 

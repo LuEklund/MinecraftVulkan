@@ -16,6 +16,8 @@ if (CMAKE_GENERATOR STREQUAL "MinGW Makefiles")
 endif()
  
 project(${NAME} VERSION 0.23.0)
+
+message(STATUS "PROJECT_SOURCE_DIR: ${PROJECT_SOURCE_DIR}")
  
 # 1. Set VULKAN_SDK_PATH in .env.cmake to target specific vulkan version
 if (DEFINED VULKAN_SDK_PATH)
@@ -55,7 +57,7 @@ else()
 endif()
  
 include_directories(external)
- 
+
 # If TINYOBJ_PATH not specified in .env.cmake, try fetching from git repo
 if (NOT TINYOBJ_PATH)
   message(STATUS "TINYOBJ_PATH not specified in .env.cmake, using external/tinyobjloader")
@@ -82,8 +84,10 @@ if (WIN32)
     )
   endif()
  
+ 
+
   target_include_directories(${PROJECT_NAME} PUBLIC
-    ${PROJECT_SOURCE_DIR}
+    ${PROJECT_SOURCE_DIR}/src
     ${Vulkan_INCLUDE_DIRS}
     ${TINYOBJ_PATH}
     ${GLFW_INCLUDE_DIRS}

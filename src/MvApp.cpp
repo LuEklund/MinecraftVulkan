@@ -1,26 +1,45 @@
 #include "MvApp.h"
 #include <stdexcept>
 #include <array>
+#include <vector>
+
+//MvApp::MvApp()
+//{
+//	m_window = new MvWindow(WIDTH, HEIGHT, "MC Vulkan");
+//	m_Device = new MvDevice(*m_window);
+//	m_swapChain = new MvSwapChain(*m_Device, m_window->GetExtent());
+//	LoadModels();
+//
+//	CreatepipelineLayout();
+//	CreatePipeline();
+//	CreateCommandBuffers();
+//	//m_pipeline = new MvPipeline(*m_Device, MvPipeline::DefaultPipelineConfigInfo(WIDTH, HEIGHT));
+//}
+//
+//MvApp::~MvApp()
+//{
+//	m_pipeline->~MvPipeline();
+//	vkDestroyPipelineLayout(m_Device->GetDevice(), m_pipelineLayout, nullptr);
+//	delete m_swapChain;
+//	delete m_window;
+//	delete m_Device;
+//}
 
 MvApp::MvApp()
 {
-	m_window = new MvWindow(WIDTH, HEIGHT, "MC Vulkan");
-	m_Device = new MvDevice(*m_window);
-	m_swapChain = new MvSwapChain(*m_Device, m_window->GetExtent());
+	m_window = std::make_unique<MvWindow>(WIDTH, HEIGHT, "MC Vulkan");
+	m_Device = std::make_unique<MvDevice>(*m_window);
+	m_swapChain = std::make_unique<MvSwapChain>(*m_Device, m_window->GetExtent());
+	LoadModels();
 
 	CreatepipelineLayout();
 	CreatePipeline();
 	CreateCommandBuffers();
-	//m_pipeline = new MvPipeline(*m_Device, MvPipeline::DefaultPipelineConfigInfo(WIDTH, HEIGHT));
 }
 
 MvApp::~MvApp()
 {
 	vkDestroyPipelineLayout(m_Device->GetDevice(), m_pipelineLayout, nullptr);
-	m_pipeline->~MvPipeline();
-	delete m_swapChain;
-	delete m_window;
-	delete m_Device;
 }
 
 void MvApp::Run()
@@ -101,8 +120,11 @@ void MvApp::CreateCommandBuffers()
 		renderPassInfo.pClearValues = clearValues.data();
 
 		vkCmdBeginRenderPass(m_CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		
 		m_pipeline->Bind(m_CommandBuffers[i]);
-		vkCmdDraw(m_CommandBuffers[i], 3, 1, 0, 0);
+		m_model->bind(m_CommandBuffers[i]);
+		m_model->draw(m_CommandBuffers[i]);
+		//vkCmdDraw(m_CommandBuffers[i], 3, 1, 0, 0);
 
 		vkCmdEndRenderPass(m_CommandBuffers[i]);
 		if (vkEndCommandBuffer(m_CommandBuffers[i]) != VK_SUCCESS)
@@ -126,4 +148,14 @@ void MvApp::DrawFrame()
 	{
 		throw std::runtime_error("Failed to acquire swap chain image!");
 	}
+}
+
+void MvApp::LoadModels()
+{
+	std::vector<MvModel::Vertex> vertices = {
+		{{0.0f, -0.5f}},
+		{{0.5f, 0.5f}},
+		{{-0.5f, 0.5f}}
+	};
+	m_model = std::make_unique<MvModel>(*m_Device, vertices);
 }
