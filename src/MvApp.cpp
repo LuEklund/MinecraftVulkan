@@ -42,44 +42,86 @@ void MvApp::Run()
 	vkDeviceWaitIdle(m_Device->GetDevice());
 }
 
+// temporary helper function, creates a 1x1x1 cube centered at offset
+std::unique_ptr<MvModel> MvApp::CreateCubeModel(MvDevice& device, glm::vec3 offset) {
+  std::vector<MvModel::Vertex> vertices{
+ 
+      // left face (white)
+      {{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}},
+      {{-.5f, .5f, .5f}, {.9f, .9f, .9f}},
+      {{-.5f, -.5f, .5f}, {.9f, .9f, .9f}},
+      {{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}},
+      {{-.5f, .5f, -.5f}, {.9f, .9f, .9f}},
+      {{-.5f, .5f, .5f}, {.9f, .9f, .9f}},
+ 
+      // right face (yellow)
+      {{.5f, -.5f, -.5f}, {.8f, .8f, .1f}},
+      {{.5f, .5f, .5f}, {.8f, .8f, .1f}},
+      {{.5f, -.5f, .5f}, {.8f, .8f, .1f}},
+      {{.5f, -.5f, -.5f}, {.8f, .8f, .1f}},
+      {{.5f, .5f, -.5f}, {.8f, .8f, .1f}},
+      {{.5f, .5f, .5f}, {.8f, .8f, .1f}},
+ 
+      // top face (orange, remember y axis points down)
+      {{-.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
+      {{.5f, -.5f, .5f}, {.9f, .6f, .1f}},
+      {{-.5f, -.5f, .5f}, {.9f, .6f, .1f}},
+      {{-.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
+      {{.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
+      {{.5f, -.5f, .5f}, {.9f, .6f, .1f}},
+ 
+      // bottom face (red)
+      {{-.5f, .5f, -.5f}, {.8f, .1f, .1f}},
+      {{.5f, .5f, .5f}, {.8f, .1f, .1f}},
+      {{-.5f, .5f, .5f}, {.8f, .1f, .1f}},
+      {{-.5f, .5f, -.5f}, {.8f, .1f, .1f}},
+      {{.5f, .5f, -.5f}, {.8f, .1f, .1f}},
+      {{.5f, .5f, .5f}, {.8f, .1f, .1f}},
+ 
+      // nose face (blue)
+      {{-.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
+      {{.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
+      {{-.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
+      {{-.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
+      {{.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
+      {{.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
+ 
+      // tail face (green)
+      {{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
+      {{.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
+      {{-.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
+      {{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
+      {{.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
+      {{.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
+ 
+  };
+  for (auto& v : vertices) {
+    v.position += offset;
+  }
+  return std::make_unique<MvModel>(device, vertices);
+}
+
 void MvApp::LoadBlocks()
 {
-	std::vector<MvModel::Vertex> vertices = {
-		{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-		{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-		{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
-	};
-	auto m_model = std::make_shared<MvModel>(*m_Device, vertices);
-	auto triangle = MvGameObject::createGameObject();
-	triangle.model = m_model;
-	triangle.color = {0.0f, 0.8f, 0.1f};
-	triangle.transform2d.translation.x = 0.2f;
-	triangle.transform2d.scale = {2.f, 0.5f};
-	triangle.transform2d.rotation = 0.25f * glm::two_pi<float>();
-	m_GameObjects.push_back(std::move(triangle));
+	std::shared_ptr<MvModel> cubeModel = CreateCubeModel(*m_Device, {0.f, 0.f, 0.f});
+	// auto cube = MvGameObject::createGameObject();
+	// cube.model = cubeModel;
+	// // cube.transform.rotation = {0.6f, 1.f, 1.1f};
+	// cube.transform.translation = {0.f, 0.f, 0.5f};
+	// cube.transform.scale = {.5f, .5f, .5f};
+	// m_GameObjects.push_back(std::move(cube));
 
-	// std::vector<MvModel::Vertex> vertices{};
-	// sierpinski(vertices, 10, {-0.5f, 0.5f}, {0.5f, 0.5f}, {0.0f, -0.5f});
-	// m_model = std::make_unique<MvModel>(*m_Device, vertices);
-}
-
-
-void MvApp::sierpinski(
-    std::vector<MvModel::Vertex> &vertices, int depth, glm::vec2 left, glm::vec2 right, glm::vec2 top)
+	for (int x = -1; x < 2; x++)
 	{
-
-	if (depth <= 0) {
-		vertices.push_back({top});
-		vertices.push_back({right});
-		vertices.push_back({left});
-	} else {
-		auto leftTop = 0.5f * (left + top);
-		auto rightTop = 0.5f * (right + top);
-		auto leftRight = 0.5f * (left + right);
-		sierpinski(vertices, depth - 1, left, leftRight, leftTop);
-		sierpinski(vertices, depth - 1, leftRight, right, rightTop);
-		sierpinski(vertices, depth - 1, leftTop, rightTop, top);
-  }
+		for (int y = -1; y < 2; y++)
+		{
+			auto cube = MvGameObject::createGameObject();
+			cube.model = cubeModel;
+			cube.transform.rotation = {0.6f, 1.f, 1.1f};
+			cube.transform.translation = {.51f * static_cast<float>(x), .51f * static_cast<float>(y), .5f};
+			cube.transform.scale = {.5f, .5f, .5f};
+			m_GameObjects.push_back(std::move(cube));
+		}
+	}
 }
-
 

@@ -33,6 +33,7 @@ private:
 
 	//6. Model
 	void LoadBlocks();
+	std::unique_ptr<MvModel> CreateCubeModel(MvDevice& device, glm::vec3 offset);
     void sierpinski(std::vector<MvModel::Vertex> &vertices, int depth, glm::vec2 left, glm::vec2 right, glm::vec2 top);
     std::vector<MvGameObject> m_GameObjects;
 };

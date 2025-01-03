@@ -61,12 +61,12 @@ void MvRenderSystem::RenderGameObjects(VkCommandBuffer commandBuffer, std::vecto
 	m_pipeline->Bind(commandBuffer);
 	for (auto& obj : gameObjects)
 	{
-		obj.transform2d.rotation += glm::mod(obj.transform2d.rotation + 0.001f, glm::two_pi<float>());
+		// obj.transform.rotation.y += glm::mod(obj.transform.rotation.y + 0.01f, glm::two_pi<float>());
+		// obj.transform.rotation.x += glm::mod(obj.transform.rotation.x + 0.005f, glm::two_pi<float>());
 
 		SimplePushConstantData push{};
-		push.offset = obj.transform2d.translation;
 		push.color = obj.color;
-		push.transform = obj.transform2d.mat2();
+		push.transform = obj.transform.mat4();
 		vkCmdPushConstants(commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
 		
 		obj.model->bind(commandBuffer);
