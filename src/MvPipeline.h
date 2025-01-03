@@ -7,14 +7,24 @@
 
 struct PipelineConfigInfo
 {
-	VkViewport viewport;
-	VkRect2D scissor;
-	VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
-	VkPipelineRasterizationStateCreateInfo rasterizationInfo;
-	VkPipelineMultisampleStateCreateInfo multisampleInfo;
-	VkPipelineColorBlendAttachmentState colorBlendAttachment;
-	VkPipelineColorBlendStateCreateInfo colorBlendInfo;
-	VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
+	//My compiler did not auto generate default constructor
+	PipelineConfigInfo(){}
+
+	PipelineConfigInfo(const PipelineConfigInfo&) = delete;
+	PipelineConfigInfo& operator=(const PipelineConfigInfo&) = delete;
+
+	//My compiler did not auto generate default constructor taht is why I init all struct with {}
+	VkPipelineViewportStateCreateInfo viewportInfo{};
+	VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo{};
+	VkPipelineRasterizationStateCreateInfo rasterizationInfo{};
+	VkPipelineMultisampleStateCreateInfo multisampleInfo{};
+	VkPipelineColorBlendAttachmentState colorBlendAttachment{};
+	VkPipelineColorBlendStateCreateInfo colorBlendInfo{};
+	VkPipelineDepthStencilStateCreateInfo depthStencilInfo{};
+
+	std::vector<VkDynamicState> dynamicStateEnables{};
+	VkPipelineDynamicStateCreateInfo dynamicStateInfo{};
+
 	VkPipelineLayout pipelineLayout = nullptr;
 	VkRenderPass renderPass = nullptr;
 	uint32_t subpass = 0;
@@ -31,7 +41,7 @@ public:
 
 	void Bind(VkCommandBuffer commandBuffer);
 
-	static PipelineConfigInfo DefaultPipelineConfigInfo(uint32_t width, uint32_t heigth);
+	static void DefaultPipelineConfigInfo(PipelineConfigInfo &ConfigInfo);
 
 private:
 	void CreateShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule);

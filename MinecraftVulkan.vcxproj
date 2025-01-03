@@ -153,6 +153,8 @@
     <ClCompile Include="src\MvDevice.cpp" />
     <ClCompile Include="src\MvModel.cpp" />
     <ClCompile Include="src\MvPipeline.cpp" />
+    <ClCompile Include="src\MvRenderer.cpp" />
+    <ClCompile Include="src\MvRenderSystem.cpp" />
     <ClCompile Include="src\MvSwapChain.cpp" />
     <ClCompile Include="src\MvWindow.cpp" />
   </ItemGroup>
@@ -161,6 +163,8 @@
     <ClInclude Include="src\MvDevice.hpp" />
     <ClInclude Include="src\MvModel.hpp" />
     <ClInclude Include="src\MvPipeline.h" />
+    <ClInclude Include="src\MvRenderer.hpp" />
+    <ClInclude Include="src\MvRenderSystem.hpp" />
     <ClInclude Include="src\MvSwapChain.hpp" />
     <ClInclude Include="src\MvWindow.h" />
   </ItemGroup>

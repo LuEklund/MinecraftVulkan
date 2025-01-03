@@ -1,12 +1,12 @@
 #pragma once
 
 #include "MvWindow.h"
-#include "MvPipeline.h"
 #include "MvDevice.hpp"
-#include "MvSwapChain.hpp"
-#include "MvModel.hpp"
+#include "MvGameObject.hpp"
+#include "MvRenderer.hpp"
 
 #include <memory>
+
 
 class MvApp
 {
@@ -23,26 +23,17 @@ private:
 	//1. Device
 	std::unique_ptr<MvDevice> m_Device;
 
-	//2. Pipeline
-	std::unique_ptr<MvPipeline> m_pipeline;
-	VkPipelineLayout m_pipelineLayout;
-	std::vector<VkCommandBuffer> m_CommandBuffers;
-	void CreatepipelineLayout();
-	void CreatePipeline();
-	void CreateCommandBuffers();
-
-	//3. SwapChain
-	std::unique_ptr<MvSwapChain> m_swapChain;
-
 	//4. Window
 	std::unique_ptr<MvWindow> m_window;
 	static constexpr int WIDTH = 800;
 	static constexpr int HEIGHT = 600;
-	void DrawFrame();
 
-	//5. Model
-	void LoadModels();
-	std::unique_ptr<MvModel> m_model;
+	//5. Renderer
+	std::unique_ptr<MvRenderer> m_renderer;
 
+	//6. Model
+	void LoadBlocks();
+    void sierpinski(std::vector<MvModel::Vertex> &vertices, int depth, glm::vec2 left, glm::vec2 right, glm::vec2 top);
+    std::vector<MvGameObject> m_GameObjects;
 };
 

@@ -16,6 +16,7 @@ public:
     struct Vertex
     {
         glm::vec2 position;
+        glm::vec3 color;
 
         static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
         static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
@@ -25,7 +26,7 @@ public:
     ~MvModel();
 
     MvModel(const MvModel&) = delete;
-    void operator=(const MvModel&) = delete;
+    MvModel operator=(const MvModel&) = delete;
 
     void bind(VkCommandBuffer commandBuffer);
     void draw(VkCommandBuffer commandBuffer);
