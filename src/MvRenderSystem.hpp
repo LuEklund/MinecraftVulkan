@@ -1,5 +1,6 @@
 #pragma once
 
+#include "MvCamera.hpp"
 #include "MvPipeline.h"
 #include "MvDevice.hpp"
 #include "MvGameObject.hpp"
@@ -21,7 +22,7 @@ public:
 	MvRenderSystem(const MvRenderSystem&) = delete;
 	MvRenderSystem& operator=(const MvRenderSystem&) = delete;
 
-	void RenderGameObjects(VkCommandBuffer commandBuffer, std::vector<MvGameObject> &gameObjects);
+	void RenderGameObjects(VkCommandBuffer commandBuffer, std::vector<MvGameObject> &gameObjects, const MvCamera &camera);
 
 private:
 

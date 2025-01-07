@@ -19,6 +19,7 @@ public:
 	MvRenderer& operator=(const MvRenderer&) = delete;
 
     VkRenderPass GetSwapChainRenderPass() const { return m_swapChain->GetRenderPass(); }
+    float GetAspectRatio() const { return m_swapChain->extentAspectRatio(); }
 
     bool            IsFrameInProgress() const { return m_FrameStarted; }
     VkCommandBuffer GetCurrentCommandBuffer() const {

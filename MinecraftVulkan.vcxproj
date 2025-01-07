@@ -150,6 +150,7 @@
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MvApp.cpp" />
+    <ClCompile Include="src\MvCamera.cpp" />
     <ClCompile Include="src\MvDevice.cpp" />
     <ClCompile Include="src\MvModel.cpp" />
     <ClCompile Include="src\MvPipeline.cpp" />
@@ -160,6 +161,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\MvApp.h" />
+    <ClInclude Include="src\MvCamera.hpp" />
     <ClInclude Include="src\MvDevice.hpp" />
     <ClInclude Include="src\MvModel.hpp" />
     <ClInclude Include="src\MvPipeline.h" />

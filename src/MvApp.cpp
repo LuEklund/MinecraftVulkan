@@ -1,5 +1,6 @@
 #include "MvApp.h"
 
+#include "MvCamera.hpp"
 #include "MvRenderSystem.hpp"
 
 // libs
@@ -28,13 +29,22 @@ MvApp::~MvApp()
 void MvApp::Run()
 {
 	MvRenderSystem renderSystem(*m_Device, m_renderer->GetSwapChainRenderPass());
-	while (!m_window->ShouldClose())
+	MvCamera camera{};
+  // camera.SetViewDirection(glm::vec3{0.f}, glm::vec3{0.5f, 0.f, 1.f});
+  camera.SetViewTarget(glm::vec3{-1.f, -2.f, 2.f}, glm::vec3{0.f, 0.f, 2.5f});
+  
+  while (!m_window->ShouldClose())
 	{
 		glfwPollEvents();
 		if (auto CommandBuffer = m_renderer->BeginFrame())
 		{
+      float aspect = m_renderer->GetAspectRatio();
+      camera.SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
+      //Orthographic projection 1 by 1 by 1 cube
+      // camera.SetOrthographicProjection(-aspect, aspect, -1.f, 1.f, -1.f, 1.f);
+
 			m_renderer->BeginSwapChainRenderPass(CommandBuffer);
-			renderSystem.RenderGameObjects(CommandBuffer, m_GameObjects);
+			renderSystem.RenderGameObjects(CommandBuffer, m_GameObjects, camera);
 			m_renderer->EndSwapChainRenderPass(CommandBuffer);
 			m_renderer->EndFrame();
 		}
@@ -118,7 +128,7 @@ void MvApp::LoadBlocks()
 			auto cube = MvGameObject::createGameObject();
 			cube.model = cubeModel;
 			cube.transform.rotation = {0.6f, 1.f, 1.1f};
-			cube.transform.translation = {.51f * static_cast<float>(x), .51f * static_cast<float>(y), .5f};
+			cube.transform.translation = {.51f * static_cast<float>(x), .51f * static_cast<float>(y), 2.5f};
 			cube.transform.scale = {.5f, .5f, .5f};
 			m_GameObjects.push_back(std::move(cube));
 		}
