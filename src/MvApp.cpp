@@ -1,5 +1,6 @@
 #include "MvApp.h"
 
+#include "MvController.hpp"
 #include "MvCamera.hpp"
 #include "MvRenderSystem.hpp"
 
@@ -13,6 +14,7 @@
 #include <stdexcept>
 #include <array>
 #include <vector>
+#include <chrono>
 
 MvApp::MvApp()
 {
@@ -30,18 +32,28 @@ void MvApp::Run()
 {
 	MvRenderSystem renderSystem(*m_Device, m_renderer->GetSwapChainRenderPass());
 	MvCamera camera{};
-  // camera.SetViewDirection(glm::vec3{0.f}, glm::vec3{0.5f, 0.f, 1.f});
+  auto viewerObject = MvGameObject::createGameObject();
+  MvController CameraController{};
+
   camera.SetViewTarget(glm::vec3{-1.f, -2.f, 2.f}, glm::vec3{0.f, 0.f, 2.5f});
   
+  auto currentTime = std::chrono::high_resolution_clock::now();
+
   while (!m_window->ShouldClose())
 	{
 		glfwPollEvents();
+
+    auto newTime = std::chrono::high_resolution_clock::now();
+    float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
+    currentTime = newTime;
+
+    CameraController.MoveInPlaneXZ(m_window->GetWindow(), viewerObject, frameTime);
+    camera.SetViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
+
 		if (auto CommandBuffer = m_renderer->BeginFrame())
 		{
       float aspect = m_renderer->GetAspectRatio();
       camera.SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
-      //Orthographic projection 1 by 1 by 1 cube
-      // camera.SetOrthographicProjection(-aspect, aspect, -1.f, 1.f, -1.f, 1.f);
 
 			m_renderer->BeginSwapChainRenderPass(CommandBuffer);
 			renderSystem.RenderGameObjects(CommandBuffer, m_GameObjects, camera);
