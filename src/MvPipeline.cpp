@@ -134,7 +134,9 @@ void MvPipeline::Bind(VkCommandBuffer commandBuffer)
 void MvPipeline::DefaultPipelineConfigInfo(PipelineConfigInfo &ConfigInfo)
 {
 	ConfigInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-	ConfigInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+	// ConfigInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+	// ConfigInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+	ConfigInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
 	ConfigInfo.inputAssemblyInfo.primitiveRestartEnable = VK_FALSE;
 
 	ConfigInfo.viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -147,7 +149,7 @@ void MvPipeline::DefaultPipelineConfigInfo(PipelineConfigInfo &ConfigInfo)
 	ConfigInfo.rasterizationInfo.depthClampEnable = VK_FALSE;
 	ConfigInfo.rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;
 	ConfigInfo.rasterizationInfo.polygonMode = VK_POLYGON_MODE_FILL;
-	ConfigInfo.rasterizationInfo.lineWidth = 1.0f;
+	ConfigInfo.rasterizationInfo.lineWidth = 0.2f;
 	ConfigInfo.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;
 	ConfigInfo.rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
 	ConfigInfo.rasterizationInfo.depthBiasEnable = VK_FALSE;

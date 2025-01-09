@@ -67,6 +67,15 @@ endif()
 file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
  
 add_executable(${PROJECT_NAME} ${SOURCES})
+
+# Add the custom target for compiling shaders
+add_custom_target(CompileShaders
+  COMMAND ${CMAKE_COMMAND} -E echo "Compiling Shaders"
+  COMMAND ${PROJECT_SOURCE_DIR}/shaders/compile.bat
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/shaders
+)
+
+add_dependencies(${PROJECT_NAME} CompileShaders) 
  
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
  

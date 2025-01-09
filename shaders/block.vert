@@ -14,5 +14,8 @@ void main()
 {
     // gl_Position = vec4(push.transform * positions + push.offset, 0.0, 1.0);
     gl_Position = push.transform * vec4(positions, 1.0);
-    fragColor = color;
+    // fragColor = color;
+    fragColor = vec3(1.0, 1.0, 1.0);
+    gl_PointSize = 1.f;
+
 }

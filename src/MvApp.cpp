@@ -53,7 +53,7 @@ void MvApp::Run()
 		if (auto CommandBuffer = m_renderer->BeginFrame())
 		{
       float aspect = m_renderer->GetAspectRatio();
-      camera.SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
+      camera.SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 50.f);
 
 			m_renderer->BeginSwapChainRenderPass(CommandBuffer);
 			renderSystem.RenderGameObjects(CommandBuffer, m_GameObjects, camera);
@@ -125,17 +125,21 @@ void MvApp::LoadBlocks()
 	// cube.transform.scale = {.5f, .5f, .5f};
 	// m_GameObjects.push_back(std::move(cube));
 
-	for (int x = -1; x < 2; x++)
-	{
-		for (int y = -1; y < 2; y++)
-		{
-			auto cube = MvGameObject::createGameObject();
-			cube.model = cubeModel;
-			cube.transform.rotation = {0.6f, 1.f, 1.1f};
-			cube.transform.translation = {.51f * static_cast<float>(x), .51f * static_cast<float>(y), 2.5f};
-			cube.transform.scale = {.5f, .5f, .5f};
-			m_GameObjects.push_back(std::move(cube));
-		}
-	}
+  int size = 0;
+  for (int x = -1; x < size; x++)
+  {
+      for (int y = -1; y < size; y++)
+      {
+        for (int z = -1; z < size; z++)
+        {
+          auto cube = MvGameObject::createGameObject();
+          cube.model = cubeModel;
+          // cube.transform.rotation = {0.6f, 1.f, 1.1f};
+          cube.transform.translation = {static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)};
+          cube.transform.scale = {1.f, 1.f, 1.f};
+          m_GameObjects.push_back(std::move(cube));
+      }
+    }
+  }
 }
 
