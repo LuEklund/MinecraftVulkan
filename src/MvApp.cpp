@@ -108,9 +108,35 @@ std::unique_ptr<MvModel> MvApp::CreateCubeModel(MvDevice& device, glm::vec3 offs
   for (auto& v : modelBuilder.vertices) {
     v.position += offset;
   }
- 
-  modelBuilder.indices = {0,  1,  2,  0,  3,  1,  4,  5,  6,  4,  7,  5,  8,  9,  10, 8,  11, 9,
-                          12, 13, 14, 12, 15, 13, 16, 17, 18, 16, 19, 17, 20, 21, 22, 20, 23, 21};
+  //Debug Vertex
+   modelBuilder.indices = {
+    // Triangle 1
+    0, 1, 1, 2, 2, 0,
+    // Triangle 2
+    0, 3, 3, 1, 1, 0,
+    // Triangle 3
+    4, 5, 5, 6, 6, 4,
+    // Triangle 4
+    4, 7, 7, 5, 5, 4,
+    // Triangle 5
+    8, 9, 9, 10, 10, 8,
+    // Triangle 6
+    8, 11, 11, 9, 9, 8,
+    // Triangle 7
+    12, 13, 13, 14, 14, 12,
+    // Triangle 8
+    12, 15, 15, 13, 13, 12,
+    // Triangle 9
+    16, 17, 17, 18, 18, 16,
+    // Triangle 10
+    16, 19, 19, 17, 17, 16,
+    // Triangle 11
+    20, 21, 21, 22, 22, 20,
+    // Triangle 12
+    20, 23, 23, 21, 21, 20,
+};
+  // modelBuilder.indices = {0,  1,  2,  0,  3,  1,  4,  5,  6,  4,  7,  5,  8,  9,  10, 8,  11, 9,
+  //                         12, 13, 14, 12, 15, 13, 16, 17, 18, 16, 19, 17, 20, 21, 22, 20, 23, 21};
  
   return std::make_unique<MvModel>(device, modelBuilder);
 }
@@ -125,7 +151,7 @@ void MvApp::LoadBlocks()
 	// cube.transform.scale = {.5f, .5f, .5f};
 	// m_GameObjects.push_back(std::move(cube));
 
-  int size = 0;
+  int size = 10;
   for (int x = -1; x < size; x++)
   {
       for (int y = -1; y < size; y++)
