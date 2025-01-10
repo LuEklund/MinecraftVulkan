@@ -78,7 +78,9 @@ void MvRenderSystem::RenderGameObjects(MvFrameInfo &frameInfo, std::vector<MvGam
 		// obj.transform.rotation.x += glm::mod(obj.transform.rotation.x + 0.005f, glm::two_pi<float>());
 
 		SimplePushConstantData push{};
-		auto modelMatrix = obj.transform.mat4();
+		push.modelMatrix = obj.transform.mat4();
+		// auto modelMatrix = obj.transform.mat4();
+		// modelMatrix
 		// push.modelMatrix = obj.transform.normalMatrix();
 		// push.normalMatrix = modelMatrix;
 

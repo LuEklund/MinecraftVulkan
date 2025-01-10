@@ -17,6 +17,7 @@
 #include <vector>
 #include <chrono>
 #include <numeric>
+#include <iostream>
 
 struct GlobalUbo
 {
@@ -33,8 +34,9 @@ MvApp::MvApp()
   m_GlobalPool = MvDescriptorPool::Builder(*m_Device)
       .setMaxSets(MvSwapChain::MAX_FRAMES_IN_FLIGHT)
       .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MvSwapChain::MAX_FRAMES_IN_FLIGHT)
+      .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MvSwapChain::MAX_FRAMES_IN_FLIGHT)
       .build();
-	LoadBlocks();
+LoadBlocks();
 }
 
 MvApp::~MvApp()
@@ -55,8 +57,10 @@ void MvApp::Run()
         uboBuffers[i]->map();
   }
 
+
   auto globalSetLayout = MvDescriptorSetLayout::Builder(*m_Device)
       .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
+      .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
       .build();
 
   std::vector<VkDescriptorSet> globalDescriptorSets{MvSwapChain::MAX_FRAMES_IN_FLIGHT};
@@ -64,8 +68,14 @@ void MvApp::Run()
   for (int i = 0; i < globalDescriptorSets.size(); i++)
   {
     auto bufferInfo = uboBuffers[i]->descriptorInfo();
+    VkDescriptorImageInfo imageInfo{};
+    imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    imageInfo.imageView = m_cubeModel->GetTextureImageView();
+    imageInfo.sampler = m_cubeModel->GetTextureSampler();
+
     MvDescriptorWriter(*globalSetLayout, *m_GlobalPool)
       .writeBuffer(0, &bufferInfo)
+      .writeImage(1, &imageInfo)
       .build(globalDescriptorSets[i]);
   }
   
@@ -201,7 +211,9 @@ std::unique_ptr<MvModel> MvApp::CreateCubeModel(MvDevice& device, glm::vec3 offs
 
 void MvApp::LoadBlocks()
 {
-	std::shared_ptr<MvModel> cubeModel = CreateCubeModel(*m_Device, {0.f, 0.f, 0.f});
+	m_cubeModel = CreateCubeModel(*m_Device, {0.f, 0.f, 0.f});
+  
+
 	// auto cube = MvGameObject::createGameObject();
 	// cube.model = cubeModel;
 	// // cube.transform.rotation = {0.6f, 1.f, 1.1f};
@@ -209,7 +221,7 @@ void MvApp::LoadBlocks()
 	// cube.transform.scale = {.5f, .5f, .5f};
 	// m_GameObjects.push_back(std::move(cube));
 
-  int size = 1;
+  int size = 3;
   for (int x = 0; x < size; x++)
   {
       for (int y = 0; y < size; y++)
@@ -217,7 +229,7 @@ void MvApp::LoadBlocks()
         for (int z = 0; z < size; z++)
         {
           auto cube = MvGameObject::createGameObject();
-          cube.model = cubeModel;
+          cube.model = m_cubeModel;
           // cube.transform.rotation = {0.6f, 1.f, 1.1f };
           cube.transform.translation = {static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)};
           cube.transform.scale = {1.f, 1.f, 1.f};

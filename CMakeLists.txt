@@ -101,6 +101,7 @@ if (WIN32)
     ${TINYOBJ_PATH}
     ${GLFW_INCLUDE_DIRS}
     ${GLM_PATH}
+    ${STB_IMAGE_PATH}
     )
  
   target_link_directories(${PROJECT_NAME} PUBLIC

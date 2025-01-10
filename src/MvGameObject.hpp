@@ -57,6 +57,8 @@ public:
     MvGameObject(MvGameObject &&) = default;
     MvGameObject &operator=(MvGameObject &&) = default;
 
+    id_t GetId() const { return id; }
+
     std::shared_ptr<MvModel> model{};
     glm::vec3 color{};
     TransformComponent transform{};

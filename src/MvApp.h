@@ -34,6 +34,7 @@ private:
 
 	//4. Model
 	void LoadBlocks();
+	std::shared_ptr<MvModel> m_cubeModel;
 	std::unique_ptr<MvModel> CreateCubeModel(MvDevice& device, glm::vec3 offset);
 	std::vector<MvGameObject> m_GameObjects;
 
