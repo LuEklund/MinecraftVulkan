@@ -56,11 +56,11 @@ void MvRenderSystem::CreatePipeline(VkRenderPass renderPass)
 
 
 
-void MvRenderSystem::RenderGameObjects(VkCommandBuffer commandBuffer, std::vector<MvGameObject> &gameObjects,  const MvCamera &camera)
+void MvRenderSystem::RenderGameObjects(MvFrameInfo &frameInfo, std::vector<MvGameObject> &gameObjects)
 {
-	m_pipeline->Bind(commandBuffer);
+	m_pipeline->Bind(frameInfo.commandBuffer);
 
-	auto projectionView = camera.GetProjectionMatrix() * camera.GetViewMatrix();
+	auto projectionView = frameInfo.camera.GetProjectionMatrix() * frameInfo.camera.GetViewMatrix();
 
 	for (auto& obj : gameObjects)
 	{
@@ -68,12 +68,14 @@ void MvRenderSystem::RenderGameObjects(VkCommandBuffer commandBuffer, std::vecto
 		// obj.transform.rotation.x += glm::mod(obj.transform.rotation.x + 0.005f, glm::two_pi<float>());
 
 		SimplePushConstantData push{};
-		push.color = obj.color;
-		push.transform = projectionView * obj.transform.mat4();
-		vkCmdPushConstants(commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
+		auto modelMatrix = obj.transform.mat4();
+		push.transform = projectionView * modelMatrix;
+		push.modelMatrix = modelMatrix;
+
+		vkCmdPushConstants(frameInfo.commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
 		
-		obj.model->bind(commandBuffer);
-		obj.model->draw(commandBuffer);
+		obj.model->bind(frameInfo.commandBuffer);
+		obj.model->draw(frameInfo.commandBuffer);
 	}
 }
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MvDevice.hpp"
+#include "MvBuffer.hpp"
 
 // Library
 #define GLM_FORCE_RADIANS
@@ -9,14 +9,19 @@
 
 //std
 #include <vector>
+#include <memory>
+
 
 class MvModel
 {
 public:
     struct Vertex
     {
-        glm::vec3 position;
-        glm::vec3 color;
+        glm::vec3 position{};
+        glm::vec3 color{};
+        glm::vec3 normal{};
+        glm::vec2 uv{};
+
 
         static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
         static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
@@ -46,13 +51,11 @@ private:
     void CreateIndexBuffer(const std::vector<uint32_t>& indices);
 
     MvDevice& m_device;
-    VkBuffer m_vertexBuffer = VK_NULL_HANDLE;
-    VkDeviceMemory m_vertexBufferMemory = VK_NULL_HANDLE;
+    std::unique_ptr<MvBuffer> m_vertexBuffer;
     uint32_t    m_vertexCount = 0;
 
     bool hasIndexBuffer = false;
-    VkBuffer m_indexBuffer = VK_NULL_HANDLE;
-    VkDeviceMemory m_indexBufferMemory = VK_NULL_HANDLE;
+    std::unique_ptr<MvBuffer> m_indexBuffer;
     uint32_t    m_indexCount = 0;
 };
 

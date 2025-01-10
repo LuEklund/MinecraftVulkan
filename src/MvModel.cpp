@@ -13,14 +13,7 @@ MvModel::MvModel(MvDevice &Device, const MvModel::Builder& builder)
 
 MvModel::~MvModel()
 {
-    
-    vkDestroyBuffer(m_device.GetDevice(), m_vertexBuffer, nullptr);
-    vkFreeMemory(m_device.GetDevice(), m_vertexBufferMemory, nullptr);
-    if (hasIndexBuffer)
-    {
-        vkDestroyBuffer(m_device.GetDevice(), m_indexBuffer, nullptr);
-        vkFreeMemory(m_device.GetDevice(), m_indexBufferMemory, nullptr);
-    }
+
 }
 
 
@@ -30,32 +23,28 @@ void MvModel::CreateVertexBuffer(const std::vector <Vertex> &vertices)
     assert(m_vertexCount >= 3 && "Vertex count must be at least 3");
 
     VkDeviceSize bufferSize = sizeof(vertices[0]) * m_vertexCount;
+    uint32_t vertexSize = sizeof(vertices[0]);
 
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
-    m_device.createBuffer(
-        bufferSize,
+    MvBuffer stagingBuffer{
+        m_device,
+        vertexSize,
+        m_vertexCount,
         VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-       stagingBuffer,
-       stagingBufferMemory);
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+    };
 
-    void *data;
-    vkMapMemory(m_device.GetDevice(), stagingBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, vertices.data(), static_cast<size_t>(bufferSize));
-    vkUnmapMemory(m_device.GetDevice(), stagingBufferMemory);
+    stagingBuffer.map();
+    stagingBuffer.writeToBuffer((void *)vertices.data());
 
-        m_device.createBuffer(
-        bufferSize,
+    m_vertexBuffer = std::make_unique<MvBuffer>(
+        m_device,
+        vertexSize,
+        m_vertexCount,
         VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-       m_vertexBuffer,
-       m_vertexBufferMemory);
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+    );
 
-    m_device.copyBuffer(stagingBuffer, m_vertexBuffer, bufferSize);
-
-    vkDestroyBuffer(m_device.GetDevice(), stagingBuffer, nullptr);
-    vkFreeMemory(m_device.GetDevice(), stagingBufferMemory, nullptr);
+    m_device.copyBuffer(stagingBuffer.getBuffer(), m_vertexBuffer->getBuffer(), bufferSize);
 }
 
 void MvModel::CreateIndexBuffer(const std::vector <uint32_t> &indices)
@@ -65,42 +54,38 @@ void MvModel::CreateIndexBuffer(const std::vector <uint32_t> &indices)
     if (!hasIndexBuffer)
         return;
     VkDeviceSize bufferSize = sizeof(indices[0]) * m_indexCount;
+    uint32_t indexSize = sizeof(indices[0]);
 
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
-    m_device.createBuffer(
-        bufferSize,
+    MvBuffer    stagingBuffer{
+        m_device,
+        indexSize,
+        m_indexCount,
         VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-       stagingBuffer,
-       stagingBufferMemory);
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+    };
 
-    void *data;
-    vkMapMemory(m_device.GetDevice(), stagingBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, indices.data(), static_cast<size_t>(bufferSize));
-    vkUnmapMemory(m_device.GetDevice(), stagingBufferMemory);
+    stagingBuffer.map();
+    stagingBuffer.writeToBuffer((void *)indices.data());
 
-        m_device.createBuffer(
-        bufferSize,
+    m_indexBuffer = std::make_unique<MvBuffer>(
+        m_device,
+        indexSize,
+        m_indexCount,
         VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-       m_indexBuffer,
-       m_indexBufferMemory);
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+    );
 
-    m_device.copyBuffer(stagingBuffer, m_indexBuffer, bufferSize);
-
-    vkDestroyBuffer(m_device.GetDevice(), stagingBuffer, nullptr);
-    vkFreeMemory(m_device.GetDevice(), stagingBufferMemory, nullptr);
+    m_device.copyBuffer(stagingBuffer.getBuffer(), m_indexBuffer->getBuffer(), bufferSize);
 }
 
 void MvModel::bind(VkCommandBuffer commandBuffer)
 {
-    VkBuffer buffers[] = {m_vertexBuffer};
+    VkBuffer buffers[] = {m_vertexBuffer->getBuffer()};
     VkDeviceSize offsets[] = {0};
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
     if (hasIndexBuffer)
     {
-        vkCmdBindIndexBuffer(commandBuffer, m_indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+        vkCmdBindIndexBuffer(commandBuffer, m_indexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
     }
 }
 
@@ -128,7 +113,7 @@ std::vector<VkVertexInputBindingDescription> MvModel::Vertex::getBindingDescript
 
 std::vector<VkVertexInputAttributeDescription> MvModel::Vertex::getAttributeDescriptions()
 {
-    std::vector<VkVertexInputAttributeDescription> attributeDescriptions(2);
+    std::vector<VkVertexInputAttributeDescription> attributeDescriptions(4);
     attributeDescriptions[0].binding = 0;
     attributeDescriptions[0].location = 0;
     attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
@@ -138,6 +123,18 @@ std::vector<VkVertexInputAttributeDescription> MvModel::Vertex::getAttributeDesc
     attributeDescriptions[1].location = 1;
     attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
     attributeDescriptions[1].offset = offsetof(Vertex, color);
+
+    attributeDescriptions[2].binding = 0;
+    attributeDescriptions[2].location = 2;
+    attributeDescriptions[2].format = VK_FORMAT_R32G32B32_SFLOAT;
+    attributeDescriptions[2].offset = offsetof(Vertex, normal);
+
+    attributeDescriptions[3].binding = 0;
+    attributeDescriptions[3].location = 3;
+    attributeDescriptions[3].format = VK_FORMAT_R32G32_SFLOAT;
+    attributeDescriptions[3].offset = offsetof(Vertex, uv);
+
+
     return attributeDescriptions;
 }
 
