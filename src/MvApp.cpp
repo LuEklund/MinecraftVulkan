@@ -21,7 +21,7 @@
 struct GlobalUbo
 {
   glm::mat4 projectionView{1.f};
-  glm::vec3 lightDirection = glm::normalize(glm::vec3{1.f, -3.f, -1.f});
+  glm::vec3 lightDirection = glm::normalize(glm::vec3{1.f, 0.f, 0.f});
 };
 
 
@@ -30,6 +30,10 @@ MvApp::MvApp()
 	m_window = std::make_unique<MvWindow>(WIDTH, HEIGHT, "MC Vulkan");
 	m_Device = std::make_unique<MvDevice>(*m_window);
 	m_renderer = std::make_unique<MvRenderer>(*m_window, *m_Device);
+  m_GlobalPool = MvDescriptorPool::Builder(*m_Device)
+      .setMaxSets(MvSwapChain::MAX_FRAMES_IN_FLIGHT)
+      .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MvSwapChain::MAX_FRAMES_IN_FLIGHT)
+      .build();
 	LoadBlocks();
 }
 
@@ -51,8 +55,25 @@ void MvApp::Run()
         uboBuffers[i]->map();
   }
 
+  auto globalSetLayout = MvDescriptorSetLayout::Builder(*m_Device)
+      .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
+      .build();
 
-	MvRenderSystem renderSystem(*m_Device, m_renderer->GetSwapChainRenderPass());
+  std::vector<VkDescriptorSet> globalDescriptorSets{MvSwapChain::MAX_FRAMES_IN_FLIGHT};
+
+  for (int i = 0; i < globalDescriptorSets.size(); i++)
+  {
+    auto bufferInfo = uboBuffers[i]->descriptorInfo();
+    MvDescriptorWriter(*globalSetLayout, *m_GlobalPool)
+      .writeBuffer(0, &bufferInfo)
+      .build(globalDescriptorSets[i]);
+  }
+  
+
+	MvRenderSystem renderSystem(*m_Device,
+      m_renderer->GetSwapChainRenderPass(),
+      globalSetLayout->getDescriptorSetLayout());
+
 	MvCamera camera{};
   auto viewerObject = MvGameObject::createGameObject();
   MvController CameraController{};
@@ -75,7 +96,11 @@ void MvApp::Run()
 		if (auto CommandBuffer = m_renderer->BeginFrame())
 		{
       int frameIndex = m_renderer->GetFrameIndex();
-      MvFrameInfo frameInfo{frameIndex, frameTime, CommandBuffer, camera};
+      MvFrameInfo frameInfo{frameIndex,
+                            frameTime,
+                            CommandBuffer,
+                            camera,
+                            globalDescriptorSets[frameIndex]};
 
       //update
       GlobalUbo ubo{};
@@ -100,42 +125,42 @@ void MvApp::Run()
 // temporary helper function, creates a 1x1x1 cube centered at offset
 std::unique_ptr<MvModel> MvApp::CreateCubeModel(MvDevice& device, glm::vec3 offset) {
   MvModel::Builder modelBuilder{};
-  modelBuilder.vertices = {
-        // Left face (white)
-        {{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}, {-1.0f, 0.0f, 0.0f}},
-        {{-.5f, .5f, .5f}, {.9f, .9f, .9f}, {-1.0f, 0.0f, 0.0f}},
-        {{-.5f, -.5f, .5f}, {.9f, .9f, .9f}, {-1.0f, 0.0f, 0.0f}},
-        {{-.5f, .5f, -.5f}, {.9f, .9f, .9f}, {-1.0f, 0.0f, 0.0f}},
+    modelBuilder.vertices = {
+        // Left face
+        {{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}, {-1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}}, // Bottom-left
+        {{-.5f, .5f, .5f},  {.9f, .9f, .9f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}}, // Top-right
+        {{-.5f, -.5f, .5f}, {.9f, .9f, .9f}, {-1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}}, // Bottom-right
+        {{-.5f, .5f, -.5f}, {.9f, .9f, .9f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}, // Top-left
 
-        // Right face (yellow)
-        {{.5f, -.5f, -.5f}, {.8f, .8f, .1f}, {1.0f, 0.0f, 0.0f}},
-        {{.5f, .5f, .5f}, {.8f, .8f, .1f}, {1.0f, 0.0f, 0.0f}},
-        {{.5f, -.5f, .5f}, {.8f, .8f, .1f}, {1.0f, 0.0f, 0.0f}},
-        {{.5f, .5f, -.5f}, {.8f, .8f, .1f}, {1.0f, 0.0f, 0.0f}},
+        // Right face
+        {{.5f, -.5f, -.5f}, {.8f, .8f, .1f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+        {{.5f, .5f, .5f},  {.8f, .8f, .1f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}},
+        {{.5f, -.5f, .5f}, {.8f, .8f, .1f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
+        {{.5f, .5f, -.5f}, {.8f, .8f, .1f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
 
-        // Top face (orange)
-        {{-.5f, -.5f, -.5f}, {.9f, .6f, .1f}, {0.0f, -1.0f, 0.0f}},
-        {{.5f, -.5f, .5f}, {.9f, .6f, .1f}, {0.0f, -1.0f, 0.0f}},
-        {{-.5f, -.5f, .5f}, {.9f, .6f, .1f}, {0.0f, -1.0f, 0.0f}},
-        {{.5f, -.5f, -.5f}, {.9f, .6f, .1f}, {0.0f, -1.0f, 0.0f}},
+        // Top face
+        {{-.5f, -.5f, -.5f}, {.9f, .6f, .1f}, {0.0f, -1.0f, 0.0f}, {0.0f, 0.0f}},
+        {{.5f, -.5f, .5f},  {.9f, .6f, .1f}, {0.0f, -1.0f, 0.0f}, {1.0f, 1.0f}},
+        {{-.5f, -.5f, .5f}, {.9f, .6f, .1f}, {0.0f, -1.0f, 0.0f}, {0.0f, 1.0f}},
+        {{.5f, -.5f, -.5f}, {.9f, .6f, .1f}, {0.0f, -1.0f, 0.0f}, {1.0f, 0.0f}},
 
-        // Bottom face (red)
-        {{-.5f, .5f, -.5f}, {.8f, .1f, .1f}, {0.0f, 1.0f, 0.0f}},
-        {{.5f, .5f, .5f}, {.8f, .1f, .1f}, {0.0f, 1.0f, 0.0f}},
-        {{-.5f, .5f, .5f}, {.8f, .1f, .1f}, {0.0f, 1.0f, 0.0f}},
-        {{.5f, .5f, -.5f}, {.8f, .1f, .1f}, {0.0f, 1.0f, 0.0f}},
+        // Bottom face
+        {{-.5f, .5f, -.5f}, {.8f, .1f, .1f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+        {{.5f, .5f, .5f},  {.8f, .1f, .1f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
+        {{-.5f, .5f, .5f}, {.8f, .1f, .1f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},
+        {{.5f, .5f, -.5f}, {.8f, .1f, .1f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
 
-        // Front face (blue)
-        {{-.5f, -.5f, 0.5f}, {.1f, .1f, .8f}, {0.0f, 0.0f, 1.0f}},
-        {{.5f, .5f, 0.5f}, {.1f, .1f, .8f}, {0.0f, 0.0f, 1.0f}},
-        {{-.5f, .5f, 0.5f}, {.1f, .1f, .8f}, {0.0f, 0.0f, 1.0f}},
-        {{.5f, -.5f, 0.5f}, {.1f, .1f, .8f}, {0.0f, 0.0f, 1.0f}},
+        // Front face
+        {{-.5f, -.5f, 0.5f}, {.1f, .1f, .8f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
+        {{.5f, .5f, 0.5f},  {.1f, .1f, .8f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+        {{-.5f, .5f, 0.5f}, {.1f, .1f, .8f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+        {{.5f, -.5f, 0.5f}, {.1f, .1f, .8f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
 
-        // Back face (green)
-        {{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}, {0.0f, 0.0f, -1.0f}},
-        {{.5f, .5f, -0.5f}, {.1f, .8f, .1f}, {0.0f, 0.0f, -1.0f}},
-        {{-.5f, .5f, -0.5f}, {.1f, .8f, .1f}, {0.0f, 0.0f, -1.0f}},
-        {{.5f, -.5f, -0.5f}, {.1f, .8f, .1f}, {0.0f, 0.0f, -1.0f}},
+        // Back face
+        {{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f}},
+        {{.5f, .5f, -0.5f},  {.1f, .8f, .1f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f}},
+        {{-.5f, .5f, -0.5f}, {.1f, .8f, .1f}, {0.0f, 0.0f, -1.0f}, {0.0f, 1.0f}},
+        {{.5f, -.5f, -0.5f}, {.1f, .8f, .1f}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f}},
     };
   for (auto& v : modelBuilder.vertices) {
     v.position += offset;

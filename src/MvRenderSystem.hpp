@@ -10,14 +10,13 @@
 
 struct SimplePushConstantData
 {
-	glm::mat4 transform{1.f};
 	glm::mat4 modelMatrix{1.f};
 };
 
 class MvRenderSystem
 {
 public:
-	MvRenderSystem(MvDevice &device, VkRenderPass renderPass);
+	MvRenderSystem(MvDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
 	~MvRenderSystem();
 
 	MvRenderSystem(const MvRenderSystem&) = delete;
@@ -33,7 +32,7 @@ private:
 	//2. Pipeline
 	std::unique_ptr<MvPipeline> m_pipeline;
 	VkPipelineLayout m_pipelineLayout;
-	void	CreatepipelineLayout();
+	void	CreatepipelineLayout(VkDescriptorSetLayout globalSetLayout);
 	void	CreatePipeline(VkRenderPass renderPass);
 
 };
