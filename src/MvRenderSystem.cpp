@@ -4,6 +4,8 @@
 #include <vector>
 #include "glm/gtc/constants.hpp"
 
+#include <iostream>
+
 
 MvRenderSystem::MvRenderSystem(MvDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout)
     : m_Device(device)
@@ -74,12 +76,13 @@ void MvRenderSystem::RenderGameObjects(MvFrameInfo &frameInfo, std::vector<MvGam
 
 	for (auto& obj : gameObjects)
 	{
+		// auto pos = obj.transform.mat4();
+		// std::cout << "Rendering object x-pos: " << obj.transform.translation.x << std::endl;
 		// obj.transform.rotation.y += glm::mod(obj.transform.rotation.y + 0.01f, glm::two_pi<float>());
 		// obj.transform.rotation.x += glm::mod(obj.transform.rotation.x + 0.005f, glm::two_pi<float>());
 
 		SimplePushConstantData push{};
 		push.modelMatrix = obj.transform.mat4();
-		// auto modelMatrix = obj.transform.mat4();
 		// modelMatrix
 		// push.modelMatrix = obj.transform.normalMatrix();
 		// push.normalMatrix = modelMatrix;

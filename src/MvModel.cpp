@@ -17,6 +17,7 @@ MvModel::MvModel(MvDevice &Device, const MvModel::Builder& builder)
 
     //Texture
     CreateImageTexture("textures/Stune.png");
+    // CreateImageTexture("textures/RibbitCabaggeChad.png");
     createTextureImageView();
     createTextureSampler();
 }

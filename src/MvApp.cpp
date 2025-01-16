@@ -123,7 +123,10 @@ void MvApp::Run()
       camera.SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 50.f);
 
 			m_renderer->BeginSwapChainRenderPass(CommandBuffer);
-			renderSystem.RenderGameObjects(frameInfo, m_GameObjects);
+      for (MvChunk& chunk : m_chunks)
+      {
+        renderSystem.RenderGameObjects(frameInfo, chunk.GetGameObjects());
+      }
 			m_renderer->EndSwapChainRenderPass(CommandBuffer);
 			m_renderer->EndFrame();
 		}
@@ -209,31 +212,29 @@ std::unique_ptr<MvModel> MvApp::CreateCubeModel(MvDevice& device, glm::vec3 offs
   return std::make_unique<MvModel>(device, modelBuilder);
 }
 
+
+
 void MvApp::LoadBlocks()
 {
-	m_cubeModel = CreateCubeModel(*m_Device, {0.f, 0.f, 0.f});
-  
-
-	// auto cube = MvGameObject::createGameObject();
-	// cube.model = cubeModel;
-	// // cube.transform.rotation = {0.6f, 1.f, 1.1f};
-	// cube.transform.translation = {0.f, 0.f, 0.5f};
-	// cube.transform.scale = {.5f, .5f, .5f};
-	// m_GameObjects.push_back(std::move(cube));
-
-  int size = 3;
+  m_cubeModel = CreateCubeModel(*m_Device, {0.f, 0.f, 0.f});
+  int size = 2;
   for (int x = 0; x < size; x++)
   {
       for (int y = 0; y < size; y++)
       {
         for (int z = 0; z < size; z++)
         {
-          auto cube = MvGameObject::createGameObject();
-          cube.model = m_cubeModel;
-          // cube.transform.rotation = {0.6f, 1.f, 1.1f };
-          cube.transform.translation = {static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)};
-          cube.transform.scale = {1.f, 1.f, 1.f};
-          m_GameObjects.push_back(std::move(cube));
+          // auto cube = MvGameObject::createGameObject();
+          auto chunk = MvChunk();
+          for (auto &cube : chunk.GetGameObjects())
+          {
+            cube.model = m_cubeModel;
+          }
+          chunk.SetPosition({static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)});
+          
+          // cube.transform.translation = {static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)};
+          // cube.transform.scale = {1.f, 1.f, 1.f};
+          m_chunks.push_back(std::move(chunk));
       }
     }
   }

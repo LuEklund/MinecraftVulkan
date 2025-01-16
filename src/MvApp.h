@@ -2,7 +2,7 @@
 
 #include "MvWindow.h"
 #include "MvDevice.hpp"
-#include "MvGameObject.hpp"
+#include "MvChunk.hpp"
 #include "MvRenderer.hpp"
 #include "MvDescriptors.hpp"
 
@@ -34,11 +34,15 @@ private:
 
 	//4. Model
 	void LoadBlocks();
-	std::shared_ptr<MvModel> m_cubeModel;
+	std::vector<MvChunk> m_chunks;
+    std::shared_ptr<MvModel> m_cubeModel;
 	std::unique_ptr<MvModel> CreateCubeModel(MvDevice& device, glm::vec3 offset);
-	std::vector<MvGameObject> m_GameObjects;
+
+
+
 
 	//5. Descriptors
 	std::unique_ptr<MvDescriptorPool> m_GlobalPool;
+
 };
 
