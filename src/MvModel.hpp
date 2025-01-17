@@ -45,29 +45,13 @@ public:
 
     void bind(VkCommandBuffer commandBuffer);
     void draw(VkCommandBuffer commandBuffer);
-
-    VkImageView GetTextureImageView() const { return textureImageView; }
-    VkSampler GetTextureSampler() const { return textureSampler; }
-
     
 
 private:
-
     void CreateVertexBuffer(const std::vector<Vertex>& vertices);
     void CreateIndexBuffer(const std::vector<uint32_t>& indices);
-    void CreateImageTexture(const std::string& texturePath);
-
+    
     MvDevice& m_device;
-
-    // Texture buffer
-    VkImage textureImage;
-    VkDeviceMemory textureImageMemory;
-    VkImageView textureImageView;
-    VkSampler textureSampler;
-    void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
-    void createTextureImageView();
-    void createTextureSampler();
-    // std::unique_ptr<MvBuffer> m_textureBuffer;
 
     // Vertex Buffer
     std::unique_ptr<MvBuffer> m_vertexBuffer;

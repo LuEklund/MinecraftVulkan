@@ -31,6 +31,7 @@ MvApp::MvApp()
 	m_window = std::make_unique<MvWindow>(WIDTH, HEIGHT, "MC Vulkan");
 	m_Device = std::make_unique<MvDevice>(*m_window);
 	m_renderer = std::make_unique<MvRenderer>(*m_window, *m_Device);
+  m_texture = std::make_unique<MvTexture>(*m_Device);
   m_GlobalPool = MvDescriptorPool::Builder(*m_Device)
       .setMaxSets(MvSwapChain::MAX_FRAMES_IN_FLIGHT)
       .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MvSwapChain::MAX_FRAMES_IN_FLIGHT)
@@ -65,13 +66,13 @@ void MvApp::Run()
 
   std::vector<VkDescriptorSet> globalDescriptorSets{MvSwapChain::MAX_FRAMES_IN_FLIGHT};
 
-  for (int i = 0; i < globalDescriptorSets.size(); i++)
+  for (size_t i = 0; i < globalDescriptorSets.size(); i++)
   {
     auto bufferInfo = uboBuffers[i]->descriptorInfo();
     VkDescriptorImageInfo imageInfo{};
     imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    imageInfo.imageView = m_cubeModel->GetTextureImageView();
-    imageInfo.sampler = m_cubeModel->GetTextureSampler();
+    imageInfo.imageView = m_texture->GetTextureImageView();
+    imageInfo.sampler = m_texture->GetTextureSampler();
 
     MvDescriptorWriter(*globalSetLayout, *m_GlobalPool)
       .writeBuffer(0, &bufferInfo)
@@ -123,10 +124,10 @@ void MvApp::Run()
       camera.SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 50.f);
 
 			m_renderer->BeginSwapChainRenderPass(CommandBuffer);
-      for (MvChunk& chunk : m_chunks)
-      {
-        renderSystem.RenderGameObjects(frameInfo, chunk.GetGameObjects());
-      }
+      // for (MvChunk& chunk : m_chunks)
+      // {
+      renderSystem.RenderGameObjects(frameInfo, m_gameObjects);
+      // }
 			m_renderer->EndSwapChainRenderPass(CommandBuffer);
 			m_renderer->EndFrame();
 		}
@@ -135,88 +136,13 @@ void MvApp::Run()
 }
 
 
-// temporary helper function, creates a 1x1x1 cube centered at offset
-std::unique_ptr<MvModel> MvApp::CreateCubeModel(MvDevice& device, glm::vec3 offset) {
-  MvModel::Builder modelBuilder{};
-    modelBuilder.vertices = {
-        // Left face
-        {{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}, {-1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}}, // Bottom-left
-        {{-.5f, .5f, .5f},  {.9f, .9f, .9f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}}, // Top-right
-        {{-.5f, -.5f, .5f}, {.9f, .9f, .9f}, {-1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}}, // Bottom-right
-        {{-.5f, .5f, -.5f}, {.9f, .9f, .9f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}, // Top-left
-
-        // Right face
-        {{.5f, -.5f, -.5f}, {.8f, .8f, .1f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-        {{.5f, .5f, .5f},  {.8f, .8f, .1f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}},
-        {{.5f, -.5f, .5f}, {.8f, .8f, .1f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
-        {{.5f, .5f, -.5f}, {.8f, .8f, .1f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-
-        // Top face
-        {{-.5f, -.5f, -.5f}, {.9f, .6f, .1f}, {0.0f, -1.0f, 0.0f}, {0.0f, 0.0f}},
-        {{.5f, -.5f, .5f},  {.9f, .6f, .1f}, {0.0f, -1.0f, 0.0f}, {1.0f, 1.0f}},
-        {{-.5f, -.5f, .5f}, {.9f, .6f, .1f}, {0.0f, -1.0f, 0.0f}, {0.0f, 1.0f}},
-        {{.5f, -.5f, -.5f}, {.9f, .6f, .1f}, {0.0f, -1.0f, 0.0f}, {1.0f, 0.0f}},
-
-        // Bottom face
-        {{-.5f, .5f, -.5f}, {.8f, .1f, .1f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-        {{.5f, .5f, .5f},  {.8f, .1f, .1f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
-        {{-.5f, .5f, .5f}, {.8f, .1f, .1f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},
-        {{.5f, .5f, -.5f}, {.8f, .1f, .1f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-
-        // Front face
-        {{-.5f, -.5f, 0.5f}, {.1f, .1f, .8f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
-        {{.5f, .5f, 0.5f},  {.1f, .1f, .8f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-        {{-.5f, .5f, 0.5f}, {.1f, .1f, .8f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-        {{.5f, -.5f, 0.5f}, {.1f, .1f, .8f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
-
-        // Back face
-        {{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f}},
-        {{.5f, .5f, -0.5f},  {.1f, .8f, .1f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f}},
-        {{-.5f, .5f, -0.5f}, {.1f, .8f, .1f}, {0.0f, 0.0f, -1.0f}, {0.0f, 1.0f}},
-        {{.5f, -.5f, -0.5f}, {.1f, .8f, .1f}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f}},
-    };
-  for (auto& v : modelBuilder.vertices) {
-    v.position += offset;
-  }
-  //Debug Vertex
-//    modelBuilder.indices = {
-//     // Triangle 1
-//     0, 1, 1, 2, 2, 0,
-//     // Triangle 2
-//     0, 3, 3, 1, 1, 0,
-//     // Triangle 3
-//     4, 5, 5, 6, 6, 4,
-//     // Triangle 4
-//     4, 7, 7, 5, 5, 4,
-//     // Triangle 5
-//     8, 9, 9, 10, 10, 8,
-//     // Triangle 6
-//     8, 11, 11, 9, 9, 8,
-//     // Triangle 7
-//     12, 13, 13, 14, 14, 12,
-//     // Triangle 8
-//     12, 15, 15, 13, 13, 12,
-//     // Triangle 9
-//     16, 17, 17, 18, 18, 16,
-//     // Triangle 10
-//     16, 19, 19, 17, 17, 16,
-//     // Triangle 11
-//     20, 21, 21, 22, 22, 20,
-//     // Triangle 12
-//     20, 23, 23, 21, 21, 20,
-// };
-
-  modelBuilder.indices = {0,  1,  2,  0,  3,  1,  4,  5,  6,  4,  7,  5,  8,  9,  10, 8,  11, 9,
-                          12, 13, 14, 12, 15, 13, 16, 17, 18, 16, 19, 17, 20, 21, 22, 20, 23, 21};
- 
-  return std::make_unique<MvModel>(device, modelBuilder);
-}
 
 
-
+//Make chunks
 void MvApp::LoadBlocks()
 {
-  m_cubeModel = CreateCubeModel(*m_Device, {0.f, 0.f, 0.f});
+
+  // m_cubeModel = CreateCubeModel(*m_Device, {0.f, 0.f, 0.f});
   int size = 2;
   for (int x = 0; x < size; x++)
   {
@@ -224,16 +150,9 @@ void MvApp::LoadBlocks()
       {
         for (int z = 0; z < size; z++)
         {
-          // auto cube = MvGameObject::createGameObject();
           auto chunk = MvChunk();
-          for (auto &cube : chunk.GetGameObjects())
-          {
-            cube.model = m_cubeModel;
-          }
           chunk.SetPosition({static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)});
-          
-          // cube.transform.translation = {static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)};
-          // cube.transform.scale = {1.f, 1.f, 1.f};
+          chunk.GenerateMesh(*m_Device, m_gameObjects);
           m_chunks.push_back(std::move(chunk));
       }
     }

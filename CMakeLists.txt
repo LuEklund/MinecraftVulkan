@@ -18,7 +18,8 @@ endif()
 project(${NAME} VERSION 0.23.0)
 
 message(STATUS "PROJECT_SOURCE_DIR: ${PROJECT_SOURCE_DIR}")
- 
+
+
 # 1. Set VULKAN_SDK_PATH in .env.cmake to target specific vulkan version
 if (DEFINED VULKAN_SDK_PATH)
   set(Vulkan_INCLUDE_DIRS "${VULKAN_SDK_PATH}/Include") # 1.1 Make sure this include path is correct
@@ -67,6 +68,18 @@ endif()
 file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
  
 add_executable(${PROJECT_NAME} ${SOURCES})
+
+# Extra error checks
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wextra -Werror)
+    message(STATUS "GOT CLANG OR GCC ======================================")
+elseif (MSVC)
+    target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX /permissive- /sdl /analyze)
+    message(STATUS "GOT MSVC ======================================")
+else()
+    message(STATUS "NO CLANG OR GCC ======================================")
+endif()
+ 
 
 # Add the custom target for compiling shaders
 add_custom_target(CompileShaders

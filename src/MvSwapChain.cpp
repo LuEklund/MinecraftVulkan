@@ -46,7 +46,7 @@ MvSwapChain::~MvSwapChain() {
     swapChain = nullptr;
   }
 
-  for (int i = 0; i < depthImages.size(); i++) {
+  for (size_t i = 0; i < depthImages.size(); i++) {
     vkDestroyImageView(device.GetDevice(), depthImageViews[i], nullptr);
     vkDestroyImage(device.GetDevice(), depthImages[i], nullptr);
     vkFreeMemory(device.GetDevice(), depthImageMemorys[i], nullptr);
@@ -314,7 +314,7 @@ void MvSwapChain::createDepthResources() {
   depthImageMemorys.resize(GetimageCount());
   depthImageViews.resize(GetimageCount());
 
-  for (int i = 0; i < depthImages.size(); i++) {
+  for (size_t i = 0; i < depthImages.size(); i++) {
     VkImageCreateInfo imageInfo{};
     imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     imageInfo.imageType = VK_IMAGE_TYPE_2D;

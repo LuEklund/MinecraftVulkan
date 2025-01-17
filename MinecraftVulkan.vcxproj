@@ -161,6 +161,7 @@
     <ClCompile Include="src\MvRenderer.cpp" />
     <ClCompile Include="src\MvRenderSystem.cpp" />
     <ClCompile Include="src\MvSwapChain.cpp" />
+    <ClCompile Include="src\MvTexture.cpp" />
     <ClCompile Include="src\MvWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -176,6 +177,7 @@
     <ClInclude Include="src\MvRenderer.hpp" />
     <ClInclude Include="src\MvRenderSystem.hpp" />
     <ClInclude Include="src\MvSwapChain.hpp" />
+    <ClInclude Include="src\MvTexture.hpp" />
     <ClInclude Include="src\MvWindow.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

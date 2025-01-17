@@ -6,9 +6,14 @@
 #include <stdexcept>
 #include <cstdlib>
 
+#include <crtdbg.h>
+
 
 int main()
 {
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	//_CrtSetBreakAlloc(824);
+
 	MvApp App;
 
 	try
@@ -21,15 +26,7 @@ int main()
 		return EXIT_FAILURE;
 	}
 
-	/*uint32_t ExtensionCount = 0;
-	vkEnumerateInstanceExtensionProperties(nullptr, &ExtensionCount, nullptr);
-
-	std::cout << ExtensionCount << " extensions supported" << std::endl;
-
-	while(!glfwWindowShouldClose(Window))
-	{
-		glfwPollEvents();
-	}*/
+ 	//int* leak = new int[10];
 
 	return EXIT_SUCCESS;
 }

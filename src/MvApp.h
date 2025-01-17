@@ -5,6 +5,7 @@
 #include "MvChunk.hpp"
 #include "MvRenderer.hpp"
 #include "MvDescriptors.hpp"
+#include "MvTexture.hpp"
 
 #include <memory>
 
@@ -35,10 +36,11 @@ private:
 	//4. Model
 	void LoadBlocks();
 	std::vector<MvChunk> m_chunks;
-    std::shared_ptr<MvModel> m_cubeModel;
-	std::unique_ptr<MvModel> CreateCubeModel(MvDevice& device, glm::vec3 offset);
+	std::vector<MvGameObject> m_gameObjects;
+    // std::shared_ptr<MvModel> m_cubeModel;
 
-
+	//Texture
+	std::unique_ptr<MvTexture> m_texture;
 
 
 	//5. Descriptors
