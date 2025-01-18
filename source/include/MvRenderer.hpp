@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MvWindow.h"
+#include "MvWindow.hpp"
 #include "MvDevice.hpp"
 #include "MvSwapChain.hpp"
 #include "MvModel.hpp"

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "MvGameObject.hpp"
-#include "MvWindow.h"
+#include "MvWindow.hpp"
 
 class MvController
 {

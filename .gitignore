@@ -25,6 +25,9 @@
 *.iobj
 BuildLog.*
 *.lastbuildstate
+.vscode/
+.code/
+
 
 # Vulkan Specific
 *.spv

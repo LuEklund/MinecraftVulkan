@@ -1,139 +1,27 @@
 cmake_minimum_required(VERSION 3.11.0)
- 
+
 set(NAME MvGame)
+set(CMAKE_CXX_STANDARD 23)
 
-project(${NAME} VERSION 0.23.0)
+project(${NAME})
+
+# Vulkan and glslang
+find_package(Vulkan COMPONENTS shaderc_combined REQUIRED)
+
+
+
 add_subdirectory("vendor/glfw")
+add_subdirectory("vendor/glm")
 
-message(STATUS "PROJECT_SOURCE_DIR: ${PROJECT_SOURCE_DIR}")
+file(GLOB_RECURSE SOURCES source/*.cpp)
+file(GLOB_RECURSE HEADERS source/include/*.h source/include/*.hpp)
 
+message(STATUS "Sources: ${SOURCES} Headers: ${HEADERS}")
 
-# 1. Set VULKAN_SDK_PATH in .env.cmake to target specific vulkan version
-if (DEFINED VULKAN_SDK_PATH)
-  set(Vulkan_INCLUDE_DIRS "${VULKAN_SDK_PATH}/Include") # 1.1 Make sure this include path is correct
-  set(Vulkan_LIBRARIES "${VULKAN_SDK_PATH}/Lib") # 1.2 Make sure lib path is correct
-  set(Vulkan_FOUND "True")
-else()
-  find_package(Vulkan REQUIRED) # throws error if could not find Vulkan
-  message(STATUS "Found Vulkan: $ENV{VULKAN_SDK}")
-endif()
-if (NOT Vulkan_FOUND)
-    message(FATAL_ERROR "Could not find Vulkan library!")
-else()
-    message(STATUS "Using vulkan lib at: ${Vulkan_LIBRARIES}")
-endif()
- 
-
-include_directories(external)
-
-# If TINYOBJ_PATH not specified in .env.cmake, try fetching from git repo
-if (NOT TINYOBJ_PATH)
-  message(STATUS "TINYOBJ_PATH not specified in .env.cmake, using external/tinyobjloader")
-  set(TINYOBJ_PATH external/tinyobjloader)
-endif()
- 
-file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
- 
-add_executable(${PROJECT_NAME} ${SOURCES})
-target_include_directories(${PROJECT_NAME} PUBLIC "vendor/glfw/include" "vendor/stb")
-target_link_libraries(${PROJECT_NAME} glfw)
-
-# Extra error checks
-if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(${PROJECT_NAME} PRIVATE -Wextra -Werror)
-    message(STATUS "GOT CLANG OR GCC ======================================")
-elseif (MSVC)
-    # target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX /permissive- /sdl /analyze)
-    message(STATUS "GOT MSVC ======================================")
-else()
-    message(STATUS "NO CLANG OR GCC ======================================")
-endif()
- 
-
-# Add the custom target for compiling shaders
-add_custom_target(CompileShaders
-  COMMAND ${CMAKE_COMMAND} -E echo "Compiling Shaders"
-  COMMAND ${PROJECT_SOURCE_DIR}/shaders/compile.bat
-  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/shaders
+add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+target_include_directories(
+            ${PROJECT_NAME} PRIVATE
+        source/include
+            vendor/stb
 )
-
-add_dependencies(${PROJECT_NAME} CompileShaders) 
- 
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
- 
-set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build")
- 
-if (WIN32)
-  message(STATUS "CREATING BUILD FOR WINDOWS")
- 
-  if (USE_MINGW)
-    target_include_directories(${PROJECT_NAME} PUBLIC
-      ${MINGW_PATH}/include
-    )
-    target_link_directories(${PROJECT_NAME} PUBLIC
-      ${MINGW_PATH}/lib
-    )
-  endif()
- 
- 
-
-  target_include_directories(${PROJECT_NAME} PUBLIC
-    ${PROJECT_SOURCE_DIR}/src
-    ${Vulkan_INCLUDE_DIRS}
-    ${TINYOBJ_PATH}
-    ${GLFW_INCLUDE_DIRS}
-    ${GLM_PATH}
-    ${STB_IMAGE_PATH}
-    )
- 
-  target_link_directories(${PROJECT_NAME} PUBLIC
-    ${Vulkan_LIBRARIES}
-    ${GLFW_LIB}
-  )
-  find_package(Vulkan REQUIRED)
-  target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
-elseif (UNIX)
-    message(STATUS "CREATING BUILD FOR UNIX")
-    target_include_directories(${PROJECT_NAME} PUBLIC
-      ${PROJECT_SOURCE_DIR}/src
-      ${TINYOBJ_PATH}
-    )
-    target_link_libraries(${PROJECT_NAME} ${Vulkan_LIBRARIES})
-endif()
- 
- 
-############## Build SHADERS #######################
- 
-# Find all vertex and fragment sources within shaders directory
-# taken from VBlancos vulkan tutorial
-# https://github.com/vblanco20-1/vulkan-guide/blob/all-chapters/CMakeLists.txt
-find_program(GLSL_VALIDATOR glslangValidator HINTS 
-  ${Vulkan_GLSLANG_VALIDATOR_EXECUTABLE} 
-  /usr/bin 
-  /usr/local/bin 
-  ${VULKAN_SDK_PATH}/Bin
-  ${VULKAN_SDK_PATH}/Bin32
-  $ENV{VULKAN_SDK}/Bin/ 
-  $ENV{VULKAN_SDK}/Bin32/
-)
- 
-# get all .vert and .frag files in shaders directory
-file(GLOB_RECURSE GLSL_SOURCE_FILES
-  "${PROJECT_SOURCE_DIR}/shaders/*.frag"
-  "${PROJECT_SOURCE_DIR}/shaders/*.vert"
-)
- 
-foreach(GLSL ${GLSL_SOURCE_FILES})
-  get_filename_component(FILE_NAME ${GLSL} NAME)
-  set(SPIRV "${PROJECT_SOURCE_DIR}/shaders/${FILE_NAME}.spv")
-  add_custom_command(
-    OUTPUT ${SPIRV}
-    COMMAND ${GLSL_VALIDATOR} -V ${GLSL} -o ${SPIRV}
-    DEPENDS ${GLSL})
-  list(APPEND SPIRV_BINARY_FILES ${SPIRV})
-endforeach(GLSL)
- 
-add_custom_target(
-    Shaders
-    DEPENDS ${SPIRV_BINARY_FILES}
-)
+target_link_libraries(${PROJECT_NAME} glfw glm Vulkan::Vulkan Vulkan::shaderc_combined)

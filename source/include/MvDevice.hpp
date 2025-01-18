@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MvWindow.h"
+#include "MvWindow.hpp"
 
 // std lib headers
 #include <string>
