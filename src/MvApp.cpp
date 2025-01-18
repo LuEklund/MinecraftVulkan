@@ -146,7 +146,7 @@ void MvApp::LoadBlocks()
   int size = 3;
   for (int x = 0; x < size; x++)
   {
-      for (int y = 0; y < size; y++)
+      for (int y = 0; y < 1; y++)
       {
         for (int z = 0; z < size; z++)
         {

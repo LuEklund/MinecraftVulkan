@@ -3,18 +3,27 @@
 class MvChunk 
 {
 public:
-    static constexpr int CHUNK_SIZE = 16;
+    static constexpr int CHUNK_SIZE = 7;
+
+    const glm::vec4 BLOCK_UVS[5] =
+	{
+        CalculateUV(0, 0), // ---
+        CalculateUV(0, 0), //STONE
+        CalculateUV(1, 0), //DIRT
+        CalculateUV(0, 1), //GRASS-TOP
+        CalculateUV(1, 1)  //GRASS-SIDE
+    };
 
     MvChunk();
-    // MvChunk& operator=(const MvChunk&) = delete;
-    // MvChunk(MvChunk&&) noexcept = default;
-    // MvChunk& operator=(MvChunk&&) noexcept = default;
 
     int data[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
 
+
 	std::unique_ptr<MvModel> CreateCubeModel(MvDevice& device, glm::vec3 offset);
-    void GenerateMesh(MvDevice& device, std::vector<MvGameObject> &gameObjects);
-    
+    glm::vec4 CalculateUV(int x, int y);
+    glm::vec4 GetUVForBlock(int blockType);
+    void GenerateChunk();
+    void GenerateMesh(MvDevice &device, std::vector<MvGameObject> &gameObjects);
 
     // std::vector<MvGameObject> &GetGameObjects() { return m_GameObjects; }
 

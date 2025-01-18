@@ -12,7 +12,8 @@ MvTexture::MvTexture(MvDevice& Device)
 : m_device(Device)
 {
     //Texture
-    CreateImageTexture("textures/Stune.png");
+    CreateImageTexture("textures/MvTexturesIris.png");
+    // CreateImageTexture("textures/Stune.png");
     // CreateImageTexture("textures/RibbitCabaggeChad.png");
     createTextureImageView();
     createTextureSampler();
@@ -151,8 +152,8 @@ void MvTexture::createTextureImageView() {
 void MvTexture::createTextureSampler() {
     VkSamplerCreateInfo samplerInfo{};
     samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-    samplerInfo.magFilter = VK_FILTER_LINEAR;
-    samplerInfo.minFilter = VK_FILTER_LINEAR;
+    samplerInfo.magFilter = VK_FILTER_NEAREST;
+    samplerInfo.minFilter = VK_FILTER_NEAREST;
     samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
     samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
     samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
