@@ -5,7 +5,6 @@
 MvChunk::MvChunk()
 {
   GenerateChunk();
-  std::cout << "MvChunk Constructor" << std::endl;
 }
 
 
@@ -69,10 +68,10 @@ void MvChunk::GenerateMesh(MvDevice &device, std::vector<MvGameObject> &m_gameOb
         if (Block == 0)
           continue;
 
-          //block start base
-					float bx = x + start.x;
-					float by = y + start.y;
-					float bz = z + start.z;
+        //block start base
+		float bx = x + start.x;
+		float by = y + start.y;
+		float bz = z + start.z;
 
         //Top face
         if (y == CHUNK_SIZE - 1)

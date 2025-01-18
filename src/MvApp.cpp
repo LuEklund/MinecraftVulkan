@@ -143,7 +143,7 @@ void MvApp::LoadBlocks()
 {
 
   // m_cubeModel = CreateCubeModel(*m_Device, {0.f, 0.f, 0.f});
-  int size = 3;
+  int size = 1;
   for (int x = 0; x < size; x++)
   {
       for (int y = 0; y < 1; y++)

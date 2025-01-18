@@ -16,12 +16,11 @@ public:
 
     MvChunk();
 
-    int data[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
+    int data[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE] = {0};
 
 
 	std::unique_ptr<MvModel> CreateCubeModel(MvDevice& device, glm::vec3 offset);
     glm::vec4 CalculateUV(int x, int y);
-    glm::vec4 GetUVForBlock(int blockType);
     void GenerateChunk();
     void GenerateMesh(MvDevice &device, std::vector<MvGameObject> &gameObjects);
 
