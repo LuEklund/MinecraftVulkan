@@ -22,11 +22,11 @@ void MvController::MoveInPlaneXZ(GLFWwindow *window, MvGameObject &gameObject, f
     }
     if (glfwGetKey(window, Keys.ROTATE_UP) == GLFW_PRESS)
     {
-        rotation.x += 1.f;
+        rotation.x -= 1.f;
     }
     if (glfwGetKey(window, Keys.ROTATE_DOWN) == GLFW_PRESS)
     {
-        rotation.x -= 1.f;
+        rotation.x += 1.f;
     }
     if (glm::dot(rotation, rotation) > std::numeric_limits<float>::epsilon())
     {
@@ -42,7 +42,7 @@ void MvController::MoveInPlaneXZ(GLFWwindow *window, MvGameObject &gameObject, f
     float yaw = gameObject.transform.rotation.y;
     const glm::vec3 forwardDitrection = {glm::sin(yaw), 0.f, glm::cos(yaw)};
     const glm::vec3 rightDirection = {forwardDitrection.z, 0.f, -forwardDitrection.x};
-    const glm::vec3 upDirection = {0.f, -1.f, 0.f};
+    const glm::vec3 upDirection = {0.f, 1.f, 0.f};
 
     glm::vec3 moveDirection{0.f};
     if (glfwGetKey(window, Keys.MOVE_FORWARD) == GLFW_PRESS)

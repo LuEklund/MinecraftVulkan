@@ -89,7 +89,7 @@ void MvApp::Run()
   auto viewerObject = MvGameObject::createGameObject();
   MvController CameraController{};
 
-  camera.SetViewTarget(glm::vec3{-1.f, -2.f, 2.f}, glm::vec3{0.f, 0.f, 2.5f});
+  camera.SetViewTarget(glm::vec3{0.f, -2.f, 2.f}, glm::vec3{0.f, -1.f, -1.f});
   
   auto currentTime = std::chrono::high_resolution_clock::now();
 
@@ -143,7 +143,7 @@ void MvApp::LoadBlocks()
 {
 
   // m_cubeModel = CreateCubeModel(*m_Device, {0.f, 0.f, 0.f});
-  int size = 2;
+  int size = 3;
   for (int x = 0; x < size; x++)
   {
       for (int y = 0; y < size; y++)

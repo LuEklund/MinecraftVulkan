@@ -152,9 +152,9 @@ void MvRenderer::BeginSwapChainRenderPass(VkCommandBuffer commandBuffer)
 
 	VkViewport viewport{};
 	viewport.x = 0.0f;
-	viewport.y = 0.0f;
+	viewport.y = static_cast<float>(m_swapChain->GetSwapChainExtent().height);
 	viewport.width = static_cast<float>(m_swapChain->GetSwapChainExtent().width);
-	viewport.height = static_cast<float>(m_swapChain->GetSwapChainExtent().height);
+	viewport.height = -static_cast<float>(m_swapChain->GetSwapChainExtent().height);
 	viewport.minDepth = 0.0f;
 	viewport.maxDepth = 1.0f;
 	VkRect2D scissor{{0, 0}, m_swapChain->GetSwapChainExtent()};

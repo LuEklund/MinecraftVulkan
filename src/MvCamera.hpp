@@ -16,8 +16,8 @@ public:
     void SetOrthographicProjection(float left, float right, float top, float bottom, float near, float far);
     void SetPerspectiveProjection(float fovY, float aspect, float near, float far);
 
-    void SetViewDirection(const glm::vec3 position, const glm::vec3 direction, const glm::vec3 up = glm::vec3(0.f, -1.f, 0.f));
-    void SetViewTarget(const glm::vec3 position, const glm::vec3 target, const glm::vec3 up = glm::vec3(0.f, -1.f, 0.f));
+    void SetViewDirection(const glm::vec3 position, const glm::vec3 direction, const glm::vec3 up = glm::vec3(0.f, 1.f, 0.f));
+    void SetViewTarget(const glm::vec3 position, const glm::vec3 target, const glm::vec3 up = glm::vec3(0.f, 1.f, 0.f));
     void SetViewYXZ(const glm::vec3 position, const glm::vec3 rotation);
 
     const glm::mat4& GetProjectionMatrix() const { return m_projectionMatrix; }

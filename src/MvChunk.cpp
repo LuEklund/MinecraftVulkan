@@ -109,8 +109,8 @@ void MvChunk::GenerateMesh(MvDevice &device, std::vector<MvGameObject>  &m_gameO
 					float bz = z + start.z;
 
         //Top face
-        // if (y == CHUNK_SIZE - 1)
-        // {
+        if (y == CHUNK_SIZE - 1)
+        {
           modelBuilder.indices.push_back(size + 1);
           modelBuilder.indices.push_back(size);
           modelBuilder.indices.push_back(size + 2);
@@ -122,15 +122,102 @@ void MvChunk::GenerateMesh(MvDevice &device, std::vector<MvGameObject>  &m_gameO
 
           // Postion, Color, Normal, UV
           // left-top-back
-          modelBuilder.vertices.push_back({ { bx, by + 1, bz + 1 },{ 1, 0, 0 }, {1.0f, 0.0f, 0.0f}, {1, 1} });
+          modelBuilder.vertices.push_back({ { bx,     by + 1, bz + 1 },{ 1, 0, 0 }, {1.0f, 0.0f, 0.0f}, {0.f, 0.f} });
           // left-top-front
-          modelBuilder.vertices.push_back({ { bx, by + 1, bz },{ 0, 1, 0 }, {1.0f, 0.0f, 0.0f}, {1, 1} });
+          modelBuilder.vertices.push_back({ { bx,     by + 1, bz     },{ 0, 1, 0 }, {1.0f, 0.0f, 0.0f}, {0.f, 1.f} });
           // right-top-back
-          modelBuilder.vertices.push_back({ { bx + 1, by + 1, bz + 1 },{ 0, 0, 1 }, {1.0f, 0.0f, 0.0f},{1, 1} });
+          modelBuilder.vertices.push_back({ { bx + 1, by + 1, bz + 1 },{ 0, 0, 1 }, {1.0f, 0.0f, 0.0f}, {1.f, 0.f} });
           // right-top-front
-          modelBuilder.vertices.push_back({ { bx + 1, by + 1, bz },{ 1, 1, 1 }, {1.0f, 0.0f, 0.0f},{1, 1} });
+          modelBuilder.vertices.push_back({ { bx + 1, by + 1, bz     },{ 1, 1, 1 }, {1.0f, 0.0f, 0.0f}, {1.f, 1.f} });
           size += 4;
-        // }
+        }
+
+        //Bottom face
+        if (y == 0)
+        {
+          modelBuilder.indices.push_back(size + 3);
+          modelBuilder.indices.push_back(size + 1);
+          modelBuilder.indices.push_back(size);
+          modelBuilder.indices.push_back(size + 3);
+          modelBuilder.indices.push_back(size);
+          modelBuilder.indices.push_back(size + 2);
+
+          modelBuilder.vertices.push_back({ { bx + 1, by, bz + 1 },{ 0, -1, 0 }, {1.0f, 0.0f, 0.0f}, {0.f, 0.f} });
+          modelBuilder.vertices.push_back({ { bx + 1, by, bz     },{ 0, -1, 0 }, {1.0f, 0.0f, 0.0f}, {0.f, 1.f} });
+          modelBuilder.vertices.push_back({ { bx,     by, bz + 1 },{ 0, -1, 0 }, {1.0f, 0.0f, 0.0f}, {1.f, 0.f} });
+          modelBuilder.vertices.push_back({ { bx,     by, bz     },{ 0, -1, 0 }, {1.0f, 0.0f, 0.0f}, {1.f, 1.f}} );
+          size += 4;
+        }
+
+        // ====================================================
+        //Front face
+					if (z == CHUNK_SIZE - 1)
+					{
+						 modelBuilder.indices.push_back(size);
+						 modelBuilder.indices.push_back(size + 2);
+						 modelBuilder.indices.push_back(size + 3);
+						 modelBuilder.indices.push_back(size);
+						 modelBuilder.indices.push_back(size + 3);
+						 modelBuilder.indices.push_back(size + 1);
+
+						modelBuilder.vertices.push_back({ { bx    , by    , bz + 1 },{ 0, 0, 1 },{1.0f, 0.0f, 0.0f},{0.f, 0.f} });
+						modelBuilder.vertices.push_back({ { bx    , by + 1, bz + 1 },{ 0, 0, 1 },{1.0f, 0.0f, 0.0f},{0.f, 1.f} });
+						modelBuilder.vertices.push_back({ { bx + 1, by    , bz + 1 },{ 0, 0, 1 },{1.0f, 0.0f, 0.0f},{1.f, 0.f} });
+						modelBuilder.vertices.push_back({ { bx + 1, by + 1, bz + 1 },{ 0, 0, 1 },{1.0f, 0.0f, 0.0f},{1.f, 1.f} });
+						size += 4;
+					}
+
+					//Back face
+					if (z == 0)
+					{
+						 modelBuilder.indices.push_back(size + 2);
+						 modelBuilder.indices.push_back(size + 3);
+						 modelBuilder.indices.push_back(size + 1);
+						 modelBuilder.indices.push_back(size + 2);
+						 modelBuilder.indices.push_back(size + 1);
+						 modelBuilder.indices.push_back(size);
+
+						modelBuilder.vertices.push_back({ { bx + 1, by    , bz     },{ 0, 0, -1 },{1.0f, 0.0f, 0.0f},{0.f, 0.f} });
+						modelBuilder.vertices.push_back({ { bx + 1, by + 1, bz     },{ 0, 0, -1 },{1.0f, 0.0f, 0.0f},{0.f, 1.f} });
+						modelBuilder.vertices.push_back({ { bx    , by    , bz     },{ 0, 0, -1 },{1.0f, 0.0f, 0.0f},{1.f, 0.f} });
+						modelBuilder.vertices.push_back({ { bx    , by + 1, bz     },{ 0, 0, -1 },{1.0f, 0.0f, 0.0f},{1.f, 1.f} });
+						size += 4;
+					}
+
+					//Right face
+					if (x == CHUNK_SIZE - 1)
+					{
+						 modelBuilder.indices.push_back(size + 2);
+						 modelBuilder.indices.push_back(size + 3);
+						 modelBuilder.indices.push_back(size + 1);
+						 modelBuilder.indices.push_back(size + 2);
+						 modelBuilder.indices.push_back(size + 1);
+						 modelBuilder.indices.push_back(size);
+
+						modelBuilder.vertices.push_back({ { bx + 1, by    , bz + 1 },{ 1, 0, 0 },{1.0f, 0.0f, 0.0f},{0.f, 0.f} });
+						modelBuilder.vertices.push_back({ { bx + 1, by + 1, bz + 1 },{ 1, 0, 0 },{1.0f, 0.0f, 0.0f},{0.f, 1.f} });
+						modelBuilder.vertices.push_back({ { bx + 1, by    , bz     },{ 1, 0, 0 },{1.0f, 0.0f, 0.0f},{1.f, 0.f} });
+						modelBuilder.vertices.push_back({ { bx + 1, by + 1, bz     },{ 1, 0, 0 },{1.0f, 0.0f, 0.0f},{1.f, 1.f} });
+						size += 4;
+					}
+
+					//Left face
+					if (x == 0)
+					{
+						 modelBuilder.indices.push_back(size);
+						 modelBuilder.indices.push_back(size + 2);
+						 modelBuilder.indices.push_back(size + 3);
+						 modelBuilder.indices.push_back(size);
+						 modelBuilder.indices.push_back(size + 3);
+						 modelBuilder.indices.push_back(size + 1);
+
+						modelBuilder.vertices.push_back({ { bx    , by    , bz     },{ -1, 0, 0 },{1.0f, 0.0f, 0.0f},{0.f, 0.f} });
+						modelBuilder.vertices.push_back({ { bx    , by + 1, bz     },{ -1, 0, 0 },{1.0f, 0.0f, 0.0f},{0.f, 1.f} });
+						modelBuilder.vertices.push_back({ { bx    , by    , bz + 1 },{ -1, 0, 0 },{1.0f, 0.0f, 0.0f},{1.f, 0.f} });
+						modelBuilder.vertices.push_back({ { bx    , by + 1, bz + 1 },{ -1, 0, 0 },{1.0f, 0.0f, 0.0f},{1.f, 1.f} });
+						size += 4;
+					}
+
       }
     }
   }

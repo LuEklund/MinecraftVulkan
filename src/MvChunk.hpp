@@ -3,7 +3,7 @@
 class MvChunk 
 {
 public:
-    static constexpr int CHUNK_SIZE = 4;
+    static constexpr int CHUNK_SIZE = 16;
 
     MvChunk();
     // MvChunk& operator=(const MvChunk&) = delete;
