@@ -15,6 +15,7 @@ struct MvRaycastResult {
     bool Hit;
     float Distance;
     glm::vec3 HitPos;
+    glm::vec3 PrevPos;
     glm::ivec3 BlockPosInChunk;
     std::shared_ptr<MvChunk> ChunkHit;
 

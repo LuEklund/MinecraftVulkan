@@ -172,7 +172,7 @@ void MvCamera::MoveInPlaneXZ(GLFWwindow *window, float deltaTime)
 void MvCamera::SetUpListeners(GLFWwindow *window) {
     glfwSetKeyCallback(window, [](GLFWwindow *window, int key, int scancode, int action, int mods) {
         if (action == GLFW_PRESS) {
-            if (key == GLFW_KEY_ENTER) {
+            if (key == GLFW_KEY_ENTER || key == GLFW_KEY_P) {
                 auto app = static_cast<MvApp *>(glfwGetWindowUserPointer(window));
                 glm::vec3 camPos = app->GetCamera().GetPosition();
                 glm::vec3 camRot = app->GetCamera().GetRotation();
@@ -188,10 +188,18 @@ void MvCamera::SetUpListeners(GLFWwindow *window) {
                 MvRaycastResult HitRes = MvRaycast::CastRay(app->GetChunks(), camPos, forwardDirection, 4.f);
 
                 //TODO: needs to be moved into update func
-                if (HitRes.Hit) {
-                    HitRes.ChunkHit->DestroyBlockAt(HitRes.BlockPosInChunk);
-                    HitRes.ChunkHit->GenerateMesh(app->GetDevice());
+                if (key == GLFW_KEY_ENTER) {
+                    if (HitRes.Hit) {
+                        HitRes.ChunkHit->DestroyBlockAt(HitRes.BlockPosInChunk);
+                        HitRes.ChunkHit->GenerateMesh(app->GetDevice());
+                    }
                 }
+                else {
+                    if (HitRes.Hit) {
+                        app->SetWorldBlockAt(HitRes.PrevPos, 4);
+                    }
+                }
+
 
                 //std::cout << "Hit " << HitRes.Hit << std::endl;
             }

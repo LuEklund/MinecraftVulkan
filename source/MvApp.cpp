@@ -132,7 +132,6 @@ void MvApp::Run() {
 
 
 
-
 //Make chunks
 void MvApp::LoadBlocks() {
     // m_cubeModel = CreateCubeModel(*m_Device, {0.f, 0.f, 0.f});
@@ -149,4 +148,32 @@ void MvApp::LoadBlocks() {
             }
         }
     }
+}
+
+void MvApp::SetWorldBlockAt(glm::ivec3 position, int blockType) {
+    //TODO: make this for godsaken code to a helper function
+    int chunkX = position.x >= 0 ? position.x / MvChunk::CHUNK_SIZE : std::floor(position.x / (MvChunk::CHUNK_SIZE - 1));
+    int chunkZ = position.z >= 0 ? position.z / MvChunk::CHUNK_SIZE : std::floor(position.z / (MvChunk::CHUNK_SIZE - 1));
+    int chunkY = position.y >= 0 ? position.y / MvChunk::CHUNK_SIZE : std::floor(position.y / (MvChunk::CHUNK_SIZE - 1));
+
+    // Check for valid chunk
+    if (m_chunks.find({chunkX, chunkY, chunkZ}) == m_chunks.end()) {
+        return;
+    }
+
+    // safety LOL XD #C++
+    auto &chunk = m_chunks[{chunkX, chunkY, chunkZ}];
+    if (!chunk) {
+        return;
+    }
+    // std::cout << chunkX << ", " << chunkY << ", " << chunkZ << std::endl;
+
+    glm::ivec3 blockPos = {
+        std::floor(position.x - chunkX * MvChunk::CHUNK_SIZE),
+        std::floor(position.y - chunkY * MvChunk::CHUNK_SIZE),
+        std::floor(position.z - chunkZ * MvChunk::CHUNK_SIZE),
+    };
+    chunk->SetBlockAt(blockPos, blockType);
+    chunk->GenerateMesh(*m_Device);
+    // int blockType = chunk->GetBlock(blockPos.x, blockPos.y, blockPos.z);
 }

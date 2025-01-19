@@ -23,7 +23,6 @@ public:
 
     int data[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE] = {0};
 
-
     glm::vec4 CalculateUV(int x, int y);
     void GenerateChunk();
     void GenerateMesh(MvDevice &device);
@@ -38,12 +37,12 @@ public:
     int GetBlock(int x, int y, int z) {return data[x][y][z];}
 
     void DestroyBlockAt(glm::ivec3 vec);;
-    
+    void SetBlockAt(glm::ivec3 vec, int blockType);
+
+
 private:
     glm::vec3 m_ChunkPosition;
     std::shared_ptr<MvModel> m_model{};
     // MvGameObject m_GameObject;
 	// std::vector<MvGameObject> m_GameObjects;
 };
-
-

@@ -20,7 +20,7 @@ void MvChunk::GenerateChunk() {
                     data[x][y][z] = 1;
                 } else if (TotHeight < 6) {
                     data[x][y][z] = 2;
-                } else {
+                } else if (TotHeight < 7) {
                     data[x][y][z] = 3;
                 }
             }
@@ -226,4 +226,8 @@ void MvChunk::GenerateMesh(MvDevice &device) {
 
 void MvChunk::DestroyBlockAt(glm::ivec3 vec) {
     data[vec.x][vec.y][vec.z] = 0;
+}
+
+void MvChunk::SetBlockAt(glm::ivec3 vec, int blockType) {
+    data[vec.x][vec.y][vec.z] = blockType;
 }

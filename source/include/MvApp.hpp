@@ -35,6 +35,9 @@ public:
 
 	//World
 	std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> & GetChunks() {return m_chunks;};
+	void SetWorldBlockAt(glm::ivec3 vec, int blockType);
+	// int GetWorldBlockAt(glm::ivec3 vec);
+
 
 	//Camera
 	const MvCamera &GetCamera() {return *m_Camera;};
