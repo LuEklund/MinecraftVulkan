@@ -11,7 +11,7 @@
 
 MvRaycastResult MvRaycast::CastRay(std::unordered_map<glm::vec3, Ref<MvChunk>> &chunks, glm::vec3 origin, glm::vec3 direction, float maxDistance)
 {
-    MvRaycastResult result{false, -1.f, {0.f,0.f,0.f}};
+    MvRaycastResult result{false, -1.f, {0.f,0.f,0.f}, {0,0,0}, nullptr};
 
     constexpr float stepSize = 0.01f;
 
@@ -34,7 +34,7 @@ MvRaycastResult MvRaycast::CastRay(std::unordered_map<glm::vec3, Ref<MvChunk>> &
         if (!chunk) {
             continue;
         }
-        std::cout << chunkX << ", " << chunkY << ", " << chunkZ << std::endl;
+        // std::cout << chunkX << ", " << chunkY << ", " << chunkZ << std::endl;
 
         glm::ivec3 blockPos = {
             std::floor(position.x - chunkX * MvChunk::CHUNK_SIZE),
@@ -48,8 +48,10 @@ MvRaycastResult MvRaycast::CastRay(std::unordered_map<glm::vec3, Ref<MvChunk>> &
         result.Hit = true;
         result.Distance = distance(origin, position);
         result.HitPos = position;
+        result.BlockPosInChunk = blockPos;
+        result.ChunkHit = chunk;
 
-        std::cout << blockPos.x << ", " << blockPos.y << ", " << blockPos.z << " block type " << blockType << std::endl;
+        // std::cout << blockPos.x << ", " << blockPos.y << ", " << blockPos.z << " block type " << blockType << std::endl;
         return result;
     }
     return result;

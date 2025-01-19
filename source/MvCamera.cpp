@@ -175,9 +175,24 @@ void MvCamera::SetUpListeners(GLFWwindow *window) {
             if (key == GLFW_KEY_ENTER) {
                 auto app = static_cast<MvApp *>(glfwGetWindowUserPointer(window));
                 glm::vec3 camPos = app->GetCamera().GetPosition();
-                float yaw = camPos.y;
-                const glm::vec3 forwardDitrection = {glm::sin(yaw), 0.f, glm::cos(yaw)};
-                MvRaycastResult HitRes = MvRaycast::CastRay(app->GetChunks(), camPos, forwardDitrection, 4.f);
+                glm::vec3 camRot = app->GetCamera().GetRotation();
+                float yaw = camRot.y;   // Rotation around Y-axis (horizontal)
+                float pitch = camRot.x; // Rotation around X-axis (vertical)
+                // Calculate forward direction based on yaw and pitch
+                const glm::vec3 forwardDirection = {
+                    glm::cos(pitch) * glm::sin(yaw), // X
+                    -glm::sin(pitch),                 // Y
+                    glm::cos(pitch) * glm::cos(yaw)  // Z
+                };
+                // std::cout << "pitch: " << pitch << std::endl;
+                MvRaycastResult HitRes = MvRaycast::CastRay(app->GetChunks(), camPos, forwardDirection, 4.f);
+
+                //TODO: needs to be moved into update func
+                if (HitRes.Hit) {
+                    HitRes.ChunkHit->DestroyBlockAt(HitRes.BlockPosInChunk);
+                    HitRes.ChunkHit->GenerateMesh(app->GetDevice());
+                }
+
                 //std::cout << "Hit " << HitRes.Hit << std::endl;
             }
         }

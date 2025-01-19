@@ -3,7 +3,7 @@
 class MvChunk 
 {
 public:
-    static constexpr int CHUNK_SIZE = 7;
+    static constexpr int CHUNK_SIZE = 16;
 
     static const int AIR = 0;
     static const int STONE = 1;
@@ -35,7 +35,9 @@ public:
 
     std::shared_ptr<MvModel> &GetModel() {return m_model;}
 
-    int GetBlock(int x, int y, int z) {return data[x][y][z];};
+    int GetBlock(int x, int y, int z) {return data[x][y][z];}
+
+    void DestroyBlockAt(glm::ivec3 vec);;
     
 private:
     glm::vec3 m_ChunkPosition;

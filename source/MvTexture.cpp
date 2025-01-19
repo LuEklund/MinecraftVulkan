@@ -12,8 +12,9 @@ MvTexture::MvTexture(MvDevice& Device)
 : m_device(Device)
 {
     //Texture
-    CreateImageTexture("textures/MvTextures.png");
-    // CreateImageTexture("textures/MvTexturesIris.png");
+    // CreateImageTexture("textures/MvTextures.png");
+    // CreateImageTexture("textures/MvTexturesRibbit.png");
+    CreateImageTexture("textures/MvTexturesIris.png");
     // CreateImageTexture("textures/Stune.png");
     // CreateImageTexture("textures/RibbitCabaggeChad.png");
     createTextureImageView();

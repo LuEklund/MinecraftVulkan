@@ -31,6 +31,8 @@ public:
 	static MvApp* GetInstance();
 
 
+	MvDevice &GetDevice() {return *m_Device;};
+
 	//World
 	std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> & GetChunks() {return m_chunks;};
 
