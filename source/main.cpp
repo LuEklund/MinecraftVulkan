@@ -1,5 +1,5 @@
 
-#include "MvApp.h"
+#include "MvApp.hpp"
 
 //STD
 #include <iostream>
@@ -8,13 +8,17 @@
 
 #include <crtdbg.h>
 
+#include "ShaderCompiler.hpp"
+
 
 int main()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	//_CrtSetBreakAlloc(824);
 
+
 	MvApp App;
+
 
 	try
 	{

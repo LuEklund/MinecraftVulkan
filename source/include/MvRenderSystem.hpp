@@ -1,7 +1,7 @@
 #pragma once
 
 #include "MvCamera.hpp"
-#include "MvPipeline.h"
+#include "MvPipeline.hpp"
 #include "MvDevice.hpp"
 #include "MvGameObject.hpp"
 #include "MvFrameInfo.hpp"

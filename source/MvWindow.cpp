@@ -2,7 +2,7 @@
 // Created by Lucas on 2025-01-01.
 //
 
-#include "MvWindow.h"
+#include "MvWindow.hpp"
 #include <stdexcept>
 
 MvWindow::MvWindow(int width, int heigth, const std::string& Title)

@@ -1,4 +1,4 @@
-#include "MvApp.h"
+#include "MvApp.hpp"
 
 #include "MvController.hpp"
 #include "MvCamera.hpp"

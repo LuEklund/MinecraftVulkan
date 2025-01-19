@@ -44,7 +44,7 @@ public:
 	static void DefaultPipelineConfigInfo(PipelineConfigInfo &ConfigInfo);
 
 private:
-	void CreateShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule);
+	void CreateShaderModule(const std::vector<uint32_t>& code, VkShaderModule* shaderModule);
 
 	MvDevice& m_Device;
 	VkPipeline m_graphicsPipeline;

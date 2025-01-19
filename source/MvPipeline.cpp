@@ -1,10 +1,12 @@
-#include "MvPipeline.h"
+#include "MvPipeline.hpp"
 #include "MvModel.hpp"
 
 #include <cassert>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
+
+#include "ShaderCompiler.hpp"
 
 
 MvPipeline::MvPipeline(MvDevice& eDevice, const PipelineConfigInfo& ConfigInfo)
@@ -47,11 +49,24 @@ void MvPipeline::createGraphicsPipeline(const PipelineConfigInfo& configInfo)
 		configInfo.renderPass != VK_NULL_HANDLE &&
 		"Cannot create graphics pipeline: no renderPass provided in configInfo");
 
-	std::vector<char>	vertShaderCode = readFile(m_vertexShader);
-	std::vector<char>	fragShaderCode = readFile(m_fragmentShader);
+	// std::vector<char>	vertShaderCode = readFile(m_vertexShader);
+	// std::vector<char>	fragShaderCode = readFile(m_fragmentShader);
 
 
-	CreateShaderModule(vertShaderCode, &m_vertexShaderModule);
+	std::vector<uint32_t> vertexShaderCode;
+	std::vector<uint32_t> fragShaderCode;
+	if (!CompileShader("shaders/block.vert", Vertex, vertexShaderCode))
+	{
+		throw std::runtime_error("Failed to compile vertex shader");
+	}
+
+	if (!CompileShader("shaders/block.frag", Fragment, fragShaderCode))
+	{
+		throw std::runtime_error("Failed to compile fragment shader");
+	}
+
+
+	CreateShaderModule(vertexShaderCode, &m_vertexShaderModule);
 	CreateShaderModule(fragShaderCode, &m_fragmentShaderModule);
 
 	VkPipelineShaderStageCreateInfo shaderStages[2];
@@ -108,17 +123,17 @@ void MvPipeline::createGraphicsPipeline(const PipelineConfigInfo& configInfo)
 		throw std::runtime_error("Failed to create graphics pipeline!");
 	}
 
-	std::cout << "Vertex Shader: " << vertShaderCode.size() << " bytes" << std::endl;
+	std::cout << "Vertex Shader: " << vertexShaderCode.size() << " bytes" << std::endl;
 	std::cout << "Fragment Shader: " << fragShaderCode.size() << " bytes" << std::endl;
 }
 
 
-void MvPipeline::CreateShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule)
+void MvPipeline::CreateShaderModule(const std::vector<uint32_t>& code, VkShaderModule* shaderModule)
 {
 	VkShaderModuleCreateInfo createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-	createInfo.codeSize = code.size();
-	createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+	createInfo.codeSize = code.size() * sizeof(uint32_t);
+	createInfo.pCode = code.data();
 
 	if (vkCreateShaderModule(m_Device.GetDevice(), &createInfo, nullptr, shaderModule) != VK_SUCCESS)
 	{
