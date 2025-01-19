@@ -34,7 +34,6 @@ bool CompileShader(const char *filePath, const ShaderType type, std::vector<uint
     }
 
     std::cout << "Compiling shader: " << filePath << std::endl;
-    std::cout << "Source: " << source << std::endl;
 
     shaderc::CompileOptions options;
     shaderc::SpvCompilationResult result = compiler.CompileGlslToSpv(source, GetShaderType(type), filePath, options);
