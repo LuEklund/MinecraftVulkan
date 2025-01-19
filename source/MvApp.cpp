@@ -150,10 +150,11 @@ void MvApp::LoadBlocks()
       {
         for (int z = 0; z < size; z++)
         {
-          auto chunk = MvChunk();
-          chunk.SetPosition({static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)});
-          chunk.GenerateMesh(*m_Device, m_gameObjects);
-          m_chunks.push_back(std::move(chunk));
+        	Ref<MvChunk> chunk = CreateRef<MvChunk>();
+			chunk->SetPosition({static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)});
+			chunk->GenerateMesh(*m_Device, m_gameObjects);
+			m_chunks[chunk->GetPosition()] = chunk;
+			// m_chunks.push_back(std::move(chunk));
       }
     }
   }

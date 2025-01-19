@@ -9,6 +9,10 @@
 
 #include <memory>
 
+#include "Ref.hpp"
+
+
+
 
 class MvApp
 {
@@ -35,7 +39,8 @@ private:
 
 	//4. Model
 	void LoadBlocks();
-	std::vector<MvChunk> m_chunks;
+	std::unordered_map<glm::vec3, Ref<MvChunk>> m_chunks;
+	// std::vector<MvChunk> m_chunks;
 	std::vector<MvGameObject> m_gameObjects;
     // std::shared_ptr<MvModel> m_cubeModel;
 
