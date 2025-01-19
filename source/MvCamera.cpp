@@ -4,8 +4,11 @@
 #include <cassert>
 #include <limits>
 
+#include "glm/gtc/constants.hpp"
+
 MvCamera::MvCamera()
 {
+
 }
 
 MvCamera::~MvCamera()
@@ -62,7 +65,7 @@ void MvCamera::SetViewTarget(const glm::vec3 position, const glm::vec3 target, c
     SetViewDirection(position, target - position, up);
 }
 
-void MvCamera::SetViewYXZ(const glm::vec3 position, const glm::vec3 rotation)
+void MvCamera::SetViewYXZ()
 {
     const float c3 = glm::cos(rotation.z);
     const float s3 = glm::sin(rotation.z);
@@ -87,3 +90,85 @@ void MvCamera::SetViewYXZ(const glm::vec3 position, const glm::vec3 rotation)
     m_viewMatrix[3][1] = -glm::dot(v, position);
     m_viewMatrix[3][2] = -glm::dot(w, position);
 }
+
+//Movement
+
+void MvCamera::MoveInPlaneXZ(GLFWwindow *window, float deltaTime)
+{
+    glm::vec3 newRotation{0};
+
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+    {
+        newRotation.y += 1.f;
+    }
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+    {
+        newRotation.y -= 1.f;
+    }
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    {
+        newRotation.x -= 1.f;
+    }
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    {
+        newRotation.x += 1.f;
+    }
+    if (glm::dot(newRotation, newRotation) > std::numeric_limits<float>::epsilon())
+    {
+        rotation += RotateSpeed * deltaTime * glm::normalize(newRotation);
+    }
+
+    // prevent flipping over
+    rotation.x = glm::clamp(rotation.x, -glm::half_pi<float>(), glm::half_pi<float>());
+
+    //prevent overflow of rotation
+    rotation.y = glm::mod(rotation.y, glm::two_pi<float>());
+
+    float yaw = rotation.y;
+    const glm::vec3 forwardDitrection = {glm::sin(yaw), 0.f, glm::cos(yaw)};
+    const glm::vec3 rightDirection = {forwardDitrection.z, 0.f, -forwardDitrection.x};
+    const glm::vec3 upDirection = {0.f, 1.f, 0.f};
+
+    glm::vec3 moveDirection{0.f};
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    {
+        moveDirection += forwardDitrection;
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    {
+        moveDirection -= forwardDitrection;
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    {
+        moveDirection += rightDirection;
+    }
+    if (glfwGetKey(window,  GLFW_KEY_A) == GLFW_PRESS)
+    {
+        moveDirection -= rightDirection;
+    }
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+    {
+        moveDirection += upDirection;
+    }
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+    {
+        moveDirection -= upDirection;
+    }
+
+    if (glm::dot(moveDirection, moveDirection) > std::numeric_limits<float>::epsilon())
+    {
+        position += MoveSpeed * deltaTime * glm::normalize(moveDirection);
+    }
+
+}
+
+void MvCamera::SetUpListeners(GLFWwindow *window) {
+    glfwSetKeyCallback(window, [](GLFWwindow *window, int key, int scancode, int action, int mods) {
+        if (action == GLFW_PRESS) {
+            if (key == GLFW_KEY_ENTER) {
+
+            }
+        }
+    });
+}
+

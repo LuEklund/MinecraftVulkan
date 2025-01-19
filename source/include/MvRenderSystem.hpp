@@ -8,6 +8,8 @@
 
 #include <memory>
 
+class MvChunk;
+
 struct SimplePushConstantData
 {
 	glm::mat4 modelMatrix{1.f};
@@ -19,9 +21,11 @@ public:
 	MvRenderSystem(MvDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
 	~MvRenderSystem();
 
+
 	MvRenderSystem(const MvRenderSystem&) = delete;
 	MvRenderSystem& operator=(const MvRenderSystem&) = delete;
 
+	void RenderChunks(const MvFrameInfo & frame_info, std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> &chunks);
 	void RenderGameObjects(MvFrameInfo &frameInfo, std::vector<MvGameObject> &gameObjects);
 
 private:

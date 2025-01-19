@@ -1,5 +1,9 @@
 #include "MvController.hpp"
 
+#include "MvApp.hpp"
+#include "MvRaycast.hpp"
+
+
 MvController::MvController()
 {
 }
@@ -75,4 +79,14 @@ void MvController::MoveInPlaneXZ(GLFWwindow *window, MvGameObject &gameObject, f
         gameObject.transform.translation += MoveSpeed * deltaTime * glm::normalize(moveDirection);
     }
 
+}
+
+void MvController::SetUpListeners(GLFWwindow *window) {
+    glfwSetKeyCallback(window, [](GLFWwindow *window, int key, int scancode, int action, int mods) {
+        if (action == GLFW_PRESS) {
+            if (key == GLFW_KEY_ENTER) {
+
+            }
+        }
+    });
 }

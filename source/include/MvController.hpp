@@ -33,5 +33,9 @@ public:
 
     float MoveSpeed = 3.f;
     float RotateSpeed = 1.5f;
+
+    bool Shoot = false;
+
+    void SetUpListeners(GLFWwindow *window);
 };
 

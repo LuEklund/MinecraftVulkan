@@ -4,7 +4,6 @@
 
 MvChunk::MvChunk()
 {
-  GenerateChunk();
 }
 
 
@@ -40,14 +39,14 @@ void MvChunk::GenerateChunk()
   }
 }
 
-void MvChunk::GenerateMesh(MvDevice &device, std::vector<MvGameObject> &m_gameObjects)
+void MvChunk::GenerateMesh(MvDevice &device)
 {
 
   MvModel::Builder modelBuilder{};
   
   int size = 0;
 
-  glm::ivec3 start = {m_ChunkPosition.x * CHUNK_SIZE, m_ChunkPosition.y * CHUNK_SIZE, m_ChunkPosition.z * CHUNK_SIZE};
+  glm::ivec3 start = {m_ChunkPosition.x * (CHUNK_SIZE - 1), m_ChunkPosition.y * (CHUNK_SIZE - 1), m_ChunkPosition.z * (CHUNK_SIZE - 1)};
 
   glm::vec3 RED = glm::vec3(1.f, 0.f, 0.f);
   glm::vec3 GREEN = glm::vec3(0.f, 1.f, 0.f);
@@ -194,8 +193,8 @@ void MvChunk::GenerateMesh(MvDevice &device, std::vector<MvGameObject> &m_gameOb
     }
   }
 
-  auto gameObject = MvGameObject::createGameObject();
-  gameObject.model = std::make_unique<MvModel>(device, modelBuilder);
+  // auto gameObject = MvGameObject::createGameObject();
+  m_model = std::make_unique<MvModel>(device, modelBuilder);
   // gameObject.model = CreateCubeModel(device, {m_ChunkPosition.x, m_ChunkPosition.y, m_ChunkPosition.z});
-  m_gameObjects.push_back(std::move(gameObject));
+  // m_gameObjects.push_back(std::move(gameObject));
 }

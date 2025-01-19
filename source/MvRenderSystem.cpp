@@ -6,6 +6,8 @@
 
 #include <iostream>
 
+#include "MvChunk.hpp"
+
 
 MvRenderSystem::MvRenderSystem(MvDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout)
     : m_Device(device)
@@ -57,8 +59,40 @@ void MvRenderSystem::CreatePipeline(VkRenderPass renderPass)
 }
 
 
+void MvRenderSystem::RenderChunks(const MvFrameInfo &frameInfo,std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> &chunks)
+{
+	m_pipeline->Bind(frameInfo.commandBuffer);
+	vkCmdBindDescriptorSets(
+		frameInfo.commandBuffer,
+		VK_PIPELINE_BIND_POINT_GRAPHICS,
+		m_pipelineLayout,
+		0, 1,
+		&frameInfo.globalDescriptorSet,
+		0,
+		nullptr);
 
+	for (auto& obj : chunks)
+	{
+		auto& chunk = obj.second;
 
+		SimplePushConstantData push{};
+		push.modelMatrix = {{1.f, 0.f, 0.f, 0.f},
+							{0.f, 1.f, 0.f, 0.f},
+							{0.f, 0.f, 1.f, 0.f},
+							{chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z, 1.f}};
+
+		// modelMatrix
+		// push.modelMatrix = obj.transform.normalMatrix();
+		// push.normalMatrix = modelMatrix;
+
+		vkCmdPushConstants(frameInfo.commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
+		chunk->GetModel()->bind(frameInfo.commandBuffer);
+		chunk->GetModel()->draw(frameInfo.commandBuffer);
+		// obj.model->bind(frameInfo.commandBuffer);
+		// obj.model->draw(frameInfo.commandBuffer);
+	}
+
+}
 
 void MvRenderSystem::RenderGameObjects(MvFrameInfo &frameInfo, std::vector<MvGameObject> &gameObjects)
 {

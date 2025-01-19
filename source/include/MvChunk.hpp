@@ -19,18 +19,20 @@ public:
     int data[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE] = {0};
 
 
-	std::unique_ptr<MvModel> CreateCubeModel(MvDevice& device, glm::vec3 offset);
     glm::vec4 CalculateUV(int x, int y);
     void GenerateChunk();
-    void GenerateMesh(MvDevice &device, std::vector<MvGameObject> &gameObjects);
+    void GenerateMesh(MvDevice &device);
 
     // std::vector<MvGameObject> &GetGameObjects() { return m_GameObjects; }
 
     void SetPosition(const glm::vec3 &position) { m_ChunkPosition = position; }
     const glm::vec3 &GetPosition() const { return m_ChunkPosition; }
+
+    std::shared_ptr<MvModel> &GetModel() {return m_model;};
     
 private:
     glm::vec3 m_ChunkPosition;
+    std::shared_ptr<MvModel> m_model{};
     // MvGameObject m_GameObject;
 	// std::vector<MvGameObject> m_GameObjects;
 };

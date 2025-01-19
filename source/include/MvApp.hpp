@@ -1,11 +1,13 @@
 #pragma once
 
+#include "Hash.hpp"
 #include "MvWindow.hpp"
 #include "MvDevice.hpp"
 #include "MvChunk.hpp"
 #include "MvRenderer.hpp"
 #include "MvDescriptors.hpp"
 #include "MvTexture.hpp"
+#include "MvCamera.hpp"
 
 #include <memory>
 
@@ -24,6 +26,15 @@ public:
 	MvApp& operator=(const MvApp&) = delete;
 
 	void Run();
+
+	//A getter for app instace
+
+	//World
+	const std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> &GetChunks() {return m_chunks;};
+
+	//Camera
+	const MvCamera &GetCamera() {return *m_Camera;};
+
 private:
 
 	//1. Device
@@ -39,14 +50,12 @@ private:
 
 	//4. Model
 	void LoadBlocks();
-	std::unordered_map<glm::vec3, Ref<MvChunk>> m_chunks;
-	// std::vector<MvChunk> m_chunks;
-	std::vector<MvGameObject> m_gameObjects;
-    // std::shared_ptr<MvModel> m_cubeModel;
+	std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> m_chunks;
 
+	//camera
+	std::unique_ptr<MvCamera> m_Camera{};
 	//Texture
 	std::unique_ptr<MvTexture> m_texture;
-
 
 	//5. Descriptors
 	std::unique_ptr<MvDescriptorPool> m_GlobalPool;
