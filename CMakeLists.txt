@@ -25,3 +25,11 @@ target_include_directories(
             vendor/stb
 )
 target_link_libraries(${PROJECT_NAME} glfw glm Vulkan::Vulkan Vulkan::shaderc_combined)
+
+add_custom_command(TARGET ${NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/textures $<TARGET_FILE_DIR:${NAME}>/textures)
+
+add_custom_command(TARGET ${NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/shaders $<TARGET_FILE_DIR:${NAME}>/shaders)

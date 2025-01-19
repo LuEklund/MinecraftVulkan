@@ -2,8 +2,15 @@
 
 //std
 #include <cassert>
+#include <complex.h>
+#include <complex.h>
+#include <iostream>
 #include <limits>
 
+#include "Hash.hpp"
+#include "Hash.hpp"
+#include "MvApp.hpp"
+#include "MvRaycast.hpp"
 #include "glm/gtc/constants.hpp"
 
 MvCamera::MvCamera()
@@ -166,7 +173,12 @@ void MvCamera::SetUpListeners(GLFWwindow *window) {
     glfwSetKeyCallback(window, [](GLFWwindow *window, int key, int scancode, int action, int mods) {
         if (action == GLFW_PRESS) {
             if (key == GLFW_KEY_ENTER) {
-
+                auto app = static_cast<MvApp *>(glfwGetWindowUserPointer(window));
+                glm::vec3 camPos = app->GetCamera().GetPosition();
+                float yaw = camPos.y;
+                const glm::vec3 forwardDitrection = {glm::sin(yaw), 0.f, glm::cos(yaw)};
+                MvRaycastResult HitRes = MvRaycast::CastRay(app->GetChunks(), camPos, forwardDitrection, 4.f);
+                //std::cout << "Hit " << HitRes.Hit << std::endl;
             }
         }
     });

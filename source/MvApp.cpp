@@ -19,6 +19,8 @@
 #include <numeric>
 #include <iostream>
 
+
+
 struct GlobalUbo {
     glm::mat4 projectionView{1.f};
     glm::vec3 lightDirection = glm::normalize(glm::vec3{1.f, 0.f, 0.f});
@@ -36,6 +38,7 @@ MvApp::MvApp() {
             .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MvSwapChain::MAX_FRAMES_IN_FLIGHT)
             .build();
     LoadBlocks();
+    glfwSetWindowUserPointer(m_window->GetWindow(), this);
 }
 
 MvApp::~MvApp() {
@@ -80,6 +83,7 @@ void MvApp::Run() {
                                 globalSetLayout->getDescriptorSetLayout());
 
     m_Camera = std::make_unique<MvCamera>();
+    m_Camera->SetUpListeners(m_window->GetWindow());
 
     m_Camera->SetViewTarget(glm::vec3{0.f, -2.f, 2.f}, glm::vec3{0.f, -1.f, -1.f});
 
@@ -125,6 +129,8 @@ void MvApp::Run() {
     }
     vkDeviceWaitIdle(m_Device->GetDevice());
 }
+
+
 
 
 //Make chunks

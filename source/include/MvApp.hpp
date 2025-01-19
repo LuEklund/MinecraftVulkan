@@ -27,15 +27,19 @@ public:
 
 	void Run();
 
-	//A getter for app instace
+	//A getter for app instance
+	static MvApp* GetInstance();
+
 
 	//World
-	const std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> &GetChunks() {return m_chunks;};
+	std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> & GetChunks() {return m_chunks;};
 
 	//Camera
 	const MvCamera &GetCamera() {return *m_Camera;};
 
 private:
+	//singleton
+	// inline static Ref<MvApp> instance = nullptr;
 
 	//1. Device
 	std::unique_ptr<MvDevice> m_Device;

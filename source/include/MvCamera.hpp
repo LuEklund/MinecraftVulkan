@@ -31,6 +31,8 @@ public:
     //camera movement
     void MoveInPlaneXZ(GLFWwindow *window, float deltaTime);
 
+    //Getters
+    glm::vec3 GetPosition() const {return position;};
 
 private:
     //properties

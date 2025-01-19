@@ -5,6 +5,11 @@ class MvChunk
 public:
     static constexpr int CHUNK_SIZE = 7;
 
+    static const int AIR = 0;
+    static const int STONE = 1;
+    static const int DIRT = 2;
+    static const int GRASS = 3;
+
     const glm::vec4 BLOCK_UVS[5] =
 	{
         CalculateUV(0, 0), // ---
@@ -28,7 +33,9 @@ public:
     void SetPosition(const glm::vec3 &position) { m_ChunkPosition = position; }
     const glm::vec3 &GetPosition() const { return m_ChunkPosition; }
 
-    std::shared_ptr<MvModel> &GetModel() {return m_model;};
+    std::shared_ptr<MvModel> &GetModel() {return m_model;}
+
+    int GetBlock(int x, int y, int z) {return data[x][y][z];};
     
 private:
     glm::vec3 m_ChunkPosition;
