@@ -87,6 +87,8 @@ void MvApp::Run() {
 
     m_Camera->SetViewTarget(glm::vec3{0.f, -2.f, 2.f}, glm::vec3{0.f, -1.f, -1.f});
 
+
+
     auto currentTime = std::chrono::high_resolution_clock::now();
 
     while (!m_window->ShouldClose()) {
@@ -98,6 +100,9 @@ void MvApp::Run() {
 
         m_Camera->MoveInPlaneXZ(m_window->GetWindow(), frameTime);
         m_Camera->SetViewYXZ();
+
+        float aspect = m_renderer->GetAspectRatio();
+        m_Camera->SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 200.f);
 
         if (auto CommandBuffer = m_renderer->BeginFrame()) {
             int frameIndex = m_renderer->GetFrameIndex();
@@ -116,13 +121,8 @@ void MvApp::Run() {
             uboBuffers[frameIndex]->flush();
 
             //render
-            float aspect = m_renderer->GetAspectRatio();
-            m_Camera->SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 50.f);
-
             m_renderer->BeginSwapChainRenderPass(CommandBuffer);
-
             renderSystem.RenderChunks(frameInfo, m_chunks);
-
             m_renderer->EndSwapChainRenderPass(CommandBuffer);
             m_renderer->EndFrame();
         }
@@ -135,9 +135,9 @@ void MvApp::Run() {
 //Make chunks
 void MvApp::LoadBlocks() {
     // m_cubeModel = CreateCubeModel(*m_Device, {0.f, 0.f, 0.f});
-    int size = 2;
+    int size = 6;
     for (int x = 0; x < size; ++x) {
-        for (int y = 0; y < 1; ++y) {
+        for (int y = 0; y < 4; ++y) {
             for (int z = 0; z < size; ++z) {
                 Ref<MvChunk> chunk = CreateRef<MvChunk>();
                 chunk->SetPosition({static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)});

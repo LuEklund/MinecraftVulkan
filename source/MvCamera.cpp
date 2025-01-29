@@ -136,6 +136,14 @@ void MvCamera::MoveInPlaneXZ(GLFWwindow *window, float deltaTime)
     const glm::vec3 rightDirection = {forwardDitrection.z, 0.f, -forwardDitrection.x};
     const glm::vec3 upDirection = {0.f, 1.f, 0.f};
 
+    //SPEED
+    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+        MoveSpeed = 30.f;
+    }
+    else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE) {
+        MoveSpeed = 3.f;
+    }
+
     glm::vec3 moveDirection{0.f};
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
@@ -196,7 +204,7 @@ void MvCamera::SetUpListeners(GLFWwindow *window) {
                 }
                 else {
                     if (HitRes.Hit) {
-                        app->SetWorldBlockAt(HitRes.PrevPos, 4);
+                        app->SetWorldBlockAt(HitRes.PrevPos, 1);
                     }
                 }
 

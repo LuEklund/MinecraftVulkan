@@ -165,7 +165,7 @@ void MvPipeline::DefaultPipelineConfigInfo(PipelineConfigInfo &ConfigInfo)
 	ConfigInfo.rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;
 	ConfigInfo.rasterizationInfo.polygonMode = VK_POLYGON_MODE_FILL;
 	ConfigInfo.rasterizationInfo.lineWidth = 1.f;
-	ConfigInfo.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;
+	ConfigInfo.rasterizationInfo.cullMode = VK_CULL_MODE_BACK_BIT;
 	ConfigInfo.rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
 	ConfigInfo.rasterizationInfo.depthBiasEnable = VK_FALSE;
 	ConfigInfo.rasterizationInfo.depthBiasConstantFactor = 0.0f;  // Optional

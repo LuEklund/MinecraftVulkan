@@ -11,24 +11,111 @@ glm::vec4 MvChunk::CalculateUV(int x, int y) {
     return glm::vec4(step * x, step * y, step * x + step, step * y + step);
 }
 
+
+
+glm::vec2 GetConstantVector(int v) {
+    // v is the value from the permutation table
+    int h = v & 3;
+    if(h == 0)
+        return glm::vec2(1.0, 1.0);
+    else if(h == 1)
+        return glm::vec2(-1.0, 1.0);
+    else if(h == 2)
+        return glm::vec2(-1.0, -1.0);
+    else
+        return glm::vec2(1.0, -1.0);
+}
+
+float Fade(float t) {
+    return ((6*t - 15)*t + 10)*t*t*t;
+}
+
+float Lerp(float t, float a1, float a2) {
+    return a1 + t*(a2-a1);
+}
+
+float Noise(float x, float y) {
+    int X = (int)x & 255;
+    int Y = (int)y & 255;
+
+    float xf = x - (int)x;
+    float yf = y - (int)y;
+
+    glm::vec2 topRight = {xf-1.0, yf-1.0};
+    glm::vec2 topLeft = {xf, yf-1.0};
+    glm::vec2 bottomRight = {xf-1.0, yf};
+    glm::vec2 bottomLeft = {xf, yf};
+
+    // Select a value from the permutation array for each of the 4 corners
+    int valueTopRight = permutation[permutation[X+1]+Y+1];
+    int valueTopLeft = permutation[permutation[X]+Y+1];
+    int valueBottomRight = permutation[permutation[X+1]+Y];
+    int valueBottomLeft = permutation[permutation[X]+Y];
+
+    float dotTopRight = dot(topRight, GetConstantVector(valueTopRight));
+    float dotTopLeft = dot(topLeft, GetConstantVector(valueTopLeft));
+    float dotBottomRight = dot(bottomRight,GetConstantVector(valueBottomRight));
+    float dotBottomLeft = dot(bottomLeft,GetConstantVector(valueBottomLeft));
+
+    float u = Fade(xf);
+    float v = Fade(yf);
+
+    return Lerp(u,
+        Lerp(v, dotBottomLeft, dotTopLeft),
+        Lerp(v, dotBottomRight, dotTopRight)
+    );
+
+}
+
 void MvChunk::GenerateChunk() {
     for (int x = 0; x < CHUNK_SIZE; x++) {
         for (int y = 0; y < CHUNK_SIZE; y++) {
             for (int z = 0; z < CHUNK_SIZE; z++) {
                 int TotHeight = CHUNK_SIZE * m_ChunkPosition.y + y;
-                if (TotHeight < 3) {
+                int TotX = CHUNK_SIZE * m_ChunkPosition.x + x;
+                int TotZ = CHUNK_SIZE * m_ChunkPosition.z + z;
+
+                float Freq = 0.2;
+                float Amp = 10.f;
+
+                float NoiseValue = Amp * Noise(TotX * Freq, TotZ * Freq);
+                if (TotHeight < NoiseValue) {
                     data[x][y][z] = 1;
-                } else if (TotHeight < 6) {
-                    data[x][y][z] = 2;
-                } else if (TotHeight < 7) {
-                    data[x][y][z] = 3;
+                    bHasMesh = true;
                 }
+                else
+                    data[x][y][z] = 0;
+
+                // int XOffSet = 16 + sin(TotX * Freq) * Amp;
+                // int ZOffSet = 16 + sin(TotZ * Freq) * Amp;
+                //
+                // if (TotHeight < XOffSet + ZOffSet) {
+                //     data[x][y][z] = 1;
+                //     bHasMesh = true;
+                // }
+                // else if (TotHeight < 32) {
+                //     data[x][y][z] = 4;
+                // }
+                // else {
+                //     data[x][y][z] = 0;
+                // }
+                // if (TotHeight < 3) {
+                //     data[x][y][z] = 1;
+                // } else if (TotHeight < 6) {
+                //     data[x][y][z] = 2;
+                // } else if (TotHeight < 7) {
+                //     data[x][y][z] = 3;
+                // }
+                // else {
+                //     data[x][y][z] = 4;
+                // }
             }
         }
     }
 }
 
 void MvChunk::GenerateMesh(MvDevice &device) {
+    if (!bHasMesh) return;
     MvModel::Builder modelBuilder{};
 
     int size = 0;
