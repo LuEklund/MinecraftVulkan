@@ -45,6 +45,7 @@ MvApp::~MvApp() {
 }
 
 void MvApp::Run() {
+    //init stuff
     std::vector<std::unique_ptr<MvBuffer> > uboBuffers(MvSwapChain::MAX_FRAMES_IN_FLIGHT);
     for (size_t i = 0; i < uboBuffers.size(); i++) {
         uboBuffers[i] = std::make_unique<MvBuffer>(
@@ -76,21 +77,16 @@ void MvApp::Run() {
                 .writeImage(1, &imageInfo)
                 .build(globalDescriptorSets[i]);
     }
-
-
     MvRenderSystem renderSystem(*m_Device,
                                 m_renderer->GetSwapChainRenderPass(),
                                 globalSetLayout->getDescriptorSetLayout());
-
     m_Camera = std::make_unique<MvCamera>();
     m_Camera->SetUpListeners(m_window->GetWindow());
-
     m_Camera->SetViewTarget(glm::vec3{0.f, -2.f, 2.f}, glm::vec3{0.f, -1.f, -1.f});
-
-
-
     auto currentTime = std::chrono::high_resolution_clock::now();
 
+
+    //Update
     while (!m_window->ShouldClose()) {
         glfwPollEvents();
 
