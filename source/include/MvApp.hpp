@@ -1,14 +1,12 @@
 #pragma once
 
-#include "Hash.hpp"
 #include "MvWindow.hpp"
 #include "MvDevice.hpp"
-#include "MvChunk.hpp"
 #include "MvRenderer.hpp"
 #include "MvDescriptors.hpp"
 #include "MvTexture.hpp"
 #include "MvCamera.hpp"
-
+#include "MvWorld.hpp"
 #include <memory>
 
 #include "Ref.hpp"
@@ -34,8 +32,9 @@ public:
 	MvDevice &GetDevice() {return *m_Device;};
 
 	//World
-	std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> & GetChunks() {return m_chunks;};
-	void SetWorldBlockAt(glm::ivec3 vec, int blockType);
+	MvWorld &GetWorld() {return *m_World;};
+	// std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> & GetChunks() {return m_chunks;};
+	// void SetWorldBlockAt(glm::ivec3 vec, int blockType);
 	// int GetWorldBlockAt(glm::ivec3 vec);
 
 
@@ -59,7 +58,8 @@ private:
 
 	//4. Model
 	void LoadBlocks();
-	std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> m_chunks;
+	std::unique_ptr<MvWorld> m_World{};
+	// std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> m_chunks;
 
 	//camera
 	std::unique_ptr<MvCamera> m_Camera{};

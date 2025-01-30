@@ -193,7 +193,7 @@ void MvCamera::SetUpListeners(GLFWwindow *window) {
                     glm::cos(pitch) * glm::cos(yaw)  // Z
                 };
                 // std::cout << "pitch: " << pitch << std::endl;
-                MvRaycastResult HitRes = MvRaycast::CastRay(app->GetChunks(), camPos, forwardDirection, 4.f);
+                MvRaycastResult HitRes = MvRaycast::CastRay(app->GetWorld().GetChunks(), camPos, forwardDirection, 4.f);
 
                 //TODO: needs to be moved into update func
                 if (key == GLFW_KEY_ENTER) {
@@ -204,7 +204,7 @@ void MvCamera::SetUpListeners(GLFWwindow *window) {
                 }
                 else {
                     if (HitRes.Hit) {
-                        app->SetWorldBlockAt(HitRes.PrevPos, 1);
+                         app->GetWorld().SetWorldBlockAt(HitRes.PrevPos, 1);
                     }
                 }
 

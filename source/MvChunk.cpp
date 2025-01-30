@@ -29,6 +29,7 @@ void MvChunk::GenerateChunk() {
                 float Amp = 10.f;
 
                 float NoiseValue = Amp * MvPerlinNoise::Noise(TotX * Freq, TotZ * Freq) + 10;
+                NoiseValue += Amp/2.f * MvPerlinNoise::Noise(TotX * Freq * 4.f, TotZ * Freq * 4.f);
                 if (TotHeight < NoiseValue) {
                     data[x][y][z] = 1;
                     bHasMesh = true;
