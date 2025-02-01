@@ -4,36 +4,51 @@
 #include "MvWorld.hpp"
 #include <unordered_map>
 
+FastNoiseLite MvWorld::m_NoiseGen;
 
 MvWorld::MvWorld(MvDevice &device) : m_Device(device)
 {
-    // int size = 6;
-    // for (int x = 0; x < size; ++x) {
-    //     for (int y = 0; y < 4; ++y) {
-    //         for (int z = 0; z < size; ++z) {
-    //             std::shared_ptr<MvChunk> chunk = std::make_shared<MvChunk>();
-    //             chunk->SetPosition({static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)});
-    //             chunk->GenerateChunk();
-    //             chunk->GenerateMesh(m_Device);
-    //             m_chunks[chunk->GetPosition()] = chunk;
-    //             // m_chunks.push_back(std::move(chunk));
-    //         }
-    //     }
-    // }
+    m_NoiseGen.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+    m_NoiseGen.SetFrequency(0.001f);
+    m_NoiseGen.SetFractalOctaves(8);
+    m_NoiseGen.SetFractalLacunarity(2.03f);
+    m_NoiseGen.SetFractalGain(0.58f);
+    m_NoiseGen.SetFractalType(FastNoiseLite::FractalType_FBm);
+    m_NoiseGen.SetFractalWeightedStrength(-0.75f);
+    m_NoiseGen.SetDomainWarpType(FastNoiseLite::DomainWarpType_OpenSimplex2);
+    m_NoiseGen.SetDomainWarpAmp(36);
+    m_NoiseGen.SetSeed(123456789);
+
+    // m_NoiseGen.SetNoiseType(FastNoiseLite::NoiseType_Value);
+    // m_NoiseGen.SetFrequency(0.015f);
+    // m_NoiseGen.SetFractalOctaves(6);
+    // m_NoiseGen.SetFractalLacunarity(2.03f);
+    // m_NoiseGen.SetFractalGain(0.58f);
+    // m_NoiseGen.SetFractalType(FastNoiseLite::FractalType_None);
+    // // m_NoiseGen.SetFractalWeightedStrength(-0.75f);
+    // m_NoiseGen.SetDomainWarpType(FastNoiseLite::DomainWarpType_BasicGrid);
+    // m_NoiseGen.SetDomainWarpAmp(50);
+    // m_NoiseGen.SetSeed(1337);
 }
+
+float MvWorld::GetNoise(float x, float y) {
+    return m_NoiseGen.GetNoise(x, y);
+}
+
+
 
 void MvWorld::LoadChunksAtCoordinate(glm::vec3 position, int radius) {
     // std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> chunks;
 
-    glm::ivec3 origin = {
+    glm::ivec3 Origin = {
         static_cast<int>(position.x)/MvChunk::CHUNK_SIZE,
         static_cast<int>(position.y)/MvChunk::CHUNK_SIZE,
         static_cast<int>(position.z)/MvChunk::CHUNK_SIZE};
 
     // Load chunks
-    for (int x = origin.x - radius; x <= origin.x + radius; ++x) {
+    for (int x = Origin.x - radius; x <= Origin.x + radius; ++x) {
         for (int y = 0; y <= 3; ++y) {
-            for (int z = origin.z - radius; z <= origin.z + radius; ++z) {
+            for (int z = Origin.z - radius; z <= Origin.z + radius; ++z) {
                 // if (x >= 0 || z >= 0) {continue;}
                 if (m_ChunksLoaded.find({x, y, z}) == m_ChunksLoaded.end()) {
                     auto it = m_ChunksUnLoaded.find({x, y, z});
@@ -54,10 +69,10 @@ void MvWorld::LoadChunksAtCoordinate(glm::vec3 position, int radius) {
         }
         //unload chunks
         for (auto it = m_ChunksLoaded.begin(); it != m_ChunksLoaded.end();) {
-            if (it->first.x < origin.x - radius
-                || it->first.x > origin.x + radius
-                || it->first.z < origin.z - radius
-                || it->first.z > origin.z + radius) {
+            if (it->first.x < Origin.x - radius
+                || it->first.x > Origin.x + radius
+                || it->first.z < Origin.z - radius
+                || it->first.z > Origin.z + radius) {
                 m_ChunksUnLoaded[it->first] = std::move(it->second);
                 it = m_ChunksLoaded.erase(it);
             }

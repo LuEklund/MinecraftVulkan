@@ -1,7 +1,5 @@
-#include "MvChunk.hpp"
 #include <iostream>
-
-#include "MvPerlinNoise.hpp"
+#include "MvWorld.hpp"
 
 
 MvChunk::MvChunk() {
@@ -25,18 +23,27 @@ void MvChunk::GenerateChunk() {
                 int TotX = CHUNK_SIZE * m_ChunkPosition.x + x;
                 int TotZ = CHUNK_SIZE * m_ChunkPosition.z + z;
 
-                float Freq = 0.01;
-                float Amp = 10.f;
-
-                float NoiseValue = Amp * MvPerlinNoise::Noise(TotX * Freq, TotZ * Freq) + 10;
-                // NoiseValue += Amp/2.f * MvPerlinNoise::Noise(TotX * Freq * 4.f, TotZ * Freq * 4.f);
-                if (TotHeight < NoiseValue) {
+                // float Freq = 0.001;
+                // float Amp = 10.f;
+                // float NoiseValue = Amp * MvPerlinNoise::Noise(TotX * Freq, TotZ * Freq) + 10;
+                float NoiseValue = MvWorld::GetNoise(static_cast<float>(TotX), static_cast<float>(TotZ)) * 100.f + 10.f;
+                // NoiseValue = pow(NoiseValue, 2);
+                // int octaves = 1;
+                // for (int i = 1; i <= octaves; i++) {
+                //     float FreqOct = pow(Freq, i);
+                //     float AmpOct = pow(Amp, i);
+                //     NoiseValue += AmpOct * MvPerlinNoise::Noise(TotX * FreqOct, TotZ * FreqOct);
+                // }
+                //
+                // NoiseValue = pow(NoiseValue, 3);
+                // NoiseValue = Continentalness(NoiseValue);
+                if (TotHeight < floor(NoiseValue)) {
                     data[x][y][z] = 1;
                 }
-                else if (TotHeight < NoiseValue + 3) {
+                else if (TotHeight < floor(NoiseValue) + 3) {
                     data[x][y][z] = 2;
                 }
-                else if (TotHeight < NoiseValue + 4) {
+                else if (TotHeight < floor(NoiseValue) + 4) {
                     data[x][y][z] = 3;
                 }
                 else
@@ -277,4 +284,15 @@ void MvChunk::DestroyBlockAt(glm::ivec3 vec) {
 
 void MvChunk::SetBlockAt(glm::ivec3 vec, int blockType) {
     data[vec.x][vec.y][vec.z] = blockType;
+}
+
+float MvChunk::Continentalness(float x) {
+    if (x < 0)
+        return 0;
+    else if (x >= 0 && x < 8)
+        return 0;
+    else if (x >= 8 && x < 9.6f)
+        return pow(x - 8, 4);
+    else
+        return log(x-9.365f) + 8;
 }

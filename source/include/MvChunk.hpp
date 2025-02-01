@@ -50,10 +50,13 @@ public:
 
 
 private:
+    float Continentalness(float x);
+
     bool    bHasMesh = false;
     bool    bRender = false;
     glm::vec3 m_ChunkPosition;
     std::shared_ptr<MvModel> m_model{};
+
     // MvGameObject m_GameObject;
 	// std::vector<MvGameObject> m_GameObjects;
 };
