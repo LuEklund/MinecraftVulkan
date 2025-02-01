@@ -32,15 +32,12 @@ void MvChunk::GenerateChunk() {
                 // NoiseValue += Amp/2.f * MvPerlinNoise::Noise(TotX * Freq * 4.f, TotZ * Freq * 4.f);
                 if (TotHeight < NoiseValue) {
                     data[x][y][z] = 1;
-                    bHasMesh = true;
                 }
                 else if (TotHeight < NoiseValue + 3) {
                     data[x][y][z] = 2;
-                    bHasMesh = true;
                 }
                 else if (TotHeight < NoiseValue + 4) {
                     data[x][y][z] = 3;
-                    bHasMesh = true;
                 }
                 else
                     data[x][y][z] = 0;
@@ -74,7 +71,6 @@ void MvChunk::GenerateChunk() {
 }
 
 void MvChunk::GenerateMesh(MvDevice &device) {
-    if (!bHasMesh) return;
     MvModel::Builder modelBuilder{};
 
     int size = 0;
@@ -263,6 +259,11 @@ void MvChunk::GenerateMesh(MvDevice &device) {
             }
         }
     }
+    if (modelBuilder.vertices.size() == 0) {
+        bHasMesh = false;
+        return;
+    }
+    bHasMesh = true;
 
     // auto gameObject = MvGameObject::createGameObject();
     m_model = std::make_unique<MvModel>(device, modelBuilder);

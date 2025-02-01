@@ -34,16 +34,17 @@ void MvCamera::SetOrthographicProjection(float left, float right, float top, flo
   m_projectionMatrix[3][2] = -near / (far - near);
 }
 
-void MvCamera::SetPerspectiveProjection(float fovY, float aspect, float near, float far)
+void MvCamera::SetPerspectiveProjection(float fovYRadians, float aspect, float near, float far)
 {
     assert(glm::abs(aspect - std::numeric_limits<float>::epsilon()) > 0.0f);
-  const float tanHalfFovY = tan(fovY / 2.f);
-  m_projectionMatrix = glm::mat4{0.0f};
-  m_projectionMatrix[0][0] = 1.f / (aspect * tanHalfFovY);
-  m_projectionMatrix[1][1] = 1.f / (tanHalfFovY);
-  m_projectionMatrix[2][2] = far / (far - near);
-  m_projectionMatrix[2][3] = 1.f;
-  m_projectionMatrix[3][2] = -(far * near) / (far - near);
+    const float tanHalfFovY = tan(fovYRadians / 2.f);
+    m_projectionMatrix = glm::mat4{0.0f};
+    m_projectionMatrix[0][0] = 1.f / (aspect * tanHalfFovY);
+    m_projectionMatrix[1][1] = 1.f / (tanHalfFovY);
+    m_projectionMatrix[2][2] = far / (far - near);
+    m_projectionMatrix[2][3] = 1.f;
+    m_projectionMatrix[3][2] = -(far * near) / (far - near);
+    FovRadians = fovYRadians;
 }
 
 void MvCamera::SetViewDirection(const glm::vec3 position, const glm::vec3 direction, const glm::vec3 up)
@@ -177,6 +178,16 @@ void MvCamera::MoveInPlaneXZ(GLFWwindow *window, float deltaTime)
 
 }
 
+glm::vec3 MvCamera::GetForward() const {
+    glm::vec3 forwardDirection = {
+        glm::cos(rotation.x) * glm::sin(rotation.y), // X
+        -glm::sin(rotation.x),                 // Y
+        glm::cos(rotation.x) * glm::cos(rotation.y)  // Z
+    };
+    return forwardDirection;
+    // return glm::vec3{glm::cos(rotation.y), 0.f, glm::sin(rotation.y)};
+}
+
 void MvCamera::SetUpListeners(GLFWwindow *window) {
     glfwSetKeyCallback(window, [](GLFWwindow *window, int key, int scancode, int action, int mods) {
         if (action == GLFW_PRESS) {
@@ -187,11 +198,7 @@ void MvCamera::SetUpListeners(GLFWwindow *window) {
                 float yaw = camRot.y;   // Rotation around Y-axis (horizontal)
                 float pitch = camRot.x; // Rotation around X-axis (vertical)
                 // Calculate forward direction based on yaw and pitch
-                const glm::vec3 forwardDirection = {
-                    glm::cos(pitch) * glm::sin(yaw), // X
-                    -glm::sin(pitch),                 // Y
-                    glm::cos(pitch) * glm::cos(yaw)  // Z
-                };
+                glm::vec3 forwardDirection = app->GetCamera().GetForward();
                 // std::cout << "pitch: " << pitch << std::endl;
                 MvRaycastResult HitRes = MvRaycast::CastRay(app->GetWorld().GetChunks(), camPos, forwardDirection, 4.f);
 

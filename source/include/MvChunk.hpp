@@ -45,10 +45,13 @@ public:
     void DestroyBlockAt(glm::ivec3 vec);;
     void SetBlockAt(glm::ivec3 vec, int blockType);
     bool HasMesh(){return bHasMesh;}
+    bool GetRender(){return bRender;}
+    void SetRender(bool render){bRender = render;}
 
 
 private:
     bool    bHasMesh = false;
+    bool    bRender = false;
     glm::vec3 m_ChunkPosition;
     std::shared_ptr<MvModel> m_model{};
     // MvGameObject m_GameObject;

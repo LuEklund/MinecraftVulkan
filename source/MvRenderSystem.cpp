@@ -74,7 +74,7 @@ void MvRenderSystem::RenderChunks(const MvFrameInfo &frameInfo,std::unordered_ma
 	for (auto& obj : chunks)
 	{
 		auto& chunk = obj.second;
-		if (!chunk->HasMesh()) continue;
+		if (!chunk->HasMesh() || !chunk->GetRender()) continue;
 
 		SimplePushConstantData push{};
 		push.modelMatrix = {{1.f, 0.f, 0.f, 0.f},

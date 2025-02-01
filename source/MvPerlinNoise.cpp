@@ -35,12 +35,10 @@ float Lerp(float t, float a1, float a2) {
 }
 
 float MvPerlinNoise::Noise(float x, float y) {
-    // int Y = (int)y & 255;
-    // int X = (int)x & 255;
+
     int X = ((int)floor(x)) & 255;
     int Y = ((int)floor(y)) & 255;
-    // int X = ((int)floor(x) % 256 + 256) % 256;
-    // int Y = ((int)floor(y) % 256 + 256) % 256;
+
 
     float xf = x - floor(x);
     float yf = y - floor(y);
@@ -51,10 +49,6 @@ float MvPerlinNoise::Noise(float x, float y) {
     glm::vec2 bottomLeft = {xf, yf};
 
     // Select a value from the permutation array for each of the 4 corners
-    // int valueTopRight = permutation[permutation[X+1]+Y+1];
-    // int valueTopLeft = permutation[permutation[X]+Y+1];
-    // int valueBottomRight = permutation[permutation[X+1]+Y];
-    // int valueBottomLeft = permutation[permutation[X]+Y];
     int valueTopRight = permutation[(permutation[(X + 1) & 255] + (Y + 1)) & 255];
     int valueTopLeft = permutation[(permutation[X & 255] + (Y + 1)) & 255];
     int valueBottomRight = permutation[(permutation[(X + 1) & 255] + Y) & 255];

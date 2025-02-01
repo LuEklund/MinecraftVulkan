@@ -91,20 +91,21 @@ void MvApp::Run() {
     while (!m_window->ShouldClose()) {
         glfwPollEvents();
 
-        auto newTime = std::chrono::high_resolution_clock::now();
-        float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
-        currentTime = newTime;
-
-        m_Camera->MoveInPlaneXZ(m_window->GetWindow(), frameTime);
-        m_Camera->SetViewYXZ();
-
-        float aspect = m_renderer->GetAspectRatio();
-        m_Camera->SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 200.f);
-
-        m_World->LoadChunksAtCoordinate(m_Camera->GetPosition());
-
-
         if (auto CommandBuffer = m_renderer->BeginFrame()) {
+            // m_Camera->SetUpListeners(m_window->GetWindow());
+
+            auto newTime = std::chrono::high_resolution_clock::now();
+            float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
+            currentTime = newTime;
+
+            m_Camera->MoveInPlaneXZ(m_window->GetWindow(), frameTime);
+            m_Camera->SetViewYXZ();
+
+            float aspect = m_renderer->GetAspectRatio();
+            m_Camera->SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
+
+            m_World->LoadChunksAtCoordinate(m_Camera->GetPosition());
+
             int frameIndex = m_renderer->GetFrameIndex();
             MvFrameInfo frameInfo{
                 frameIndex,
@@ -122,10 +123,12 @@ void MvApp::Run() {
 
             //render
             m_renderer->BeginSwapChainRenderPass(CommandBuffer);
+            m_World->CalculateRenderChunks(m_Camera->GetPosition(), m_Camera->GetForward(), 3, m_Camera->GetFovRadians() * 0.8f);
             renderSystem.RenderChunks(frameInfo, m_World->GetChunks());
             m_renderer->EndSwapChainRenderPass(CommandBuffer);
             m_renderer->EndFrame();
         }
+
     }
     vkDeviceWaitIdle(m_Device->GetDevice());
 }

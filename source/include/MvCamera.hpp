@@ -17,7 +17,7 @@ public:
 
     //Camera setup
     void SetOrthographicProjection(float left, float right, float top, float bottom, float near, float far);
-    void SetPerspectiveProjection(float fovY, float aspect, float near, float far);
+    void SetPerspectiveProjection(float fovYRadians, float aspect, float near, float far);
 
     void SetViewDirection(const glm::vec3 position, const glm::vec3 direction, const glm::vec3 up = glm::vec3(0.f, 1.f, 0.f));
     void SetViewTarget(const glm::vec3 position, const glm::vec3 target, const glm::vec3 up = glm::vec3(0.f, 1.f, 0.f));
@@ -34,9 +34,12 @@ public:
     //Getters
     glm::vec3 GetPosition() const {return position;};
     glm::vec3 GetRotation() const {return rotation;};
+    glm::vec3 GetForward() const;
+    float GetFovRadians() const {return FovRadians;};
 
 private:
     //properties
+    float FovRadians;
     glm::vec3 position{};
     glm::vec3 rotation{};
     float MoveSpeed = 3.f;

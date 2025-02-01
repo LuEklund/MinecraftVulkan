@@ -45,7 +45,7 @@ public:
 
     void bind(VkCommandBuffer commandBuffer);
     void draw(VkCommandBuffer commandBuffer);
-    
+
 
 private:
     void CreateVertexBuffer(const std::vector<Vertex>& vertices);
