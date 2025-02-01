@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.11.0)
 set(NAME MvGame)
 set(CMAKE_CXX_STANDARD 23)
 
+
 project(${NAME})
 
 # Vulkan and glslang
