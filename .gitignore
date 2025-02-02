@@ -61,6 +61,7 @@ cmake-build-*
 bin/
 build/
 dist/
+x64
 
 # Dependencies
 *.dll

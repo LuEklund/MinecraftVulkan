@@ -22,11 +22,19 @@ void MvChunk::GenerateChunk() {
                 int TotHeight = CHUNK_SIZE * m_ChunkPosition.y + y;
                 int TotX = CHUNK_SIZE * m_ChunkPosition.x + x;
                 int TotZ = CHUNK_SIZE * m_ChunkPosition.z + z;
+                float Noise = MvWorld::GetNoise(static_cast<float>(TotX), static_cast<float>(TotZ));
+                Noise = (Noise + 1) * 50.f;
+                float ContinetalNoise = MvWorld::GetContinentalness(Noise);
+
+                // if (Noise > 50.f) {
+                //     Noise = MvWorld::GetPeaksAndValleys(Noise);
+                //     ContinetalNoise +=
+                // }
 
                 // float Freq = 0.001;
                 // float Amp = 10.f;
                 // float NoiseValue = Amp * MvPerlinNoise::Noise(TotX * Freq, TotZ * Freq) + 10;
-                float NoiseValue = MvWorld::GetNoise(static_cast<float>(TotX), static_cast<float>(TotZ)) * 100.f + 10.f;
+                // float NoiseValue = MvWorld::GetNoise(static_cast<float>(TotX), static_cast<float>(TotZ)) * 100.f + 10.f;
                 // NoiseValue = pow(NoiseValue, 2);
                 // int octaves = 1;
                 // for (int i = 1; i <= octaves; i++) {
@@ -37,13 +45,13 @@ void MvChunk::GenerateChunk() {
                 //
                 // NoiseValue = pow(NoiseValue, 3);
                 // NoiseValue = Continentalness(NoiseValue);
-                if (TotHeight < floor(NoiseValue)) {
+                if (TotHeight < floor(ContinetalNoise)) {
                     data[x][y][z] = 1;
                 }
-                else if (TotHeight < floor(NoiseValue) + 3) {
+                else if (TotHeight < floor(ContinetalNoise) + 3) {
                     data[x][y][z] = 2;
                 }
-                else if (TotHeight < floor(NoiseValue) + 4) {
+                else if (TotHeight < floor(ContinetalNoise) + 4) {
                     data[x][y][z] = 3;
                 }
                 else

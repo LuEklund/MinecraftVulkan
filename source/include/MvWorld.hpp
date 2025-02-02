@@ -24,11 +24,20 @@ class MvWorld {
   void CalculateRenderChunks(glm::vec3 origin, glm::vec3 direction, int maxChunkDistance, float fovRad);
 
   static float GetNoise(float x, float y);
+  // static float SplineInterpolation(float x, const std::vector<glm::vec2> &points);
+  static float GetContinentalness(float x);
+  static float GetErosion(float x);
+  static float GetPeaksAndValleys(float x);
+
   private:
-  MvDevice& m_Device;
-  static FastNoiseLite m_NoiseGen;
-  std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> m_ChunksLoaded;
-  std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> m_ChunksUnLoaded;
+    MvDevice& m_Device;
+    static std::vector<glm::vec2> Continentalness;
+    static std::vector<glm::vec2> Erosion;
+    static std::vector<glm::vec2> PeaksAndValleys;
+    static FastNoiseLite m_NoiseGen;
+    static FastNoiseLite DomainWarpGen;
+    std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> m_ChunksLoaded;
+    std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> m_ChunksUnLoaded;
 };
 
 
