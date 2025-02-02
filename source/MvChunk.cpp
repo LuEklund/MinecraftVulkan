@@ -22,64 +22,32 @@ void MvChunk::GenerateChunk() {
                 int TotHeight = CHUNK_SIZE * m_ChunkPosition.y + y;
                 int TotX = CHUNK_SIZE * m_ChunkPosition.x + x;
                 int TotZ = CHUNK_SIZE * m_ChunkPosition.z + z;
-                float Noise = MvWorld::GetNoise(static_cast<float>(TotX), static_cast<float>(TotZ));
-                Noise = (Noise + 1) * 50.f;
-                float ContinetalNoise = MvWorld::GetContinentalness(Noise);
 
-                // if (Noise > 50.f) {
-                //     Noise = MvWorld::GetPeaksAndValleys(Noise);
-                //     ContinetalNoise +=
-                // }
 
-                // float Freq = 0.001;
-                // float Amp = 10.f;
-                // float NoiseValue = Amp * MvPerlinNoise::Noise(TotX * Freq, TotZ * Freq) + 10;
-                // float NoiseValue = MvWorld::GetNoise(static_cast<float>(TotX), static_cast<float>(TotZ)) * 100.f + 10.f;
-                // NoiseValue = pow(NoiseValue, 2);
-                // int octaves = 1;
-                // for (int i = 1; i <= octaves; i++) {
-                //     float FreqOct = pow(Freq, i);
-                //     float AmpOct = pow(Amp, i);
-                //     NoiseValue += AmpOct * MvPerlinNoise::Noise(TotX * FreqOct, TotZ * FreqOct);
-                // }
-                //
-                // NoiseValue = pow(NoiseValue, 3);
-                // NoiseValue = Continentalness(NoiseValue);
-                if (TotHeight < floor(ContinetalNoise)) {
+                float continentalness_sample = MvWorld::GetNoise(static_cast<float>(TotX), static_cast<float>(TotZ)) * 1.3;
+                float base_continents = MvWorld::GetContinentalness(continentalness_sample);
+
+                float peaks_noise_sample = MvWorld::GetPeaksNoise(static_cast<float>(TotX), static_cast<float>(TotZ));
+                float peaks_mult = exp(-pow((base_continents - 0.8f) * 10.0f, 2.f));
+
+                float detail_sample = MvWorld::GetDetailNoise(static_cast<float>(TotX), static_cast<float>(TotZ)) + 1.f;
+
+                float scaled_height = base_continents * (1.0f + peaks_mult * peaks_noise_sample);
+                scaled_height *= 100;
+                scaled_height += detail_sample * 5.f;
+
+                if (TotHeight < floor(scaled_height)) {
                     data[x][y][z] = 1;
                 }
-                else if (TotHeight < floor(ContinetalNoise) + 3) {
+                else if (TotHeight < floor(scaled_height) + 3) {
                     data[x][y][z] = 2;
                 }
-                else if (TotHeight < floor(ContinetalNoise) + 4) {
+                else if (TotHeight < floor(scaled_height) + 4) {
                     data[x][y][z] = 3;
                 }
                 else
                     data[x][y][z] = 0;
 
-                // int XOffSet = 16 + sin(TotX * Freq) * Amp;
-                // int ZOffSet = 16 + sin(TotZ * Freq) * Amp;
-                //
-                // if (TotHeight < XOffSet + ZOffSet) {
-                //     data[x][y][z] = 1;
-                //     bHasMesh = true;
-                // }
-                // else if (TotHeight < 32) {
-                //     data[x][y][z] = 4;
-                // }
-                // else {
-                //     data[x][y][z] = 0;
-                // }
-                // if (TotHeight < 3) {
-                //     data[x][y][z] = 1;
-                // } else if (TotHeight < 6) {
-                //     data[x][y][z] = 2;
-                // } else if (TotHeight < 7) {
-                //     data[x][y][z] = 3;
-                // }
-                // else {
-                //     data[x][y][z] = 4;
-                // }
             }
         }
     }

@@ -6,19 +6,19 @@
 
 FastNoiseLite MvWorld::m_NoiseGen;
 FastNoiseLite MvWorld::DomainWarpGen;
-
+FastNoiseLite MvWorld::m_noise_gen_peaks;
+FastNoiseLite MvWorld::m_domain_warp_peaks;
+FastNoiseLite MvWorld::m_detail_noise_gen;
+FastNoiseLite MvWorld::m_detail_domain_warp;
 
 std::vector<glm::vec2> MvWorld::Continentalness = {
-    {10, 0},
-    {20, 5},
-    {30, 30},
-    {60, 50},
-    {65, 80},
-    {68, 90},
-    {75, 96},
-    {100, 100},
-    {200, 164}
-
+    {-1.05f, 0.0f}, // Deep Ocean
+    {-0.455f, 0.15f}, // Ocean
+    {-0.19f, 0.3f}, // Coast
+    {-0.11f, 0.5f}, // Near-Inland
+    {0.03f, 0.6f},  // Mid-Inland
+    {0.3f, 0.8f},  // Far-Inland
+    {1.0f, 1.0f},  // MontaÃ±as
 };
 
 std::vector<glm::vec2> MvWorld::Erosion = {
@@ -40,35 +40,56 @@ std::vector<glm::vec2> MvWorld::PeaksAndValleys = {
     {10, 0}     // Valley
 };
 
+
+
+
+
+
 MvWorld::MvWorld(MvDevice &device) : m_Device(device)
 {
     m_NoiseGen.SetNoiseType(FastNoiseLite::NoiseType_Value);
     m_NoiseGen.SetSeed(123456789);
-    m_NoiseGen.SetFrequency(0.001f);
+    m_NoiseGen.SetFrequency(0.0004f);
     m_NoiseGen.SetFractalType(FastNoiseLite::FractalType_FBm);
     m_NoiseGen.SetFractalOctaves(4);
     m_NoiseGen.SetFractalLacunarity(2.73f);
     m_NoiseGen.SetFractalGain(0.14f);
     m_NoiseGen.SetFractalWeightedStrength(-9.51f);
 
-
     DomainWarpGen.SetDomainWarpType(FastNoiseLite::DomainWarpType_OpenSimplex2);
     DomainWarpGen.SetDomainWarpAmp(32.5f);
     DomainWarpGen.SetSeed(123456789);
     DomainWarpGen.SetFrequency(0.034f);
 
+    m_noise_gen_peaks.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+    m_noise_gen_peaks.SetSeed(123456789);
+    m_noise_gen_peaks.SetFrequency(0.002f);
+    m_noise_gen_peaks.SetFractalType(FastNoiseLite::FractalType_Ridged);
+    m_noise_gen_peaks.SetFractalOctaves(5);
+    m_noise_gen_peaks.SetFractalLacunarity(2.48f);
+    m_noise_gen_peaks.SetFractalGain(0.28f);
+    m_noise_gen_peaks.SetFractalWeightedStrength(0.16f);
 
+    m_domain_warp_peaks.SetDomainWarpType(FastNoiseLite::DomainWarpType_OpenSimplex2);
+    m_domain_warp_peaks.SetDomainWarpAmp(31.5f);
+    m_domain_warp_peaks.SetSeed(123456789);
+    m_domain_warp_peaks.SetFrequency(-0.029f);
 
-    // m_NoiseGen.SetNoiseType(FastNoiseLite::NoiseType_Value);
-    // m_NoiseGen.SetFrequency(0.015f);
-    // m_NoiseGen.SetFractalOctaves(6);
-    // m_NoiseGen.SetFractalLacunarity(2.03f);
-    // m_NoiseGen.SetFractalGain(0.58f);
-    // m_NoiseGen.SetFractalType(FastNoiseLite::FractalType_None);
-    // // m_NoiseGen.SetFractalWeightedStrength(-0.75f);
-    // m_NoiseGen.SetDomainWarpType(FastNoiseLite::DomainWarpType_BasicGrid);
-    // m_NoiseGen.SetDomainWarpAmp(50);
-    // m_NoiseGen.SetSeed(1337);
+    m_detail_noise_gen.SetNoiseType(FastNoiseLite::NoiseType_Cellular);
+    m_detail_noise_gen.SetSeed(123456789);
+    m_detail_noise_gen.SetFrequency(-0.023f);
+    m_detail_noise_gen.SetFractalType(FastNoiseLite::FractalType_Ridged);
+    m_detail_noise_gen.SetFractalOctaves(5);
+    m_detail_noise_gen.SetFractalLacunarity(2.418f);
+    m_detail_noise_gen.SetFractalGain(0.440f);
+    m_detail_noise_gen.SetFractalWeightedStrength(-0.170f);
+    m_detail_noise_gen.SetCellularReturnType(FastNoiseLite::CellularReturnType_Distance);
+    m_detail_noise_gen.SetCellularDistanceFunction(FastNoiseLite::CellularDistanceFunction_EuclideanSq);
+    m_detail_noise_gen.SetCellularJitter(1.78f);
+    m_detail_domain_warp.SetDomainWarpType(FastNoiseLite::DomainWarpType_OpenSimplex2);
+    m_detail_domain_warp.SetDomainWarpAmp(43.5f);
+    m_detail_domain_warp.SetSeed(123456789);
+    m_detail_domain_warp.SetFrequency(-0.059f);
 }
 
 float MvWorld::GetNoise(float x, float y) {
@@ -107,6 +128,19 @@ float MvWorld::GetPeaksAndValleys(float x) {
 }
 
 
+float MvWorld::GetPeaksNoise(float x, float y) {
+    float warp_x = x, warp_y = y;
+    m_domain_warp_peaks.DomainWarp(warp_x, warp_y);
+    return m_noise_gen_peaks.GetNoise(warp_x, warp_y);
+}
+
+float MvWorld::GetDetailNoise(float x, float y) {
+    float warp_x = x, warp_y = y;
+    m_detail_domain_warp.DomainWarp(warp_x, warp_y);
+    return m_detail_noise_gen.GetNoise(warp_x, warp_y);
+}
+
+
 void MvWorld::LoadChunksAtCoordinate(glm::vec3 position, int radius) {
     // std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> chunks;
 
@@ -117,7 +151,7 @@ void MvWorld::LoadChunksAtCoordinate(glm::vec3 position, int radius) {
 
     // Load chunks
     for (int x = Origin.x - radius; x <= Origin.x + radius; ++x) {
-        for (int y = 0; y <= 5; ++y) {
+        for (int y = 0; y <= 8; ++y) {
             for (int z = Origin.z - radius; z <= Origin.z + radius; ++z) {
                 // if (x >= 0 || z >= 0) {continue;}
                 if (m_ChunksLoaded.find({x, y, z}) == m_ChunksLoaded.end()) {
