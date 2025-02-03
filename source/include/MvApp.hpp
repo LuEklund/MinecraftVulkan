@@ -9,6 +9,7 @@
 #include "MvWorld.hpp"
 #include <memory>
 
+#include "MvCubeMap.hpp"
 #include "Ref.hpp"
 
 
@@ -57,7 +58,6 @@ private:
 	std::unique_ptr<MvRenderer> m_renderer;
 
 	//4. Model
-	void LoadBlocks();
 	std::unique_ptr<MvWorld> m_World{};
 	// std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> m_chunks;
 
@@ -65,6 +65,10 @@ private:
 	std::unique_ptr<MvCamera> m_Camera{};
 	//Texture
 	std::unique_ptr<MvTexture> m_texture;
+
+	//SkyBox
+	std::unique_ptr<MvCubeMap> m_CubeMap;
+	std::unique_ptr<MvModel> m_SkyBox;
 
 	//5. Descriptors
 	std::unique_ptr<MvDescriptorPool> m_GlobalPool;

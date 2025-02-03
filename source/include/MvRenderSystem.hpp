@@ -35,6 +35,7 @@ private:
 
 	//2. Pipeline
 	std::unique_ptr<MvPipeline> m_pipeline;
+	// std::unique_ptr<MvPipeline> m_pipeline;
 	VkPipelineLayout m_pipelineLayout;
 	void	CreatepipelineLayout(VkDescriptorSetLayout globalSetLayout);
 	void	CreatePipeline(VkRenderPass renderPass);
