@@ -13,7 +13,7 @@
 class MvSkyBoxRenderSystem
 {
 public:
-    MvSkyBoxRenderSystem(MvDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
+    MvSkyBoxRenderSystem(MvDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout SkyBoxSetLayout);
     ~MvSkyBoxRenderSystem();
 
 
@@ -30,8 +30,8 @@ private:
     //2. Pipeline
     std::unique_ptr<MvPipeline>m_pipeline;
     // std::unique_ptr<MvPipeline> m_pipeline;
-    VkPipelineLayout m_pipelineLayout;
-    void	CreatepipelineLayout(VkDescriptorSetLayout globalSetLayout);
+    VkPipelineLayout m_pipelineLayout = VK_NULL_HANDLE;
+    void	CreatepipelineLayout(VkDescriptorSetLayout SkyBoxSetLayout);
     void	CreatePipeline(VkRenderPass renderPass);
 
 };

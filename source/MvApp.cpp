@@ -113,9 +113,10 @@ void MvApp::Run() {
             .build();
 
     auto skySetLayout = MvDescriptorSetLayout::Builder(*m_Device)
-        .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
+        .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
         .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
         .build();
+
 
     std::vector<VkDescriptorSet> globalDescriptorSets{MvSwapChain::MAX_FRAMES_IN_FLIGHT};
     std::vector<VkDescriptorSet> SkyBoxDescriptorSets{MvSwapChain::MAX_FRAMES_IN_FLIGHT};
@@ -136,8 +137,8 @@ void MvApp::Run() {
         auto bufferInfo = SkyBoxBuffer[i]->descriptorInfo();
         VkDescriptorImageInfo imageInfo{};
         imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imageInfo.imageView = m_texture->GetTextureImageView();
-        imageInfo.sampler = m_texture->GetTextureSampler();
+        imageInfo.imageView = m_CubeMap->GetTextureImageView();
+        imageInfo.sampler = m_CubeMap->GetTextureSampler();
 
         MvDescriptorWriter(*skySetLayout, *m_GlobalPool)
                 .writeBuffer(0, &bufferInfo)
@@ -184,7 +185,7 @@ void MvApp::Run() {
             m_Camera->SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
 
             //TODO : un
-            // m_World->LoadChunksAtCoordinate(m_Camera->GetPosition());
+            m_World->LoadChunksAtCoordinate(m_Camera->GetPosition());
 
             int frameIndex = m_renderer->GetFrameIndex();
             MvFrameInfo frameInfo{
@@ -193,6 +194,13 @@ void MvApp::Run() {
                 CommandBuffer,
                 *m_Camera.get(),
                 globalDescriptorSets[frameIndex]
+            };
+            MvFrameInfo SkyframeInfo{
+                frameIndex,
+                frameTime,
+                CommandBuffer,
+                *m_Camera.get(),
+                SkyBoxDescriptorSets[frameIndex]
             };
 
             //update
@@ -213,9 +221,9 @@ void MvApp::Run() {
             //render
             m_renderer->BeginSwapChainRenderPass(CommandBuffer);
             //TODO : un
-            // m_World->CalculateRenderChunks(m_Camera->GetPosition(), m_Camera->GetForward(), 3, m_Camera->GetFovRadians() * 0.8f);
-            // renderSystem.RenderChunks(frameInfo, m_World->GetChunks());
-            SkyBoxRenderSystem.RenderSkyBox(frameInfo, *m_SkyBox);
+            m_World->CalculateRenderChunks(m_Camera->GetPosition(), m_Camera->GetForward(), 3, m_Camera->GetFovRadians() * 0.8f);
+            SkyBoxRenderSystem.RenderSkyBox(SkyframeInfo, *m_SkyBox);
+            renderSystem.RenderChunks(frameInfo, m_World->GetChunks());
             m_renderer->EndSwapChainRenderPass(CommandBuffer);
             m_renderer->EndFrame();
         }

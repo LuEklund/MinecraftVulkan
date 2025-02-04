@@ -177,15 +177,15 @@ void MvPipeline::createSkyBoxPipeline(const PipelineConfigInfo &configInfo) {
 	// bindingDescptors[0].stride = sizeof(Vertex);
 	// bindingDescptors[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
-	auto bindingDescriptions = MvModel::Vertex::getBindingDescriptions();
-	auto attributeDescriptions = MvModel::Vertex::getAttributeDescriptions();
+	//auto bindingDescriptions = MvModel::Vertex::getBindingDescriptions();
+	//auto attributeDescriptions = MvModel::Vertex::getAttributeDescriptions();
 
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint32_t>(bindingDescriptions.size());
-	vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
-	vertexInputInfo.pVertexBindingDescriptions = bindingDescriptions.data();
-	vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+	vertexInputInfo.vertexBindingDescriptionCount = 0;
+	vertexInputInfo.vertexAttributeDescriptionCount = 0;
+	vertexInputInfo.pVertexBindingDescriptions = nullptr;
+	vertexInputInfo.pVertexAttributeDescriptions = nullptr;
 
 
 	VkGraphicsPipelineCreateInfo pipelineInfo{};

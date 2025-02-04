@@ -13,24 +13,26 @@
 #include "MvChunk.hpp"
 
 
-MvSkyBoxRenderSystem::MvSkyBoxRenderSystem(MvDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout)
+MvSkyBoxRenderSystem::MvSkyBoxRenderSystem(MvDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout SkyBoxSetLayout)
     : m_Device(device)
 {
-	CreatepipelineLayout(globalSetLayout);
+	CreatepipelineLayout(SkyBoxSetLayout);
 	CreatePipeline(renderPass);
 }
 
 MvSkyBoxRenderSystem::~MvSkyBoxRenderSystem()
 {
-	vkDestroyPipelineLayout(m_Device.GetDevice(), m_pipelineLayout, nullptr);
+	if (m_pipelineLayout != VK_NULL_HANDLE) {
+		vkDestroyPipelineLayout(m_Device.GetDevice(), m_pipelineLayout, nullptr);
+	}
 }
 
 
 
-void MvSkyBoxRenderSystem::CreatepipelineLayout(VkDescriptorSetLayout globalSetLayout)
+void MvSkyBoxRenderSystem::CreatepipelineLayout(VkDescriptorSetLayout SkyBoxSetLayout)
 {
 
-	std::vector<VkDescriptorSetLayout> descriptorSetLayouts = {globalSetLayout};
+	std::vector<VkDescriptorSetLayout> descriptorSetLayouts = {SkyBoxSetLayout};
 
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;

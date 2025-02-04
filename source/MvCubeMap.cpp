@@ -48,7 +48,7 @@ void MvCubeMap::CreateImageTexture()
 
     MvBuffer stagingBuffer(
     m_device,
-    imageSize,
+    imageSize * 6,
     1,
     VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
@@ -67,14 +67,14 @@ void MvCubeMap::CreateImageTexture()
     imageInfo.extent.height = static_cast<uint32_t>(texHeight);
     imageInfo.extent.depth = 1;
     imageInfo.mipLevels = 1;
-    imageInfo.arrayLayers = 1;
+    imageInfo.arrayLayers = 6;
     imageInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
     imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
     imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
     imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-    imageInfo.flags = 0;
+    imageInfo.flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
 
     m_device.createImageWithInfo(
         imageInfo,

@@ -25,17 +25,17 @@ void MvChunk::GenerateChunk() {
 
 
                 float continentalness_sample = MvWorld::GetNoise(static_cast<float>(TotX), static_cast<float>(TotZ)) * 1.3;
-                // float base_continents = MvWorld::GetContinentalness(continentalness_sample);
-                //
-                // float peaks_noise_sample = MvWorld::GetPeaksNoise(static_cast<float>(TotX), static_cast<float>(TotZ));
-                // float peaks_mult = exp(-pow((base_continents - 0.8f) * 10.0f, 2.f));
-                //
-                // float detail_sample = MvWorld::GetDetailNoise(static_cast<float>(TotX), static_cast<float>(TotZ)) + 1.f;
-                //
-                // float scaled_height = base_continents * (1.0f + peaks_mult * peaks_noise_sample);
-                // scaled_height *= 100;
-                // scaled_height += detail_sample * 5.f;
-                float scaled_height = continentalness_sample;
+                float base_continents = MvWorld::GetContinentalness(continentalness_sample);
+
+                float peaks_noise_sample = MvWorld::GetPeaksNoise(static_cast<float>(TotX), static_cast<float>(TotZ));
+                float peaks_mult = exp(-pow((base_continents - 0.8f) * 10.0f, 2.f));
+
+                float detail_sample = MvWorld::GetDetailNoise(static_cast<float>(TotX), static_cast<float>(TotZ)) + 1.f;
+
+                float scaled_height = base_continents * (1.0f + peaks_mult * peaks_noise_sample);
+                scaled_height *= 100;
+                scaled_height += detail_sample * 5.f;
+                // float scaled_height = continentalness_sample;
 
 
                 if (TotHeight < floor(scaled_height)) {

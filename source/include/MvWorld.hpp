@@ -19,7 +19,7 @@ class MvWorld {
 
   std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> & GetChunks() {return m_ChunksLoaded;};
 
-  void LoadChunksAtCoordinate(glm::vec3 position, int radius = 1);
+  void LoadChunksAtCoordinate(glm::vec3 position, int radius = 8);
   void SetWorldBlockAt(glm::ivec3 vec, int blockType);
   void CalculateRenderChunks(glm::vec3 origin, glm::vec3 direction, int maxChunkDistance, float fovRad);
 
