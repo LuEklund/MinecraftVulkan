@@ -13,7 +13,7 @@ enum class PipelineType {
 };
 
 struct CameraVectors {
-	glm::vec4 View;
+	glm::vec4 Forward;
 	glm::vec4 Right;
 	glm::vec4 Up;
 };

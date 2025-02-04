@@ -184,7 +184,6 @@ void MvApp::Run() {
             float aspect = m_renderer->GetAspectRatio();
             m_Camera->SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
 
-            //TODO : un
             m_World->LoadChunksAtCoordinate(m_Camera->GetPosition());
 
             int frameIndex = m_renderer->GetFrameIndex();
@@ -209,18 +208,20 @@ void MvApp::Run() {
             uboBuffers[frameIndex]->writeToBuffer(&ubo);
             uboBuffers[frameIndex]->flush();
 
+
             CameraVectors CameraVectors{
-            {1.0f, 0.0f, 0.0f, 0.0f},   //cam_vec_forwards
-            {0.0f, -1.0f, 0.0f, 0.0f},  //cam_vec_right
-            {0.0f, 0.0f, 1.0f, 0.0f}    //cam_vec_up
+                glm::vec4(m_Camera->GetForward(), 0.f),
+                glm::vec4(m_Camera->GetRight(), 0.f),
+                glm::vec4(glm::cross(m_Camera->GetRight(), m_Camera->GetForward()), 0.f)  // Recalculate up
             };
+
+
             SkyBoxBuffer[frameIndex]->writeToBuffer(&CameraVectors);
             SkyBoxBuffer[frameIndex]->flush();
 
 
             //render
             m_renderer->BeginSwapChainRenderPass(CommandBuffer);
-            //TODO : un
             m_World->CalculateRenderChunks(m_Camera->GetPosition(), m_Camera->GetForward(), 3, m_Camera->GetFovRadians() * 0.8f);
             SkyBoxRenderSystem.RenderSkyBox(SkyframeInfo, *m_SkyBox);
             renderSystem.RenderChunks(frameInfo, m_World->GetChunks());

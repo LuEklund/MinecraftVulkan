@@ -35,6 +35,7 @@ public:
     glm::vec3 GetPosition() const {return position;};
     glm::vec3 GetRotation() const {return rotation;};
     glm::vec3 GetForward() const;
+    glm::vec3 GetRight() const;
     float GetFovRadians() const {return FovRadians;};
 
 private:
