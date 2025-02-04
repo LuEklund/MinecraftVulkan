@@ -187,6 +187,20 @@ glm::vec3 MvCamera::GetForward() const {
     return forwardDirection;
     // return glm::vec3{glm::cos(rotation.y), 0.f, glm::sin(rotation.y)};
 }
+glm::vec3 MvCamera::GetRight() const {
+    glm::vec3 rightDirection = {
+        glm::cos(rotation.y), // X
+        0.f,                  // Y
+        -glm::sin(rotation.y) // Z
+    };
+    return rightDirection;
+}
+
+// glm::vec3 MvCamera::GetRight() const {
+//     glm::vec3 forward = GetForward();
+//     glm::vec3 up{0.f, 1.f, 0.f}; // Global up direction in Y-up
+//     return glm::normalize(glm::cross(forward, up));
+// }
 
 void MvCamera::SetUpListeners(GLFWwindow *window) {
     glfwSetKeyCallback(window, [](GLFWwindow *window, int key, int scancode, int action, int mods) {

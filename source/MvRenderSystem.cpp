@@ -52,7 +52,7 @@ void MvRenderSystem::CreatePipeline(VkRenderPass renderPass)
 	PipelineConfigInfo PipelineConfig{};
 	MvPipeline::DefaultPipelineConfigInfo(PipelineConfig);
 
-	//PipelineConfigInfo pipelineConfig = MvPipeline::DefaultPipelineConfigInfo(m_swapChain->GetWidth(), m_swapChain->GetHeigth());
+	// PipelineConfigInfo pipelineConfig = MvPipeline::DefaultPipelineConfigInfo(m_swapChain->GetWidth(), m_swapChain->GetHeigth());
 	PipelineConfig.renderPass = renderPass;
 	PipelineConfig.pipelineLayout = m_pipelineLayout;
 	m_pipeline = std::make_unique<MvPipeline>(m_Device, PipelineConfig);

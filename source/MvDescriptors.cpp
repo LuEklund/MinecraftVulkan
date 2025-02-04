@@ -139,7 +139,7 @@ MvDescriptorWriter::MvDescriptorWriter(MvDescriptorSetLayout &setLayout, MvDescr
  
 MvDescriptorWriter &MvDescriptorWriter::writeBuffer(
     uint32_t binding, VkDescriptorBufferInfo *bufferInfo) {
-  assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
+  assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding W");
  
   auto &bindingDescription = setLayout.bindings[binding];
  
@@ -160,7 +160,7 @@ MvDescriptorWriter &MvDescriptorWriter::writeBuffer(
  
 MvDescriptorWriter &MvDescriptorWriter::writeImage(
     uint32_t binding, VkDescriptorImageInfo *imageInfo) {
-  assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
+  assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding IMG");
  
   auto &bindingDescription = setLayout.bindings[binding];
  

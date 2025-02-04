@@ -35,6 +35,8 @@ void MvChunk::GenerateChunk() {
                 float scaled_height = base_continents * (1.0f + peaks_mult * peaks_noise_sample);
                 scaled_height *= 100;
                 scaled_height += detail_sample * 5.f;
+                // float scaled_height = continentalness_sample;
+
 
                 if (TotHeight < floor(scaled_height)) {
                     data[x][y][z] = 1;

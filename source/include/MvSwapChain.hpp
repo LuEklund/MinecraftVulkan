@@ -51,6 +51,7 @@ class MvSwapChain {
   void createImageViews();
   void createDepthResources();
   void createRenderPass();
+  void createRenderPassSkyBox();
   void createFramebuffers();
   void createSyncObjects();
 
@@ -66,6 +67,7 @@ class MvSwapChain {
   VkExtent2D swapChainExtent;
 
   std::vector<VkFramebuffer> swapChainFramebuffers;
+  std::vector<VkFramebuffer> swapChainFramebuffersSky;
   VkRenderPass renderPass;
 
   std::vector<VkImage> depthImages;
