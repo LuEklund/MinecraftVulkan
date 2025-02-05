@@ -214,8 +214,6 @@ void MvApp::Run() {
                 glm::vec4(m_Camera->GetRight(), 0.f),
                 glm::vec4(glm::cross(m_Camera->GetRight(), m_Camera->GetForward()), 0.f)  // Recalculate up
             };
-
-
             SkyBoxBuffer[frameIndex]->writeToBuffer(&CameraVectors);
             SkyBoxBuffer[frameIndex]->flush();
 

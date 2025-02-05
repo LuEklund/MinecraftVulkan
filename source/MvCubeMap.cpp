@@ -29,12 +29,12 @@ MvCubeMap::~MvCubeMap()
 void MvCubeMap::CreateImageTexture()
 {
     std::vector<std::string> texturePaths = {
-        "textures/RibbitCabaggeChad.png",
-        "textures/RibbitCabaggeChad.png",
-        "textures/RibbitCabaggeChad.png",
-        "textures/RibbitCabaggeChad.png",
-        "textures/RibbitCabaggeChad.png",
-        "textures/RibbitCabaggeChad.png"};
+        "textures/SkyBox/Front.png", //Ftont
+        "textures/SkyBox/Back.png", //Back
+        "textures/SkyBox/Right.png", //Top
+        "textures/SkyBox/Right.png",
+        "textures/SkyBox/Right.png",
+        "textures/SkyBox/Left.png"}; //Left
     int texWidth, texHeight, texChannels;
     stbi_uc* pixels[6];
     for (int i = 0; i < 6; i++) {
@@ -166,8 +166,8 @@ void MvCubeMap::createTextureImageView() {
 void MvCubeMap::createTextureSampler() {
     VkSamplerCreateInfo samplerInfo{};
     samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-    samplerInfo.magFilter = VK_FILTER_LINEAR;
-    samplerInfo.minFilter = VK_FILTER_LINEAR;
+    samplerInfo.magFilter = VK_FILTER_NEAREST;
+    samplerInfo.minFilter = VK_FILTER_NEAREST;
     samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
     samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
     samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
