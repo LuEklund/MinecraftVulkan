@@ -1,8 +1,6 @@
 #include "MvGameObject.hpp"
 
 
-
-
 class MvChunk 
 {
 public:
@@ -31,6 +29,9 @@ public:
 
     glm::vec4 CalculateUV(int x, int y);
     void GenerateChunk();
+
+    float* CalculateAmbientOcclusions(int x, int y, int z);
+
     void GenerateMesh(MvDevice &device);
 
     // std::vector<MvGameObject> &GetGameObjects() { return m_GameObjects; }
@@ -56,6 +57,7 @@ private:
     bool    bRender = false;
     glm::vec3 m_ChunkPosition;
     std::shared_ptr<MvModel> m_model{};
+
 
     // MvGameObject m_GameObject;
 	// std::vector<MvGameObject> m_GameObjects;

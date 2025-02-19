@@ -19,11 +19,10 @@ class MvModel
 public:
     struct Vertex
     {
-        glm::vec3 position{};
-        glm::vec3 color{};
-        glm::vec3 normal{};
-        glm::vec2 uv{};
-
+        alignas(16) glm::vec3 position{};
+        alignas(16) glm::vec3 normal{};
+        alignas(16) glm::vec2 uv{};
+        alignas(16) float ambientOcclusion{1.f};
 
         static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
         static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();

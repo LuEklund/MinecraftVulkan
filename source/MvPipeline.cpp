@@ -55,10 +55,6 @@ void MvPipeline::createGraphicsPipeline(const PipelineConfigInfo& configInfo)
 		configInfo.renderPass != VK_NULL_HANDLE &&
 		"Cannot create graphics pipeline: no renderPass provided in configInfo");
 
-	// std::vector<char>	vertShaderCode = readFile(m_vertexShader);
-	// std::vector<char>	fragShaderCode = readFile(m_fragmentShader);
-
-
 	std::vector<uint32_t> vertexShaderCode;
 	std::vector<uint32_t> fragShaderCode;
 	if (!CompileShader("shaders/block.vert", Vertex, vertexShaderCode))

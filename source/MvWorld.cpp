@@ -90,6 +90,21 @@ MvWorld::MvWorld(MvDevice &device) : m_Device(device)
     m_detail_domain_warp.SetDomainWarpAmp(43.5f);
     m_detail_domain_warp.SetSeed(123456789);
     m_detail_domain_warp.SetFrequency(-0.059f);
+
+
+    int size = 3;
+    for (int x = 0; x < size; ++x) {
+        for (int y = 3; y < 20; ++y) {
+            for (int z = 0; z < size; ++z) {
+                std::shared_ptr<MvChunk> chunk = std::make_shared<MvChunk>();
+                chunk->SetPosition({static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)});
+                chunk->GenerateChunk();
+                chunk->GenerateMesh(m_Device);
+                m_ChunksLoaded[chunk->GetPosition()] = chunk;
+                // m_chunks.push_back(std::move(chunk));
+            }
+        }
+    }
 }
 
 float MvWorld::GetNoise(float x, float y) {
@@ -151,7 +166,7 @@ void MvWorld::LoadChunksAtCoordinate(glm::vec3 position, int radius) {
 
     // Load chunks
     for (int x = Origin.x - radius; x <= Origin.x + radius; ++x) {
-        for (int y = 0; y <= 8; ++y) {
+        for (int y = 0; y <= 3; ++y) {
             for (int z = Origin.z - radius; z <= Origin.z + radius; ++z) {
                 // if (x >= 0 || z >= 0) {continue;}
                 if (m_ChunksLoaded.find({x, y, z}) == m_ChunksLoaded.end()) {

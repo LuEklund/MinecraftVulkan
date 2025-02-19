@@ -2,6 +2,8 @@
 
 layout (location = 0) in vec3 fragColor;
 layout(location = 1) in vec2 fragTexCoord;
+layout(location = 2) in float fragAO;
+
 
 layout (location = 0) out vec4 outColor;
 
@@ -14,7 +16,15 @@ layout(push_constant) uniform Push {
 
 void main()
 {
-	outColor = texture(texSampler, fragTexCoord);
+    //	outColor = texture(texSampler, fragTexCoord);
 
-	// outColor = vec4(fragColor, 1.0f);
+
+    vec4 sampledColor = texture(texSampler, fragTexCoord); // Sample the texture
+
+    // Apply ambient occlusion
+    // AO darkens the fragment based on the factor (0.0 = fully shadowed, 1.0 = unshadowed)
+    vec4 aoColor = fragAO * sampledColor;
+
+    outColor = vec4(aoColor.rgb, 1.0); // Output final color
+
 }

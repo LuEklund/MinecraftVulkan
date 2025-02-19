@@ -24,24 +24,24 @@ MvCubeMap::~MvCubeMap()
     vkFreeMemory(m_device.GetDevice(), textureImageMemory, nullptr);
 }
 
-
-
 void MvCubeMap::CreateImageTexture()
 {
     std::vector<std::string> texturePaths = {
-        "textures/SkyBox/Front.png", //Ftont
-        "textures/SkyBox/Back.png", //Back
+        "textures/SkyBox/Front.png", //Right
+        "textures/SkyBox/Back.png", //Left
         "textures/SkyBox/Right.png", //Top
-        "textures/SkyBox/Right.png",
-        "textures/SkyBox/Right.png",
-        "textures/SkyBox/Left.png"}; //Left
+        "textures/SkyBox/Right.png", //Bottom
+        "textures/SkyBox/Right.png", //Front
+        "textures/SkyBox/Left.png"}; //Back
     int texWidth, texHeight, texChannels;
     stbi_uc* pixels[6];
+    VkDeviceSize CubeMapTotSize = 0;
     for (int i = 0; i < 6; i++) {
         pixels[i] = stbi_load(texturePaths[i].c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
         if (!pixels[i]) {
             throw std::runtime_error("failed to load texture image!");
         }
+        CubeMapTotSize += texWidth * texHeight * 4;
     }
     VkDeviceSize imageSize = texWidth * texHeight * 4;
 
