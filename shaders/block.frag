@@ -16,6 +16,27 @@ layout(push_constant) uniform Push {
 
 
 
+//void main()
+//{
+//    vec4 sampledColor = texture(texSampler, fragTexCoord); // Sample the texture
+//
+//    // Apply debug visualization for AO:
+//    // Compare smaller AO values first for better clarity in shading transitions.
+//
+//    if (fragAO <= 0.2) {
+//        // Lowest AO (strong occlusion) - Debug as red
+//        outColor = vec4(1.0, 0.0, 0.0, 1.0); // Bright red for strong occlusion
+//    } else if (fragAO <= 0.4) {
+//        // Moderate occlusion
+//        outColor = vec4(0.7 * sampledColor.rgb * fragAO, 1.0); // Darkened more
+//    } else if (fragAO <= 0.7) {
+//        // Slight occlusion
+//        outColor = vec4(sampledColor.rgb * fragAO * 0.7, 1.0); // Slightly darkened
+//    } else {
+//        // Fully lit or almost fully lit
+//        outColor = vec4(sampledColor.rgb * fragAO, 1.0); // Regular AO fade
+//    }
+//}
 
 void main()
 {

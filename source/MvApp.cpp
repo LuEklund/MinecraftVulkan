@@ -185,7 +185,7 @@ void MvApp::Run() {
             float aspect = m_renderer->GetAspectRatio();
             m_Camera->SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
 
-            // m_World->LoadChunksAtCoordinate(m_Camera->GetPosition());
+            m_World->LoadChunksAtCoordinate(m_Camera->GetPosition(), 8);
 
             int frameIndex = m_renderer->GetFrameIndex();
             MvFrameInfo frameInfo{

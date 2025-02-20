@@ -34,7 +34,10 @@ void MvChunk::GenerateChunk() {
                 scaled_height *= 100;
                 scaled_height += detail_sample * 5.f;
                 // float scaled_height = continentalness_sample;
-
+                // if (std::rand() % 2 == 0) {
+                //     data[x][y][z] = 0;
+                //     continue;
+                // }
 
                 if (TotHeight < floor(scaled_height)) {
                     data[x][y][z] = 1;
@@ -96,8 +99,8 @@ void MvChunk::GenerateChunk() {
 //
 // }
 
-float MvChunk::CalculateAmbientOcclusion(glm::ivec3 UpLeft, glm::ivec3 UpMiddle, glm::ivec3 UpRight) {
-    int count = (GetBlock(UpLeft) > 0) + (GetBlock(UpMiddle) > 0) + (GetBlock(UpRight) > 0);
+float MvChunk::CalculateAmbientOcclusion(glm::ivec3 Side1, glm::ivec3 Corner, glm::ivec3 Side2) {
+    int count = (GetBlock(Side1) > 0) + (GetBlock(Corner) > 0) + (GetBlock(Side2) > 0);
     switch (count)
     {
         case 0: return 1.0f; // Fully lit
@@ -109,6 +112,7 @@ float MvChunk::CalculateAmbientOcclusion(glm::ivec3 UpLeft, glm::ivec3 UpMiddle,
 }
 
 void MvChunk::GenerateMesh(MvDevice &device) {
+    //TODO: PASS neighbour chunks to Chunk builder to AO them
     MvModel::Builder modelBuilder{};
 
     int size = 0;
@@ -182,16 +186,21 @@ void MvChunk::GenerateMesh(MvDevice &device) {
                     modelBuilder.indices.push_back(size + 2);
 
                     modelBuilder.vertices.push_back({
-                        {bx + 1, by, bz + 1}, {0, -1, 0}, {BLOCK_UVS[Block].x, BLOCK_UVS[Block].y}
+                        {bx + 1, by, bz + 1}, {0, -1, 0}, {BLOCK_UVS[Block].x, BLOCK_UVS[Block].y},
+                        CalculateAmbientOcclusion({ x, y -1, z+1 }, { x+1, y -1, z+1 }, { x+1, y-1, z })
+
                     });
                     modelBuilder.vertices.push_back({
-                        {bx + 1, by, bz}, {0, -1, 0}, {BLOCK_UVS[Block].z, BLOCK_UVS[Block].y}
+                        {bx + 1, by, bz}, {0, -1, 0}, {BLOCK_UVS[Block].z, BLOCK_UVS[Block].y},
+                        CalculateAmbientOcclusion({ x+1, y -1, z }, { x+1, y -1, z-1 }, { x, y-1, z-1})
                     });
                     modelBuilder.vertices.push_back({
-                        {bx, by, bz + 1}, {0, -1, 0}, {BLOCK_UVS[Block].x, BLOCK_UVS[Block].w}
+                        {bx, by, bz + 1}, {0, -1, 0}, {BLOCK_UVS[Block].x, BLOCK_UVS[Block].w},
+                        CalculateAmbientOcclusion({ x-1, y -1, z }, { x-1, y -1, z+1 }, { x, y-1, z+1})
                     });
                     modelBuilder.vertices.push_back({
-                        {bx, by, bz}, {0, -1, 0}, {BLOCK_UVS[Block].z, BLOCK_UVS[Block].w}
+                        {bx, by, bz}, {0, -1, 0}, {BLOCK_UVS[Block].z, BLOCK_UVS[Block].w},
+                        CalculateAmbientOcclusion({ x, y -1, z-1}, { x-1, y -1, z-1 }, { x-1, y-1, z})
                     });
                     size += 4;
                 }
@@ -208,19 +217,23 @@ void MvChunk::GenerateMesh(MvDevice &device) {
 
                     // Left-Bottom
                     modelBuilder.vertices.push_back({
-                        {bx, by, bz + 1}, {0, 0, 1}, {BLOCK_UVS[Block].x, BLOCK_UVS[Block].w}
+                        {bx, by, bz + 1}, {0, 0, 1}, {BLOCK_UVS[Block].x, BLOCK_UVS[Block].w},
+                        CalculateAmbientOcclusion({ x-1, y, z+1}, { x-1, y -1, z+1 }, { x, y-1, z+1})
                     });
                     // Left-Top
                     modelBuilder.vertices.push_back({
-                        {bx, by + 1, bz + 1}, {0, 0, 1}, {BLOCK_UVS[Block].x, BLOCK_UVS[Block].y}
+                        {bx, by + 1, bz + 1}, {0, 0, 1}, {BLOCK_UVS[Block].x, BLOCK_UVS[Block].y},
+                        CalculateAmbientOcclusion({ x-1, y, z+1}, { x-1, y +1, z+1 }, { x, y+1, z+1})
                     });
                     // Right-Bottom
                     modelBuilder.vertices.push_back({
-                        {bx + 1, by, bz + 1}, {0, 0, 1}, {BLOCK_UVS[Block].z, BLOCK_UVS[Block].w}
+                        {bx + 1, by, bz + 1}, {0, 0, 1}, {BLOCK_UVS[Block].z, BLOCK_UVS[Block].w},
+                        CalculateAmbientOcclusion({ x+1, y, z+1}, { x+1, y -1, z+1 }, { x, y-1, z+1})
                     });
                     // Right-Top
                     modelBuilder.vertices.push_back({
-                        {bx + 1, by + 1, bz + 1}, {0, 0, 1}, {BLOCK_UVS[Block].z, BLOCK_UVS[Block].y}
+                        {bx + 1, by + 1, bz + 1}, {0, 0, 1}, {BLOCK_UVS[Block].z, BLOCK_UVS[Block].y},
+                        CalculateAmbientOcclusion({ x+1, y, z+1}, { x+1, y +1, z+1 }, { x, y+1, z+1})
                     });
                     size += 4;
                 }
@@ -235,16 +248,20 @@ void MvChunk::GenerateMesh(MvDevice &device) {
                     modelBuilder.indices.push_back(size);
 
                     modelBuilder.vertices.push_back({
-                        {bx + 1, by, bz}, {0, 0, -1}, {BLOCK_UVS[Block].x, BLOCK_UVS[Block].w}
+                        {bx + 1, by, bz}, {0, 0, -1}, {BLOCK_UVS[Block].x, BLOCK_UVS[Block].w},
+                        CalculateAmbientOcclusion({ x+1, y, z-1}, { x+1, y -1, z-1 }, { x, y-1, z-1})
                     });
                     modelBuilder.vertices.push_back({
-                        {bx + 1, by + 1, bz}, {0, 0, -1}, {BLOCK_UVS[Block].x, BLOCK_UVS[Block].y}
+                        {bx + 1, by + 1, bz}, {0, 0, -1}, {BLOCK_UVS[Block].x, BLOCK_UVS[Block].y},
+                        CalculateAmbientOcclusion({ x+1, y, z-1}, { x+1, y +1, z-1 }, { x, y+1, z-1})
                     });
                     modelBuilder.vertices.push_back({
-                        {bx, by, bz}, {0, 0, -1}, {BLOCK_UVS[Block].z, BLOCK_UVS[Block].w}
+                        {bx, by, bz}, {0, 0, -1}, {BLOCK_UVS[Block].z, BLOCK_UVS[Block].w},
+                        CalculateAmbientOcclusion({ x-1, y, z-1}, { x-1, y -1, z-1 }, { x, y-1, z-1})
                     });
                     modelBuilder.vertices.push_back({
-                        {bx, by + 1, bz}, {0, 0, -1}, {BLOCK_UVS[Block].z, BLOCK_UVS[Block].y}
+                        {bx, by + 1, bz}, {0, 0, -1}, {BLOCK_UVS[Block].z, BLOCK_UVS[Block].y},
+                        CalculateAmbientOcclusion({ x-1, y, z-1}, { x-1, y +1, z-1 }, { x, y+1, z-1})
                     });
                     size += 4;
                 }
@@ -259,16 +276,20 @@ void MvChunk::GenerateMesh(MvDevice &device) {
                     modelBuilder.indices.push_back(size);
 
                     modelBuilder.vertices.push_back({
-                        {bx + 1, by, bz + 1}, {1, 0, 0}, {BLOCK_UVS[Block].x, BLOCK_UVS[Block].w}
+                        {bx + 1, by, bz + 1}, {1, 0, 0}, {BLOCK_UVS[Block].x, BLOCK_UVS[Block].w},
+                        CalculateAmbientOcclusion({ x+1, y, z+1 }, { x+1, y -1, z+1 }, { x+1, y-1, z })
                     });
                     modelBuilder.vertices.push_back({
-                        {bx + 1, by + 1, bz + 1}, {1, 0, 0}, {BLOCK_UVS[Block].x, BLOCK_UVS[Block].y}
+                        {bx + 1, by + 1, bz + 1}, {1, 0, 0}, {BLOCK_UVS[Block].x, BLOCK_UVS[Block].y},
+                        CalculateAmbientOcclusion({ x+1, y, z+1 }, { x+1, y +1, z+1 }, { x+1, y+1, z })
                     });
                     modelBuilder.vertices.push_back({
-                        {bx + 1, by, bz}, {1, 0, 0}, {BLOCK_UVS[Block].z, BLOCK_UVS[Block].w}
+                        {bx + 1, by, bz}, {1, 0, 0}, {BLOCK_UVS[Block].z, BLOCK_UVS[Block].w},
+                        CalculateAmbientOcclusion({ x+1, y, z-1 }, { x+1, y -1, z-1 }, { x+1, y-1, z })
                     });
                     modelBuilder.vertices.push_back({
-                        {bx + 1, by + 1, bz}, {1, 0, 0}, {BLOCK_UVS[Block].z, BLOCK_UVS[Block].y}
+                       {bx + 1, by + 1, bz}, {1, 0, 0}, {BLOCK_UVS[Block].z, BLOCK_UVS[Block].y},
+                        CalculateAmbientOcclusion({ x+1, y, z-1 }, { x+1, y+1, z-1 }, { x+1, y+1, z })
                     });
                     size += 4;
                 }
@@ -283,16 +304,20 @@ void MvChunk::GenerateMesh(MvDevice &device) {
                     modelBuilder.indices.push_back(size + 1);
 
                     modelBuilder.vertices.push_back({
-                        {bx, by, bz}, {-1, 0, 0}, {BLOCK_UVS[Block].x, BLOCK_UVS[Block].w}
+                        {bx, by, bz}, {-1, 0, 0}, {BLOCK_UVS[Block].x, BLOCK_UVS[Block].w},
+                        CalculateAmbientOcclusion({ x-1, y, z-1 }, { x-1, y -1, z-1 }, { x-1, y-1, z })
                     });
                     modelBuilder.vertices.push_back({
-                        {bx, by + 1, bz}, {-1, 0, 0}, {BLOCK_UVS[Block].x, BLOCK_UVS[Block].y}
+                        {bx, by + 1, bz}, {-1, 0, 0}, {BLOCK_UVS[Block].x, BLOCK_UVS[Block].y},
+                        CalculateAmbientOcclusion({ x-1, y, z-1 }, { x-1, y+1, z-1 }, { x-1, y+1, z })
                     });
                     modelBuilder.vertices.push_back({
-                        {bx, by, bz + 1}, {-1, 0, 0}, {BLOCK_UVS[Block].z, BLOCK_UVS[Block].w}
+                        {bx, by, bz + 1}, {-1, 0, 0}, {BLOCK_UVS[Block].z, BLOCK_UVS[Block].w},
+                        CalculateAmbientOcclusion({ x-1, y, z+1 }, { x-1, y -1, z+1 }, { x-1, y-1, z })
                     });
                     modelBuilder.vertices.push_back({
-                        {bx, by + 1, bz + 1}, {-1, 0, 0}, {BLOCK_UVS[Block].z, BLOCK_UVS[Block].y}
+                        {bx, by + 1, bz + 1}, {-1, 0, 0}, {BLOCK_UVS[Block].z, BLOCK_UVS[Block].y},
+                        CalculateAmbientOcclusion({ x-1, y, z+1 }, { x-1, y +1, z+1 }, { x-1, y+1, z })
                     });
                     size += 4;
                 }
