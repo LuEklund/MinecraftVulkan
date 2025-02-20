@@ -30,18 +30,17 @@ public:
     glm::vec4 CalculateUV(int x, int y);
     void GenerateChunk();
 
-    float* CalculateAmbientOcclusions(int x, int y, int z);
+    // float* CalculateAmbientOcclusions(int x, int y, int z);
+    float CalculateAmbientOcclusion(glm::ivec3 UpLeft, glm::ivec3 UpMiddle, glm::ivec3 UpRight);
 
     void GenerateMesh(MvDevice &device);
-
-    // std::vector<MvGameObject> &GetGameObjects() { return m_GameObjects; }
 
     void SetPosition(const glm::vec3 &position) { m_ChunkPosition = position; }
     const glm::vec3 &GetPosition() const { return m_ChunkPosition; }
 
     std::shared_ptr<MvModel> &GetModel() {return m_model;}
 
-    int GetBlock(int x, int y, int z) {return data[x][y][z];}
+    int GetBlock(glm::ivec3 vec);
 
     void DestroyBlockAt(glm::ivec3 vec);;
     void SetBlockAt(glm::ivec3 vec, int blockType);

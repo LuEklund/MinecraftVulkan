@@ -30,6 +30,7 @@ public:
 
     //camera movement
     void MoveInPlaneXZ(GLFWwindow *window, float deltaTime);
+    void SetPosition(const glm::vec3 &position);
 
     //Getters
     glm::vec3 GetPosition() const {return position;};

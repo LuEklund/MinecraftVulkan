@@ -25,11 +25,11 @@ class MvWorld {
 
   static float GetNoise(float x, float y);
   // static float SplineInterpolation(float x, const std::vector<glm::vec2> &points);
-  static float GetContinentalness(float x);
-  static float GetErosion(float x);
-  static float GetPeaksAndValleys(float x);
-  static float GetPeaksNoise(float x, float y);
-  static float GetDetailNoise(float x, float y);
+  static double GetContinentalness(double x);
+  static double GetErosion(double x);
+  static double GetPeaksAndValleys(double x);
+  static double GetPeaksNoise(double x, double y);
+  static double GetDetailNoise(double x, double y);
 
   private:
     MvDevice& m_Device;

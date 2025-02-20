@@ -17,20 +17,20 @@ void MvChunk::GenerateChunk() {
     for (int x = 0; x < CHUNK_SIZE; x++) {
         for (int y = 0; y < CHUNK_SIZE; y++) {
             for (int z = 0; z < CHUNK_SIZE; z++) {
-                int TotHeight = CHUNK_SIZE * m_ChunkPosition.y + y;
-                int TotX = CHUNK_SIZE * m_ChunkPosition.x + x;
-                int TotZ = CHUNK_SIZE * m_ChunkPosition.z + z;
+                const int TotHeight = CHUNK_SIZE * static_cast<int>(m_ChunkPosition.y) + y;
+                const int TotX = CHUNK_SIZE * static_cast<int>(m_ChunkPosition.x) + x;
+                const int TotZ = CHUNK_SIZE * static_cast<int>(m_ChunkPosition.z) + z;
 
 
-                float continentalness_sample = MvWorld::GetNoise(static_cast<float>(TotX), static_cast<float>(TotZ)) * 1.3;
-                float base_continents = MvWorld::GetContinentalness(continentalness_sample);
+                double continentalness_sample = MvWorld::GetNoise(static_cast<float>(TotX), static_cast<float>(TotZ)) * 1.3;
+                double base_continents = MvWorld::GetContinentalness(continentalness_sample);
 
-                float peaks_noise_sample = MvWorld::GetPeaksNoise(static_cast<float>(TotX), static_cast<float>(TotZ));
-                float peaks_mult = exp(-pow((base_continents - 0.8f) * 10.0f, 2.f));
+                double peaks_noise_sample = MvWorld::GetPeaksNoise(static_cast<float>(TotX), static_cast<float>(TotZ));
+                double peaks_mult = exp(-pow((base_continents - 0.8f) * 10.0f, 2.f));
 
-                float detail_sample = MvWorld::GetDetailNoise(static_cast<float>(TotX), static_cast<float>(TotZ)) + 1.f;
+                double detail_sample = MvWorld::GetDetailNoise(static_cast<float>(TotX), static_cast<float>(TotZ)) + 1.f;
 
-                float scaled_height = base_continents * (1.0f + peaks_mult * peaks_noise_sample);
+                double scaled_height = base_continents * (1.0f + peaks_mult * peaks_noise_sample);
                 scaled_height *= 100;
                 scaled_height += detail_sample * 5.f;
                 // float scaled_height = continentalness_sample;
@@ -53,7 +53,51 @@ void MvChunk::GenerateChunk() {
     }
 }
 
-float CalculateAmbientOcclusion(int count) {
+
+
+
+// float CalculateAmbientOcclusion(int count) {
+//     switch (count)
+//     {
+//         case 0: return 1.0f; // Fully lit
+//         case 1: return 0.7f; // Some occlusion
+//         case 2: return 0.4f; // More occlusion
+//         case 3: return 0.2f; // Very occluded
+//         default: return 1.0f; // Default fallback
+//     }
+// }
+//
+// float* MvChunk::CalculateAmbientOcclusions(int x, int y, int z)
+// {
+//     // Check neighboring blocks (diagonal and adjacent)
+//     y += 1;
+//     int neighbors[8] = {
+//         (x > 0 && z > 0 && data[x-1][y][z-1] != AIR), //left back 0
+//         (z > 0 && data[x][y][z-1] != AIR), // back middle 1
+//         (x < CHUNK_SIZE - 1 && z > 0 && data[x+1][y][z-1] != AIR), // right back 2
+//         (x > 0 && data[x-1][y][z] != AIR), // left middle 3
+//         (z < CHUNK_SIZE - 1 && data[x][y][z+1] != AIR), // right middle 4
+//         (x > 0 && z < CHUNK_SIZE - 1 && data[x-1][y][z+1] != AIR), // front left 5
+//         (z < CHUNK_SIZE - 1 && data[x][y][z+1] != AIR), // front middle 6
+//         (x < CHUNK_SIZE - 1 && z < CHUNK_SIZE - 1 && data[x+1][y][z+1] != AIR), // front right 7
+//     };
+//     float *ret = new float[4];
+//     int count = neighbors[0] + neighbors[1] + neighbors[3];
+//     ret[0] = CalculateAmbientOcclusion(count);
+//     count = neighbors[1] + neighbors[2] + neighbors[4];
+//     ret[1] = CalculateAmbientOcclusion(count);
+//     count = neighbors[3] + neighbors[5] + neighbors[6];
+//     ret[2] = CalculateAmbientOcclusion(count);
+//     count = neighbors[6] + neighbors[7] + neighbors[4];
+//     ret[3] = CalculateAmbientOcclusion(count);
+//
+//
+//     return ret;
+//
+// }
+
+float MvChunk::CalculateAmbientOcclusion(glm::ivec3 UpLeft, glm::ivec3 UpMiddle, glm::ivec3 UpRight) {
+    int count = (GetBlock(UpLeft) > 0) + (GetBlock(UpMiddle) > 0) + (GetBlock(UpRight) > 0);
     switch (count)
     {
         case 0: return 1.0f; // Fully lit
@@ -63,36 +107,6 @@ float CalculateAmbientOcclusion(int count) {
         default: return 1.0f; // Default fallback
     }
 }
-
-float* MvChunk::CalculateAmbientOcclusions(int x, int y, int z)
-{
-    // Check neighboring blocks (diagonal and adjacent)
-    y += 1;
-    int neighbors[8] = {
-        (x > 0 && z > 0 && data[x-1][y][z-1] != AIR), //left back 0
-        (z > 0 && data[x][y][z-1] != AIR), // back middle 1
-        (x < CHUNK_SIZE - 1 && z > 0 && data[x+1][y][z-1] != AIR), // right back 2
-        (x > 0 && data[x-1][y][z] != AIR), // left middle 3
-        (z < CHUNK_SIZE - 1 && data[x][y][z+1] != AIR), // right middle 4
-        (x > 0 && z < CHUNK_SIZE - 1 && data[x-1][y][z+1] != AIR), // front left 5
-        (z < CHUNK_SIZE - 1 && data[x][y][z+1] != AIR), // front middle 6
-        (x < CHUNK_SIZE - 1 && z < CHUNK_SIZE - 1 && data[x+1][y][z+1] != AIR), // front right 7
-    };
-    float *ret = new float[4];
-    int count = neighbors[0] + neighbors[1] + neighbors[3];
-    ret[0] = CalculateAmbientOcclusion(count);
-    count = neighbors[1] + neighbors[2] + neighbors[4];
-    ret[1] = CalculateAmbientOcclusion(count);
-    count = neighbors[3] + neighbors[5] + neighbors[6];
-    ret[2] = CalculateAmbientOcclusion(count);
-    count = neighbors[6] + neighbors[7] + neighbors[4];
-    ret[3] = CalculateAmbientOcclusion(count);
-
-
-    return ret;
-
-}
-
 
 void MvChunk::GenerateMesh(MvDevice &device) {
     MvModel::Builder modelBuilder{};
@@ -115,9 +129,9 @@ void MvChunk::GenerateMesh(MvDevice &device) {
                     continue;
 
                 //block start base
-                float bx = x + start.x;
-                float by = y + start.y;
-                float bz = z + start.z;
+                float bx = static_cast<float>(x + start.x);
+                float by = static_cast<float>(y + start.y);
+                float bz = static_cast<float>(z + start.z);
 
                 //Top face
                 if (y == CHUNK_SIZE - 1 || data[x][y + 1][z] == AIR) {
@@ -130,34 +144,34 @@ void MvChunk::GenerateMesh(MvDevice &device) {
 
 
                     // Postion, Color, Normal, UV
-                    // left-top-back
-                    float *AmbientOC = CalculateAmbientOcclusions(x, y, z);
+                    // left-top-forward
 
                     modelBuilder.vertices.push_back({
                         {bx, by + 1, bz + 1},
                         {0, 1, 0},
                         {BLOCK_UVS[Block].x, BLOCK_UVS[Block].y},
-                        AmbientOC[0]
+                        CalculateAmbientOcclusion({ x-1, y +1, z }, { x-1, y +1, z+1 }, { x, y + 1, z + 1 })
                     });
 
-                    // left-top-front
+                    // left-top-back
                     modelBuilder.vertices.push_back({
-                        {bx, by + 1, bz}, {0, 1, 0}, {BLOCK_UVS[Block].z, BLOCK_UVS[Block].y}, AmbientOC[2]
+                        {bx, by + 1, bz}, {0, 1, 0}, {BLOCK_UVS[Block].z, BLOCK_UVS[Block].y},
+                        CalculateAmbientOcclusion({ x, y +1, z-1 }, { x-1, y +1, z-1 }, { x-1, y + 1, z })
                     });
                     // right-top-back
                     modelBuilder.vertices.push_back({
-                        {bx + 1, by + 1, bz + 1}, {0, 1, 0}, {BLOCK_UVS[Block].x, BLOCK_UVS[Block].w}, AmbientOC[1]
+                        {bx + 1, by + 1, bz + 1}, {0, 1, 0}, {BLOCK_UVS[Block].x, BLOCK_UVS[Block].w},
+                        CalculateAmbientOcclusion({ x+1, y +1, z }, { x+1, y +1, z+1 }, { x, y + 1, z + 1 })
                     });
                     // right-top-front
                     modelBuilder.vertices.push_back({
-                        {bx + 1, by + 1, bz}, {0, 1, 0}, {BLOCK_UVS[Block].z, BLOCK_UVS[Block].w}, AmbientOC[3]
+                        {bx + 1, by + 1, bz}, {0, 1, 0}, {BLOCK_UVS[Block].z, BLOCK_UVS[Block].w},
+                        CalculateAmbientOcclusion({ x, y +1, z-1 }, { x+1, y +1, z-1 }, { x+1, y + 1, z })
                     });
                     size += 4;
-                    delete  AmbientOC;
+
 
                 }
-                float *AmbientOC = CalculateAmbientOcclusions(x, y, z);
-                delete  AmbientOC;
                 //Bottom face
                 if (y == 0 || data[x][y - 1][z] == AIR) {
                     modelBuilder.indices.push_back(size + 3);
@@ -185,8 +199,6 @@ void MvChunk::GenerateMesh(MvDevice &device) {
                 // ====================================================
                 //Front face
                 if (z == CHUNK_SIZE - 1 || data[x][y][z + 1] == AIR) {
-                    float *AmbientOC = CalculateAmbientOcclusions(x, y, z);
-                    delete  AmbientOC;
                     modelBuilder.indices.push_back(size);
                     modelBuilder.indices.push_back(size + 2);
                     modelBuilder.indices.push_back(size + 3);
@@ -215,8 +227,6 @@ void MvChunk::GenerateMesh(MvDevice &device) {
 
                 //Back face
                 if (z == 0 || data[x][y][z - 1] == AIR) {
-                    float *AmbientOC = CalculateAmbientOcclusions(x, y, z);
-                    delete  AmbientOC;
                     modelBuilder.indices.push_back(size + 2);
                     modelBuilder.indices.push_back(size + 3);
                     modelBuilder.indices.push_back(size + 1);
@@ -241,8 +251,6 @@ void MvChunk::GenerateMesh(MvDevice &device) {
 
                 //Right face
                 if (x == CHUNK_SIZE - 1 || data[x + 1][y][z] == AIR) {
-                    float *AmbientOC = CalculateAmbientOcclusions(x, y, z);
-                    delete  AmbientOC;
                     modelBuilder.indices.push_back(size + 2);
                     modelBuilder.indices.push_back(size + 3);
                     modelBuilder.indices.push_back(size + 1);
@@ -267,8 +275,6 @@ void MvChunk::GenerateMesh(MvDevice &device) {
 
                 //Left face
                 if (x == 0 || data[x + -1][y][z] == AIR) {
-                    float *AmbientOC = CalculateAmbientOcclusions(x, y, z);
-                    delete  AmbientOC;
                     modelBuilder.indices.push_back(size);
                     modelBuilder.indices.push_back(size + 2);
                     modelBuilder.indices.push_back(size + 3);
@@ -316,6 +322,14 @@ void MvChunk::DestroyBlockAt(glm::ivec3 vec) {
 
 void MvChunk::SetBlockAt(glm::ivec3 vec, int blockType) {
     data[vec.x][vec.y][vec.z] = blockType;
+}
+
+int MvChunk::GetBlock(glm::ivec3 vec) {
+    if (vec.x < 0 || vec.x >= CHUNK_SIZE
+        || vec.y < 0 || vec.y >= CHUNK_SIZE
+        || vec.z < 0 || vec.z >= CHUNK_SIZE)
+        return -1;
+    return data[vec.x][vec.y][vec.z];
 }
 
 float MvChunk::Continentalness(float x) {

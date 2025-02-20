@@ -178,6 +178,10 @@ void MvCamera::MoveInPlaneXZ(GLFWwindow *window, float deltaTime)
 
 }
 
+void MvCamera::SetPosition(const glm::vec3 &position) {
+    this->position = position;
+}
+
 glm::vec3 MvCamera::GetForward() const {
     glm::vec3 forwardDirection = {
         glm::cos(rotation.x) * glm::sin(rotation.y), // X
@@ -205,6 +209,14 @@ glm::vec3 MvCamera::GetRight() const {
 void MvCamera::SetUpListeners(GLFWwindow *window) {
     glfwSetKeyCallback(window, [](GLFWwindow *window, int key, int scancode, int action, int mods) {
         if (action == GLFW_PRESS) {
+            if (key == GLFW_KEY_R) {
+                auto app = static_cast<MvApp *>(glfwGetWindowUserPointer(window));
+                glm::vec3 camPos = app->GetCamera().GetPosition();
+                std::cout << "Camera position: "
+                  << static_cast<int>(camPos.x) << ", "
+                  << static_cast<int>(camPos.y) << ", "
+                  << static_cast<int>(camPos.z) << std::endl;
+            }
             if (key == GLFW_KEY_ENTER || key == GLFW_KEY_P) {
                 auto app = static_cast<MvApp *>(glfwGetWindowUserPointer(window));
                 glm::vec3 camPos = app->GetCamera().GetPosition();
@@ -230,8 +242,10 @@ void MvCamera::SetUpListeners(GLFWwindow *window) {
                 }
 
 
+
                 //std::cout << "Hit " << HitRes.Hit << std::endl;
             }
+
         }
     });
 }

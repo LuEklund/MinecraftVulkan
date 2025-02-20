@@ -161,6 +161,7 @@ void MvApp::Run() {
     m_Camera->SetUpListeners(m_window->GetWindow());
     m_Camera->SetViewTarget(glm::vec3{0.f, -2.f, 2.f}, glm::vec3{0.f, -1.f, -1.f});
     auto currentTime = std::chrono::high_resolution_clock::now();
+    m_Camera->SetPosition({ 0.f, 75.f, 0.f });
 
 
     //Update

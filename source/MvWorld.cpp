@@ -130,27 +130,27 @@ float SplineInterpolation(float x, const  std::vector<glm::vec2> &points) {
     return 0.0f;
 }
 
-float MvWorld::GetContinentalness(float x) {
+double MvWorld::GetContinentalness(double x) {
     return SplineInterpolation(x, Continentalness);
 }
 
-float MvWorld::GetErosion(float x) {
+double MvWorld::GetErosion(double x) {
     return SplineInterpolation(x, Erosion);
 }
 
-float MvWorld::GetPeaksAndValleys(float x) {
+double MvWorld::GetPeaksAndValleys(double x) {
     return SplineInterpolation(x, PeaksAndValleys);
 }
 
 
-float MvWorld::GetPeaksNoise(float x, float y) {
-    float warp_x = x, warp_y = y;
+double MvWorld::GetPeaksNoise(double x, double y) {
+    double warp_x = x, warp_y = y;
     m_domain_warp_peaks.DomainWarp(warp_x, warp_y);
     return m_noise_gen_peaks.GetNoise(warp_x, warp_y);
 }
 
-float MvWorld::GetDetailNoise(float x, float y) {
-    float warp_x = x, warp_y = y;
+double MvWorld::GetDetailNoise(double x, double y) {
+    double warp_x = x, warp_y = y;
     m_detail_domain_warp.DomainWarp(warp_x, warp_y);
     return m_detail_noise_gen.GetNoise(warp_x, warp_y);
 }
