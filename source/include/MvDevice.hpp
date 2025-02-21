@@ -40,6 +40,7 @@ class MvDevice {
 
   VkCommandPool GetCommandPool() { return commandPool; }
   VkDevice GetDevice() { return device_; }
+  VkPhysicalDevice GetPhysicalDevice() { return physicalDevice; }
   VkSurfaceKHR surface() { return surface_; }
   VkQueue graphicsQueue() { return graphicsQueue_; }
   VkQueue presentQueue() { return presentQueue_; }

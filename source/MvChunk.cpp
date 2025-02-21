@@ -59,46 +59,6 @@ void MvChunk::GenerateChunk() {
 
 
 
-// float CalculateAmbientOcclusion(int count) {
-//     switch (count)
-//     {
-//         case 0: return 1.0f; // Fully lit
-//         case 1: return 0.7f; // Some occlusion
-//         case 2: return 0.4f; // More occlusion
-//         case 3: return 0.2f; // Very occluded
-//         default: return 1.0f; // Default fallback
-//     }
-// }
-//
-// float* MvChunk::CalculateAmbientOcclusions(int x, int y, int z)
-// {
-//     // Check neighboring blocks (diagonal and adjacent)
-//     y += 1;
-//     int neighbors[8] = {
-//         (x > 0 && z > 0 && data[x-1][y][z-1] != AIR), //left back 0
-//         (z > 0 && data[x][y][z-1] != AIR), // back middle 1
-//         (x < CHUNK_SIZE - 1 && z > 0 && data[x+1][y][z-1] != AIR), // right back 2
-//         (x > 0 && data[x-1][y][z] != AIR), // left middle 3
-//         (z < CHUNK_SIZE - 1 && data[x][y][z+1] != AIR), // right middle 4
-//         (x > 0 && z < CHUNK_SIZE - 1 && data[x-1][y][z+1] != AIR), // front left 5
-//         (z < CHUNK_SIZE - 1 && data[x][y][z+1] != AIR), // front middle 6
-//         (x < CHUNK_SIZE - 1 && z < CHUNK_SIZE - 1 && data[x+1][y][z+1] != AIR), // front right 7
-//     };
-//     float *ret = new float[4];
-//     int count = neighbors[0] + neighbors[1] + neighbors[3];
-//     ret[0] = CalculateAmbientOcclusion(count);
-//     count = neighbors[1] + neighbors[2] + neighbors[4];
-//     ret[1] = CalculateAmbientOcclusion(count);
-//     count = neighbors[3] + neighbors[5] + neighbors[6];
-//     ret[2] = CalculateAmbientOcclusion(count);
-//     count = neighbors[6] + neighbors[7] + neighbors[4];
-//     ret[3] = CalculateAmbientOcclusion(count);
-//
-//
-//     return ret;
-//
-// }
-
 float MvChunk::CalculateAmbientOcclusion(glm::ivec3 Side1, glm::ivec3 Corner, glm::ivec3 Side2) {
     int count = (GetBlock(Side1) > 0) + (GetBlock(Corner) > 0) + (GetBlock(Side2) > 0);
     switch (count)
@@ -112,7 +72,7 @@ float MvChunk::CalculateAmbientOcclusion(glm::ivec3 Side1, glm::ivec3 Corner, gl
 }
 
 void MvChunk::GenerateMesh(MvDevice &device) {
-    //TODO: PASS neighbour chunks to Chunk builder to AO them
+    //TODO: PASS neighbour chunks to Chunk builder so we can use them for Ambient Occlusion
     MvModel::Builder modelBuilder{};
 
     int size = 0;
