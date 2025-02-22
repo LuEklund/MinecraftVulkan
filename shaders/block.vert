@@ -1,12 +1,12 @@
 #version 450
 
 layout(location = 0) in vec3 positions;
-layout(location = 1) in vec3 normal;
-layout(location = 2) in vec2 uv;
+layout(location = 1) in vec2 uv;
+layout(location = 2) in float light;
 layout(location = 3) in float aoFactor;
 
-layout(location = 0) out vec3 fragColor;
-layout(location = 1) out vec2 fragTexCoord;
+layout(location = 0) out vec2 fragTexCoord;
+layout(location = 1) out float fragLight;
 layout(location = 2) out float fragAO;
 
 
@@ -26,12 +26,13 @@ void main()
 {
     gl_Position = ubo.ProjectionViewMatrix * push.modelMatrix * vec4(positions, 1.0);
 
-    vec3 normaWorldSpace = normalize(vec3(push.modelMatrix) * normal);
+    vec3 normaWorldSpace = normalize(vec3(push.modelMatrix));
 
     float intensity = ambient + max(dot(normaWorldSpace, ubo.directionalLight), 0);
 
     //    fragColor = intensity * color;
     fragTexCoord = uv;
+    fragLight = light;
     fragAO = aoFactor;
 
 

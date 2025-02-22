@@ -1,7 +1,7 @@
 #version 450
 
-layout (location = 0) in vec3 fragColor;
-layout(location = 1) in vec2 fragTexCoord;
+layout(location = 0) in vec2 fragTexCoord;
+layout(location = 1) in float fragLight;
 layout(location = 2) in float fragAO;
 
 
@@ -45,10 +45,13 @@ void main()
 
     vec4 sampledColor = texture(texSampler, fragTexCoord); // Sample the texture
 
+//    vec3 redScale = vec3(fragLight / 15, 0, 0);
+    vec3 redScale = vec3(fragLight / 15, fragLight / 15, fragLight / 15);
+
     // Apply ambient occlusion
     // AO darkens the fragment based on the factor (0.0 = fully shadowed, 1.0 = unshadowed)
     vec4 aoColor = fragAO * sampledColor;
-
-    outColor = vec4(aoColor.rgb, 1.0); // Output final color
+//    outColor = vec4(redScale, 1.f);
+    outColor = vec4(aoColor.rgb * redScale, 1.0); // Output final color
 
 }

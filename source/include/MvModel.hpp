@@ -20,9 +20,9 @@ public:
     struct Vertex
     {
         alignas(16) glm::vec3 position{};
-        alignas(16) glm::vec3 normal{};
-        alignas(16) glm::vec2 uv{};
-        alignas(16) float ambientOcclusion{1.f};
+        alignas(8) glm::vec2 uv{};
+        alignas(8) float light{0.f};
+        alignas(4) float ambientOcclusion{1.f};
 
         static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
         static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();

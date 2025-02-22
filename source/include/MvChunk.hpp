@@ -1,9 +1,23 @@
+#include <queue>
+
 #include "MvGameObject.hpp"
 
 
-class MvChunk 
+typedef struct s_block {
+    int8_t type;
+    int8_t light;
+} Block;
+
+typedef struct s_LightNode {
+    // s_LightNode(short indx) : index(indx){}
+    short index; //this is the x y z coordinate!
+} LightNode;
+
+class MvChunk
 {
 public:
+    std::queue<LightNode> sunlightBfsQueue;
+
     static constexpr int CHUNK_SIZE = 16;
 
     static const int AIR = 0;
@@ -25,10 +39,11 @@ public:
 
     MvChunk();
 
-    int data[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE] = {0};
+    Block DATA[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE] = {0};
 
     glm::vec4 CalculateUV(int x, int y);
     void GenerateChunk();
+
 
     // float* CalculateAmbientOcclusions(int x, int y, int z);
     float CalculateAmbientOcclusion(glm::ivec3 UpLeft, glm::ivec3 UpMiddle, glm::ivec3 UpRight);
@@ -40,7 +55,7 @@ public:
 
     std::shared_ptr<MvModel> &GetModel() {return m_model;}
 
-    int GetBlock(glm::ivec3 vec);
+    Block GetBlock(glm::ivec3 vec);
 
     void DestroyBlockAt(glm::ivec3 vec);;
     void SetBlockAt(glm::ivec3 vec, int blockType);
@@ -51,6 +66,7 @@ public:
 
 private:
     float Continentalness(float x);
+    void LightPropagate(int x, int y, int z, int lightLevel);
 
     bool    bHasMesh = false;
     bool    bRender = false;
