@@ -46,12 +46,13 @@ void main()
     vec4 sampledColor = texture(texSampler, fragTexCoord); // Sample the texture
 
 //    vec3 redScale = vec3(fragLight / 15, 0, 0);
-    vec3 redScale = vec3(fragLight / 15, fragLight / 15, fragLight / 15);
+    vec3 lightScale = vec3(fragLight / 15, fragLight / 15, fragLight / 15);
+    vec3 sunlightIntensity = max(lightScale, 0.02f);
 
     // Apply ambient occlusion
     // AO darkens the fragment based on the factor (0.0 = fully shadowed, 1.0 = unshadowed)
     vec4 aoColor = fragAO * sampledColor;
 //    outColor = vec4(redScale, 1.f);
-    outColor = vec4(aoColor.rgb * redScale, 1.0); // Output final color
+    outColor = vec4(aoColor.rgb * sunlightIntensity, 1.0); // Output final color
 
 }

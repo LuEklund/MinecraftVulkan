@@ -2,6 +2,9 @@
 // Created by Lucas on 2025-01-30.
 //
 #include "MvWorld.hpp"
+
+#include <iostream>
+#include <ostream>
 #include <unordered_map>
 
 FastNoiseLite MvWorld::m_NoiseGen;
@@ -92,9 +95,9 @@ MvWorld::MvWorld(MvDevice &device) : m_Device(device)
     m_detail_domain_warp.SetFrequency(-0.059f);
 
 
-    // int size = 16;
+    // int size = 3;
     // for (int x = 0; x < size; ++x) {
-    //     for (int y = 3; y < 20; ++y) {
+    //     for (int y = 4; y < 6; ++y) {
     //         for (int z = 0; z < size; ++z) {
     //             std::shared_ptr<MvChunk> chunk = std::make_shared<MvChunk>();
     //             chunk->SetPosition({static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)});
@@ -155,6 +158,19 @@ double MvWorld::GetDetailNoise(double x, double y) {
     return m_detail_noise_gen.GetNoise(warp_x, warp_y);
 }
 
+
+void MvWorld::UpdateWorld(float frameTime) {
+    // static float TimeElapsed = 0.0f;
+    // TimeElapsed += frameTime;
+    // MvChunk::GlobalLightLevel = static_cast<short>(7.5f * (std::sin(TimeElapsed) + 1));
+
+    // for (auto it = m_ChunksLoaded.begin(); it != m_ChunksLoaded.end(); ++it) {
+    //     it->second->CalculateLight();
+    //     it->second->GenerateMesh(m_Device);
+    // }
+    // std::cout << "Light Level: " << light << std::endl;
+    // std::cout << "Light Level2: " << 7.5f * (std::sin(TimeElapsed) + 1) << std::endl;
+}
 
 void MvWorld::LoadChunksAtCoordinate(glm::vec3 position, int radius) {
     // std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> chunks;

@@ -16,6 +16,7 @@ typedef struct s_LightNode {
 class MvChunk
 {
 public:
+    static short GlobalLightLevel;
     std::queue<LightNode> sunlightBfsQueue;
 
     static constexpr int CHUNK_SIZE = 16;
@@ -50,6 +51,8 @@ public:
 
     void GenerateMesh(MvDevice &device);
 
+    void CalculateLight();
+
     void SetPosition(const glm::vec3 &position) { m_ChunkPosition = position; }
     const glm::vec3 &GetPosition() const { return m_ChunkPosition; }
 
@@ -77,3 +80,4 @@ private:
     // MvGameObject m_GameObject;
 	// std::vector<MvGameObject> m_GameObjects;
 };
+

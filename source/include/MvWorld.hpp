@@ -17,7 +17,9 @@ class MvWorld {
   public:
   MvWorld(MvDevice &device);
 
-  std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> & GetChunks() {return m_ChunksLoaded;};
+  std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> & GetChunks() {return m_ChunksLoaded;}
+
+  void UpdateWorld(float frameTime);;
 
   void LoadChunksAtCoordinate(glm::vec3 position, int radius = 3);
   void SetWorldBlockAt(glm::ivec3 vec, int blockType);

@@ -1,6 +1,7 @@
 #include <iostream>
 #include "MvWorld.hpp"
 
+short MvChunk::GlobalLightLevel = 15;
 
 MvChunk::MvChunk() {
 }
@@ -47,9 +48,11 @@ void MvChunk::GenerateChunk() {
                 else
                     DATA[x][y][z].type = 0;
             }
+
+            // for lights
             for (int y = CHUNK_SIZE - 1; y >= 0; y--) {
                 if (DATA[x][y][z].type == AIR) {
-                    DATA[x][y][z].light = 15;
+                    DATA[x][y][z].light = GlobalLightLevel;
                     short index = x * CHUNK_SIZE * CHUNK_SIZE + y * CHUNK_SIZE + z;
                     sunlightBfsQueue.emplace(index);
                 }
@@ -58,13 +61,14 @@ void MvChunk::GenerateChunk() {
             }
         }
     }
+    // lights
     while (!sunlightBfsQueue.empty()) {
         LightNode &node = sunlightBfsQueue.front();
         short index = node.index;
         sunlightBfsQueue.pop();
-        int x = index % CHUNK_SIZE;
-        int y = index / (CHUNK_SIZE * CHUNK_SIZE);
-        int z = (index % (CHUNK_SIZE * CHUNK_SIZE) ) / CHUNK_SIZE;
+        int x = index / (CHUNK_SIZE * CHUNK_SIZE);
+        int y = (index % (CHUNK_SIZE * CHUNK_SIZE)) / CHUNK_SIZE;
+        int z = index % CHUNK_SIZE;
         int lightLevel = DATA[x][y][z].light;
         LightPropagate(x-1, y, z, lightLevel);
         LightPropagate(x+1, y, z , lightLevel);
@@ -182,29 +186,31 @@ void MvChunk::GenerateMesh(MvDevice &device) {
                     modelBuilder.indices.push_back(size);
                     modelBuilder.indices.push_back(size + 2);
 
+                    Block blockBottom = GetBlock({x,y-1,z});
+                    float light = static_cast<float>(blockBottom.light);
                     modelBuilder.vertices.push_back({
                         {bx + 1, by, bz + 1},
                         {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].y},
-                        {0},
+                        {light},
                         CalculateAmbientOcclusion({ x, y -1, z+1 }, { x+1, y -1, z+1 }, { x+1, y-1, z })
 
                     });
                     modelBuilder.vertices.push_back({
                         {bx + 1, by, bz},
                         {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].y},
-                        {0},
+                        {light},
                         CalculateAmbientOcclusion({ x+1, y -1, z }, { x+1, y -1, z-1 }, { x, y-1, z-1})
                     });
                     modelBuilder.vertices.push_back({
                         {bx, by, bz + 1},
                         {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].w},
-                        {0},
+                        {light},
                         CalculateAmbientOcclusion({ x-1, y -1, z }, { x-1, y -1, z+1 }, { x, y-1, z+1})
                     });
                     modelBuilder.vertices.push_back({
                         {bx, by, bz},
                         {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].w},
-                        {0},
+                        {light},
                         CalculateAmbientOcclusion({ x, y -1, z-1}, { x-1, y -1, z-1 }, { x-1, y-1, z})
                     });
                     size += 4;
@@ -220,32 +226,34 @@ void MvChunk::GenerateMesh(MvDevice &device) {
                     modelBuilder.indices.push_back(size + 3);
                     modelBuilder.indices.push_back(size + 1);
 
+                    Block blockFront = GetBlock({x,y,z + 1});
+                    float light = static_cast<float>(blockFront.light);
                     // Left-Bottom
                     modelBuilder.vertices.push_back({
                         {bx, by, bz + 1},
                         {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].w},
-                        {0},
+                        {light},
                         CalculateAmbientOcclusion({ x-1, y, z+1}, { x-1, y -1, z+1 }, { x, y-1, z+1})
                     });
                     // Left-Top
                     modelBuilder.vertices.push_back({
                         {bx, by + 1, bz + 1},
                         {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].y},
-                        {0},
+                        {light},
                         CalculateAmbientOcclusion({ x-1, y, z+1}, { x-1, y +1, z+1 }, { x, y+1, z+1})
                     });
                     // Right-Bottom
                     modelBuilder.vertices.push_back({
                         {bx + 1, by, bz + 1},
                         {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].w},
-                        {0},
+                        {light},
                         CalculateAmbientOcclusion({ x+1, y, z+1}, { x+1, y -1, z+1 }, { x, y-1, z+1})
                     });
                     // Right-Top
                     modelBuilder.vertices.push_back({
                         {bx + 1, by + 1, bz + 1},
                         {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].y},
-                        {0},
+                        {light},
                         CalculateAmbientOcclusion({ x+1, y, z+1}, { x+1, y +1, z+1 }, { x, y+1, z+1})
                     });
                     size += 4;
@@ -260,28 +268,30 @@ void MvChunk::GenerateMesh(MvDevice &device) {
                     modelBuilder.indices.push_back(size + 1);
                     modelBuilder.indices.push_back(size);
 
+                    Block blockBack = GetBlock({x,y,z -1});
+                    float light = static_cast<float>(blockBack.light);
                     modelBuilder.vertices.push_back({
                         {bx + 1, by, bz},
                         {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].w},
-                        {0},
+                        {light},
                         CalculateAmbientOcclusion({ x+1, y, z-1}, { x+1, y -1, z-1 }, { x, y-1, z-1})
                     });
                     modelBuilder.vertices.push_back({
                         {bx + 1, by + 1, bz},
                         {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].y},
-                        {0},
+                        {light},
                         CalculateAmbientOcclusion({ x+1, y, z-1}, { x+1, y +1, z-1 }, { x, y+1, z-1})
                     });
                     modelBuilder.vertices.push_back({
                         {bx, by, bz},
                         {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].w},
-                        {0},
+                        {light},
                         CalculateAmbientOcclusion({ x-1, y, z-1}, { x-1, y -1, z-1 }, { x, y-1, z-1})
                     });
                     modelBuilder.vertices.push_back({
                         {bx, by + 1, bz},
                         {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].y},
-                        {0},
+                        {light},
                         CalculateAmbientOcclusion({ x-1, y, z-1}, { x-1, y +1, z-1 }, { x, y+1, z-1})
                     });
                     size += 4;
@@ -296,28 +306,30 @@ void MvChunk::GenerateMesh(MvDevice &device) {
                     modelBuilder.indices.push_back(size + 1);
                     modelBuilder.indices.push_back(size);
 
+                    Block blockRight = GetBlock({x+1,y,z});
+                    float light = static_cast<float>(blockRight.light);
                     modelBuilder.vertices.push_back({
                         {bx + 1, by, bz + 1},
                         {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].w},
-                        {0},
+                        {light},
                         CalculateAmbientOcclusion({ x+1, y, z+1 }, { x+1, y -1, z+1 }, { x+1, y-1, z })
                     });
                     modelBuilder.vertices.push_back({
                         {bx + 1, by + 1, bz + 1},
                         {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].y},
-                        {0},
+                        {light},
                         CalculateAmbientOcclusion({ x+1, y, z+1 }, { x+1, y +1, z+1 }, { x+1, y+1, z })
                     });
                     modelBuilder.vertices.push_back({
                         {bx + 1, by, bz},
                         {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].w},
-                        {0},
+                        {light},
                         CalculateAmbientOcclusion({ x+1, y, z-1 }, { x+1, y -1, z-1 }, { x+1, y-1, z })
                     });
                     modelBuilder.vertices.push_back({
                        {bx + 1, by + 1, bz},
                        {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].y},
-                       {0},
+                       {light},
                         CalculateAmbientOcclusion({ x+1, y, z-1 }, { x+1, y+1, z-1 }, { x+1, y+1, z })
                     });
                     size += 4;
@@ -332,28 +344,30 @@ void MvChunk::GenerateMesh(MvDevice &device) {
                     modelBuilder.indices.push_back(size + 3);
                     modelBuilder.indices.push_back(size + 1);
 
+                    Block blockLeft = GetBlock({x-1,y,z});
+                    float light = static_cast<float>(blockLeft.light);
                     modelBuilder.vertices.push_back({
                         {bx, by, bz},
                         {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].w},
-                        {0},
+                        {light},
                         CalculateAmbientOcclusion({ x-1, y, z-1 }, { x-1, y -1, z-1 }, { x-1, y-1, z })
                     });
                     modelBuilder.vertices.push_back({
                         {bx, by + 1, bz},
                         {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].y},
-                        {0},
+                        {light},
                         CalculateAmbientOcclusion({ x-1, y, z-1 }, { x-1, y+1, z-1 }, { x-1, y+1, z })
                     });
                     modelBuilder.vertices.push_back({
                         {bx, by, bz + 1},
                         {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].w},
-                        {0},
+                        {light},
                         CalculateAmbientOcclusion({ x-1, y, z+1 }, { x-1, y -1, z+1 }, { x-1, y-1, z })
                     });
                     modelBuilder.vertices.push_back({
                         {bx, by + 1, bz + 1},
                         {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].y},
-                        {0},
+                        {light},
                         CalculateAmbientOcclusion({ x-1, y, z+1 }, { x-1, y +1, z+1 }, { x-1, y+1, z })
                     });
                     size += 4;
@@ -376,17 +390,51 @@ void MvChunk::GenerateMesh(MvDevice &device) {
     // m_gameObjects.push_back(std::move(gameObject));
 }
 
+void MvChunk::CalculateLight() {
+    for (int x = 0; x < CHUNK_SIZE; x++) {
+        for (int z = 0; z < CHUNK_SIZE; z++) {
+            int y = CHUNK_SIZE - 1;
+            for (y; y >= 0; y--) {
+                if (DATA[x][y][z].type == AIR) {
 
+                    DATA[x][y][z].light = GlobalLightLevel;
+                    short index = x * CHUNK_SIZE * CHUNK_SIZE + y * CHUNK_SIZE + z;
+                    sunlightBfsQueue.emplace(index);
+                }
+                else
+                    break;
+            }
+            for (y; y >= 0; y--) {
+                DATA[x][y][z].light = 0;
+            }
+        }
+    }
+
+    while (!sunlightBfsQueue.empty()) {
+        LightNode &node = sunlightBfsQueue.front();
+        short index = node.index;
+        sunlightBfsQueue.pop();
+        int x = index / (CHUNK_SIZE * CHUNK_SIZE);
+        int y = (index % (CHUNK_SIZE * CHUNK_SIZE)) / CHUNK_SIZE;
+        int z = index % CHUNK_SIZE;
+        int lightLevel = DATA[x][y][z].light;
+        LightPropagate(x-1, y, z, lightLevel);
+        LightPropagate(x+1, y, z , lightLevel);
+        LightPropagate(x, y, z-1, lightLevel);
+        LightPropagate(x, y, z+1, lightLevel);
+        LightPropagate(x, y-1, z, lightLevel);
+        LightPropagate(x, y+1, z, lightLevel);
+    }
+}
 
 void MvChunk::DestroyBlockAt(glm::ivec3 vec) {
     DATA[vec.x][vec.y][vec.z].type = 0;
+    CalculateLight();
 }
 
 void MvChunk::SetBlockAt(glm::ivec3 vec, int blockType) {
     DATA[vec.x][vec.y][vec.z].type = blockType;
-    for (int y = vec.y; y >= 0; y--) {
-        DATA[vec.x][y][vec.z].light = 0;
-    }
+    CalculateLight();
 }
 
 Block MvChunk::GetBlock(glm::ivec3 vec) {
