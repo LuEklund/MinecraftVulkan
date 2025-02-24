@@ -232,7 +232,6 @@ void MvCamera::SetUpListeners(GLFWwindow *window) {
                 if (key == GLFW_KEY_ENTER) {
                     if (HitRes.Hit) {
                         HitRes.ChunkHit->DestroyBlockAt(HitRes.BlockPosInChunk);
-                        HitRes.ChunkHit->GenerateMesh(app->GetDevice(), app->GetWorld().GetNeighborChunks(HitRes.ChunkHit->GetPosition()));
                     }
                 }
                 else {

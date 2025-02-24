@@ -3,7 +3,8 @@
 
 short MvChunk::GlobalLightLevel = 15;
 
-MvChunk::MvChunk()
+MvChunk::MvChunk(MvWorld& in_world)
+    : World(in_world)
 {
 
 }
@@ -92,7 +93,7 @@ void MvChunk::LightPropagate(int x, int y, int z, int lightLevel) {
 
 
 
-float MvChunk::CalculateAmbientOcclusion(glm::ivec3 Side1, glm::ivec3 Corner, glm::ivec3 Side2) {
+float MvChunk::CalculateAmbientOcclusion(glm::ivec3 Side1, glm::ivec3 Corner, glm::ivec3 Side2, const std::shared_ptr<MvChunk>& ChunkNeighbor) {
     int count = (GetBlock(Side1).type > 0) + (GetBlock(Corner).type > 0) + (GetBlock(Side2).type > 0);
     switch (count)
     {
@@ -104,19 +105,18 @@ float MvChunk::CalculateAmbientOcclusion(glm::ivec3 Side1, glm::ivec3 Corner, gl
     }
 }
 
-void MvChunk::GenerateMesh(MvDevice &device, const std::array<std::shared_ptr<MvChunk>, 6>& ChunkNeighbors) {
-    //TODO: PASS neighbour chunks to Chunk builder so we can use them for Ambient Occlusion
+
+
+MvModel::Builder MvChunk::GenerateMesh(const std::array<std::shared_ptr<MvChunk>, 6>& ChunkNeighbors) {
     MvModel::Builder modelBuilder{};
 
     int size = 0;
 
-    glm::ivec3 start = {
+    glm::ivec3 VertStart = {
         m_ChunkPosition.x * (CHUNK_SIZE - 1), m_ChunkPosition.y * (CHUNK_SIZE - 1), m_ChunkPosition.z * (CHUNK_SIZE - 1)
     };
 
-
-
-    //TODO: should be writtwn into helper functions AND maybe moved to world class some functionality?
+    //TODO: should be written into helper functions AND maybe moved to world class some functionality?
     for (int x = 0; x < CHUNK_SIZE; x++) {
         for (int y = 0; y < CHUNK_SIZE; y++) {
             for (int z = 0; z < CHUNK_SIZE; z++) {
@@ -126,14 +126,18 @@ void MvChunk::GenerateMesh(MvDevice &device, const std::array<std::shared_ptr<Mv
                     continue;
 
                 //block start base
-                float bx = static_cast<float>(x + start.x);
-                float by = static_cast<float>(y + start.y);
-                float bz = static_cast<float>(z + start.z);
+                float bx = static_cast<float>(x + VertStart.x);
+                float by = static_cast<float>(y + VertStart.y);
+                float bz = static_cast<float>(z + VertStart.z);
+
+
 
                 //Top face
                 //Get block above current block, take chunk above block if requried
+                // Block blockAbove = World.GetWorldBlockAt({cx,cy + 1,cz});
                 Block blockAbove = (y == CHUNK_SIZE - 1 && ChunkNeighbors[3] != nullptr) ? ChunkNeighbors[3]->GetBlock({x,0,z}) : GetBlock({x,y + 1,z});
                 if (blockAbove.type == AIR){
+
                     modelBuilder.indices.push_back(size + 1);
                     modelBuilder.indices.push_back(size);
                     modelBuilder.indices.push_back(size + 2);
@@ -148,7 +152,7 @@ void MvChunk::GenerateMesh(MvDevice &device, const std::array<std::shared_ptr<Mv
                         {bx, by + 1, bz + 1},
                         {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].y},
                         {light},
-                        CalculateAmbientOcclusion({ x-1, y +1, z }, { x-1, y +1, z+1 }, { x, y + 1, z + 1 })
+                        CalculateAmbientOcclusion({ x-1, y+1, z }, { x-1, y+1, z+1 }, { x, y+1, z+1 }, ChunkNeighbors[3])
                     });
 
                     // left-top-back
@@ -156,27 +160,28 @@ void MvChunk::GenerateMesh(MvDevice &device, const std::array<std::shared_ptr<Mv
                         {bx, by + 1, bz},
                         {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].y},
                         {light},
-                        CalculateAmbientOcclusion({ x, y +1, z-1 }, { x-1, y +1, z-1 }, { x-1, y + 1, z })
+                        CalculateAmbientOcclusion({ x, y+1, z-1 }, { x-1, y+1, z-1 }, { x-1, y+1, z }, ChunkNeighbors[3])
                     });
                     // right-top-back
                     modelBuilder.vertices.push_back({
                         {bx + 1, by + 1, bz + 1},
                         {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].w},
                         {light},
-                        CalculateAmbientOcclusion({ x+1, y +1, z }, { x+1, y +1, z+1 }, { x, y + 1, z + 1 })
+                        CalculateAmbientOcclusion({ x+1, y+1, z }, { x+1, y+1, z+1 }, { x, y+1, z+1 }, ChunkNeighbors[3])
                     });
                     // right-top-front
                     modelBuilder.vertices.push_back({
                         {bx + 1, by + 1, bz},
                         {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].w},
                         {light},
-                        CalculateAmbientOcclusion({ x, y +1, z-1 }, { x+1, y +1, z-1 }, { x+1, y + 1, z })
+                        CalculateAmbientOcclusion({ x, y+1, z-1 }, { x+1, y+1, z-1 }, { x+1, y+1, z }, ChunkNeighbors[3])
                     });
                     size += 4;
 
 
                 }
                 //Bottom face
+                // Block blockBottom = World.GetWorldBlockAt({bx,by - 1,bz});
                 Block blockBottom = (y == 0 && ChunkNeighbors[2] != nullptr) ? ChunkNeighbors[2]->GetBlock({x,CHUNK_SIZE - 1,z}) : GetBlock({x,y - 1,z});
                 // if (y == 0 || DATA[x][y - 1][z].type == AIR) {
                 if (blockBottom.type == AIR){
@@ -192,32 +197,33 @@ void MvChunk::GenerateMesh(MvDevice &device, const std::array<std::shared_ptr<Mv
                         {bx + 1, by, bz + 1},
                         {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].y},
                         {light},
-                        CalculateAmbientOcclusion({ x, y -1, z+1 }, { x+1, y -1, z+1 }, { x+1, y-1, z })
+                        CalculateAmbientOcclusion({ x, y -1, z+1 }, { x+1, y -1, z+1 }, { x+1, y-1, z }, ChunkNeighbors[2])
 
                     });
                     modelBuilder.vertices.push_back({
                         {bx + 1, by, bz},
                         {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].y},
                         {light},
-                        CalculateAmbientOcclusion({ x+1, y -1, z }, { x+1, y -1, z-1 }, { x, y-1, z-1})
+                        CalculateAmbientOcclusion({ x+1, y -1, z }, { x+1, y -1, z-1 }, { x, y-1, z-1}, ChunkNeighbors[2])
                     });
                     modelBuilder.vertices.push_back({
                         {bx, by, bz + 1},
                         {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].w},
                         {light},
-                        CalculateAmbientOcclusion({ x-1, y -1, z }, { x-1, y -1, z+1 }, { x, y-1, z+1})
+                        CalculateAmbientOcclusion({ x-1, y -1, z }, { x-1, y -1, z+1 }, { x, y-1, z+1}, ChunkNeighbors[2])
                     });
                     modelBuilder.vertices.push_back({
                         {bx, by, bz},
                         {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].w},
                         {light},
-                        CalculateAmbientOcclusion({ x, y -1, z-1}, { x-1, y -1, z-1 }, { x-1, y-1, z})
+                        CalculateAmbientOcclusion({ x, y -1, z-1}, { x-1, y -1, z-1 }, { x-1, y-1, z}, ChunkNeighbors[2])
                     });
                     size += 4;
                 }
 
                 // ====================================================
                 //Front face
+                // Block blockFront = World.GetWorldBlockAt({bx,by,bz+1});
                 Block blockFront = (z == CHUNK_SIZE - 1 && ChunkNeighbors[5] != nullptr) ? ChunkNeighbors[5]->GetBlock({x,y,0}) : GetBlock({x,y,z + 1});
                 if (blockFront.type == AIR){
                     modelBuilder.indices.push_back(size);
@@ -233,33 +239,34 @@ void MvChunk::GenerateMesh(MvDevice &device, const std::array<std::shared_ptr<Mv
                         {bx, by, bz + 1},
                         {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].w},
                         {light},
-                        CalculateAmbientOcclusion({ x-1, y, z+1}, { x-1, y -1, z+1 }, { x, y-1, z+1})
+                        CalculateAmbientOcclusion({ x-1, y, z+1}, { x-1, y -1, z+1 }, { x, y-1, z+1}, ChunkNeighbors[5])
                     });
                     // Left-Top
                     modelBuilder.vertices.push_back({
                         {bx, by + 1, bz + 1},
                         {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].y},
                         {light},
-                        CalculateAmbientOcclusion({ x-1, y, z+1}, { x-1, y +1, z+1 }, { x, y+1, z+1})
+                        CalculateAmbientOcclusion({ x-1, y, z+1}, { x-1, y +1, z+1 }, { x, y+1, z+1}, ChunkNeighbors[5])
                     });
                     // Right-Bottom
                     modelBuilder.vertices.push_back({
                         {bx + 1, by, bz + 1},
                         {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].w},
                         {light},
-                        CalculateAmbientOcclusion({ x+1, y, z+1}, { x+1, y -1, z+1 }, { x, y-1, z+1})
+                        CalculateAmbientOcclusion({ x+1, y, z+1}, { x+1, y -1, z+1 }, { x, y-1, z+1}, ChunkNeighbors[5])
                     });
                     // Right-Top
                     modelBuilder.vertices.push_back({
                         {bx + 1, by + 1, bz + 1},
                         {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].y},
                         {light},
-                        CalculateAmbientOcclusion({ x+1, y, z+1}, { x+1, y +1, z+1 }, { x, y+1, z+1})
+                        CalculateAmbientOcclusion({ x+1, y, z+1}, { x+1, y +1, z+1 }, { x, y+1, z+1}, ChunkNeighbors[5])
                     });
                     size += 4;
                 }
 
                 //Back face
+                // Block blockBack = World.GetWorldBlockAt({bx,by,bz-1});
                 Block blockBack = (z == 0 && ChunkNeighbors[4] != nullptr) ? ChunkNeighbors[4]->GetBlock({x,y,CHUNK_SIZE - 1}) : GetBlock({x,y,z - 1});
                 // if (z == 0 || DATA[x][y][z - 1].type == AIR) {
                 if (blockBack.type == AIR){
@@ -275,30 +282,31 @@ void MvChunk::GenerateMesh(MvDevice &device, const std::array<std::shared_ptr<Mv
                         {bx + 1, by, bz},
                         {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].w},
                         {light},
-                        CalculateAmbientOcclusion({ x+1, y, z-1}, { x+1, y -1, z-1 }, { x, y-1, z-1})
+                        CalculateAmbientOcclusion({ x+1, y, z-1}, { x+1, y -1, z-1 }, { x, y-1, z-1}, ChunkNeighbors[4])
                     });
                     modelBuilder.vertices.push_back({
                         {bx + 1, by + 1, bz},
                         {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].y},
                         {light},
-                        CalculateAmbientOcclusion({ x+1, y, z-1}, { x+1, y +1, z-1 }, { x, y+1, z-1})
+                        CalculateAmbientOcclusion({ x+1, y, z-1}, { x+1, y +1, z-1 }, { x, y+1, z-1}, ChunkNeighbors[4])
                     });
                     modelBuilder.vertices.push_back({
                         {bx, by, bz},
                         {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].w},
                         {light},
-                        CalculateAmbientOcclusion({ x-1, y, z-1}, { x-1, y -1, z-1 }, { x, y-1, z-1})
+                        CalculateAmbientOcclusion({ x-1, y, z-1}, { x-1, y -1, z-1 }, { x, y-1, z-1}, ChunkNeighbors[4])
                     });
                     modelBuilder.vertices.push_back({
                         {bx, by + 1, bz},
                         {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].y},
                         {light},
-                        CalculateAmbientOcclusion({ x-1, y, z-1}, { x-1, y +1, z-1 }, { x, y+1, z-1})
+                        CalculateAmbientOcclusion({ x-1, y, z-1}, { x-1, y +1, z-1 }, { x, y+1, z-1}, ChunkNeighbors[4])
                     });
                     size += 4;
                 }
 
                 //Right face
+                // Block blockRight = World.GetWorldBlockAt({bx+1,by,bz});
                 Block blockRight = (x == CHUNK_SIZE - 1 && ChunkNeighbors[1] != nullptr) ? ChunkNeighbors[1]->GetBlock({0,y,z}) : GetBlock({x + 1,y,z});
                 if (blockRight.type == AIR){
                     modelBuilder.indices.push_back(size + 2);
@@ -313,30 +321,31 @@ void MvChunk::GenerateMesh(MvDevice &device, const std::array<std::shared_ptr<Mv
                         {bx + 1, by, bz + 1},
                         {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].w},
                         {light},
-                        CalculateAmbientOcclusion({ x+1, y, z+1 }, { x+1, y -1, z+1 }, { x+1, y-1, z })
+                        CalculateAmbientOcclusion({ x+1, y, z+1 }, { x+1, y -1, z+1 }, { x+1, y-1, z }, ChunkNeighbors[1])
                     });
                     modelBuilder.vertices.push_back({
                         {bx + 1, by + 1, bz + 1},
                         {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].y},
                         {light},
-                        CalculateAmbientOcclusion({ x+1, y, z+1 }, { x+1, y +1, z+1 }, { x+1, y+1, z })
+                        CalculateAmbientOcclusion({ x+1, y, z+1 }, { x+1, y +1, z+1 }, { x+1, y+1, z }, ChunkNeighbors[1])
                     });
                     modelBuilder.vertices.push_back({
                         {bx + 1, by, bz},
                         {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].w},
                         {light},
-                        CalculateAmbientOcclusion({ x+1, y, z-1 }, { x+1, y -1, z-1 }, { x+1, y-1, z })
+                        CalculateAmbientOcclusion({ x+1, y, z-1 }, { x+1, y -1, z-1 }, { x+1, y-1, z }, ChunkNeighbors[1])
                     });
                     modelBuilder.vertices.push_back({
                        {bx + 1, by + 1, bz},
                        {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].y},
                        {light},
-                        CalculateAmbientOcclusion({ x+1, y, z-1 }, { x+1, y+1, z-1 }, { x+1, y+1, z })
+                        CalculateAmbientOcclusion({ x+1, y, z-1 }, { x+1, y+1, z-1 }, { x+1, y+1, z }, ChunkNeighbors[1])
                     });
                     size += 4;
                 }
 
                 //Left face
+                // Block blockLeft = World.GetWorldBlockAt({bx-1,by,bz});
                 Block blockLeft = (x == 0 && ChunkNeighbors[0] != nullptr) ? ChunkNeighbors[0]->GetBlock({CHUNK_SIZE - 1,y,z}) : GetBlock({x - 1,y,z});
                 if (blockLeft.type == AIR) {
                     modelBuilder.indices.push_back(size);
@@ -351,25 +360,25 @@ void MvChunk::GenerateMesh(MvDevice &device, const std::array<std::shared_ptr<Mv
                         {bx, by, bz},
                         {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].w},
                         {light},
-                        CalculateAmbientOcclusion({ x-1, y, z-1 }, { x-1, y -1, z-1 }, { x-1, y-1, z })
+                        CalculateAmbientOcclusion({ x-1, y, z-1 }, { x-1, y -1, z-1 }, { x-1, y-1, z }, ChunkNeighbors[0])
                     });
                     modelBuilder.vertices.push_back({
                         {bx, by + 1, bz},
                         {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].y},
                         {light},
-                        CalculateAmbientOcclusion({ x-1, y, z-1 }, { x-1, y+1, z-1 }, { x-1, y+1, z })
+                        CalculateAmbientOcclusion({ x-1, y, z-1 }, { x-1, y+1, z-1 }, { x-1, y+1, z }, ChunkNeighbors[0])
                     });
                     modelBuilder.vertices.push_back({
                         {bx, by, bz + 1},
                         {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].w},
                         {light},
-                        CalculateAmbientOcclusion({ x-1, y, z+1 }, { x-1, y -1, z+1 }, { x-1, y-1, z })
+                        CalculateAmbientOcclusion({ x-1, y, z+1 }, { x-1, y -1, z+1 }, { x-1, y-1, z }, ChunkNeighbors[0])
                     });
                     modelBuilder.vertices.push_back({
                         {bx, by + 1, bz + 1},
                         {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].y},
                         {light},
-                        CalculateAmbientOcclusion({ x-1, y, z+1 }, { x-1, y +1, z+1 }, { x-1, y+1, z })
+                        CalculateAmbientOcclusion({ x-1, y, z+1 }, { x-1, y +1, z+1 }, { x-1, y+1, z }, ChunkNeighbors[0])
                     });
                     size += 4;
                 }
@@ -378,17 +387,11 @@ void MvChunk::GenerateMesh(MvDevice &device, const std::array<std::shared_ptr<Mv
             }
         }
     }
-    if (modelBuilder.vertices.size() == 0) {
+    if (modelBuilder.vertices.size() == 0)
         bHasMesh = false;
-        return;
-    }
-    bHasMesh = true;
-
-
-    // auto gameObject = MvGameObject::createGameObject();
-    m_model = std::make_unique<MvModel>(device, modelBuilder);
-    // gameObject.model = CreateCubeModel(device, {m_ChunkPosition.x, m_ChunkPosition.y, m_ChunkPosition.z});
-    // m_gameObjects.push_back(std::move(gameObject));
+    else
+        bHasMesh = true;
+    return modelBuilder;
 }
 
 void MvChunk::CalculateLight() {
@@ -430,15 +433,35 @@ void MvChunk::CalculateLight() {
 
 void MvChunk::DestroyBlockAt(glm::ivec3 vec) {
     DATA[vec.x][vec.y][vec.z].type = 0;
-    bHasMesh = true;
+    bDirty = true;
     CalculateLight();
 }
 
 void MvChunk::SetBlockAt(glm::ivec3 vec, int blockType) {
     DATA[vec.x][vec.y][vec.z].type = blockType;
-    bHasMesh = true;
+    bDirty = true;
     CalculateLight();
 }
+
+void MvChunk::SetModel(std::shared_ptr<MvModel> model) {
+    m_model = model;
+}
+
+Block MvChunk::GetBlock(glm::ivec3 vec, const std::shared_ptr<MvChunk>& ChunkNeighbor) {
+    // return GetBlock(vec);
+    if (vec.x >= 0 && vec.x < CHUNK_SIZE &&
+        vec.y >= 0 && vec.y < CHUNK_SIZE &&
+        vec.z >= 0 && vec.z < CHUNK_SIZE) {
+        return GetBlock({vec.x,vec.y,vec.z});
+        }
+
+    vec.x = vec.x < 0 ? CHUNK_SIZE + vec.x : vec.x;
+    vec.z = vec.z < 0 ? CHUNK_SIZE + vec.z : vec.z;
+    vec.y = vec.y < 0 ? CHUNK_SIZE + vec.y : vec.y;
+
+    return ChunkNeighbor ? ChunkNeighbor->GetBlock({vec.x % 16,vec.y % 16,vec.z % 16}) : Block{-1,0};
+}
+
 
 Block MvChunk::GetBlock(glm::ivec3 vec) {
     if (vec.x < 0 || vec.x >= CHUNK_SIZE

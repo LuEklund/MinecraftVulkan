@@ -95,21 +95,17 @@ MvWorld::MvWorld(MvDevice &device) : m_Device(device)
     m_detail_domain_warp.SetFrequency(-0.059f);
 
 
-    // int size = 8;
-    // for (int x = 0; x < size; ++x) {
-    //     for (int y = 4; y < size; ++y) {
+    // int size = 1;
+    // for (int x = -1; x < size-1; ++x) {
+    //     for (int y = 4; y < size + 4; ++y) {
     //         for (int z = 0; z < size; ++z) {
-    //             std::shared_ptr<MvChunk> chunk = std::make_shared<MvChunk>();
+    //             std::shared_ptr<MvChunk> chunk = std::make_shared<MvChunk>(*this);
     //             chunk->SetPosition({static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)});
     //             chunk->GenerateChunk();
     //             m_RenderChunks[chunk->GetPosition()] = chunk;
     //             m_LoadedChunks[chunk->GetPosition()] = chunk;
     //         }
     //     }
-    // }
-    // for (auto it = m_LoadedChunks.begin(); it != m_LoadedChunks.end();) {
-    //     it->second->GenerateMesh(m_Device, GetNeighborChunks(it->first));
-    //     ++it;
     // }
 }
 
@@ -163,14 +159,24 @@ double MvWorld::GetDetailNoise(double x, double y) {
 
 
 void MvWorld::GenerateMeshForChunk(const std::shared_ptr<MvChunk> &shared) {
+    MvModel::Builder modelBuilder;
+    for (int x = 0; x < MvChunk::CHUNK_SIZE; x++) {
+        for (int y = 0; y < MvChunk::CHUNK_SIZE; y++) {
+            for (int z = 0; z < MvChunk::CHUNK_SIZE; z++) {
 
+            }
+        }
+    }
 }
 
 void MvWorld::UpdateWorld(float frameTime) {
     for (auto it = m_LoadedChunks.begin(); it != m_LoadedChunks.end();) {
         if (it->second->bDirty == true) {
             // GenerateMeshForChunk(it->second);
-            it->second->GenerateMesh(m_Device, GetNeighborChunks(it->first));
+            MvModel::Builder modelBuilder = it->second->GenerateMesh(GetNeighborChunks(it->first));
+            if (it->second->HasMesh()) {
+                it->second->SetModel(std::make_unique<MvModel>(m_Device, modelBuilder));
+            }
             it->second->bDirty = false;
         }
         ++it;
@@ -219,10 +225,14 @@ void MvWorld::LoadChunksAtCoordinate(glm::vec3 position, int radius) {
                         m_RenderChunks[it->first] = it->second;
                         continue ;
                     }
-                    std::shared_ptr<MvChunk> chunk = std::make_shared<MvChunk>();
+                    std::shared_ptr<MvChunk> chunk = std::make_shared<MvChunk>(*this);
                     chunk->SetPosition({static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)});
                     chunk->GenerateChunk();
                     chunk->bDirty = true;
+                    for (auto Neighbor : GetNeighborChunks(chunk->GetPosition())) {
+                        if (Neighbor && Neighbor->HasMesh())
+                            Neighbor->bDirty = true;
+                    }
                     m_RenderChunks[chunk->GetPosition()] = chunk;
                     m_LoadedChunks[chunk->GetPosition()] = chunk;
                 }
@@ -251,6 +261,23 @@ void MvWorld::LoadChunksAtCoordinate(glm::vec3 position, int radius) {
 
 }
 
+Block MvWorld::GetWorldBlockAt(glm::ivec3 position) {
+    int chunkX = position.x >= 0 ? position.x / MvChunk::CHUNK_SIZE : std::floor(position.x / (MvChunk::CHUNK_SIZE - 1));
+    int chunkZ = position.z >= 0 ? position.z / MvChunk::CHUNK_SIZE : std::floor(position.z / (MvChunk::CHUNK_SIZE - 1));
+    int chunkY = position.y >= 0 ? position.y / MvChunk::CHUNK_SIZE : std::floor(position.y / (MvChunk::CHUNK_SIZE - 1));
+
+    auto Chunk = m_LoadedChunks.find(glm::vec3(chunkX, chunkY, chunkZ));
+    if (Chunk == m_LoadedChunks.end()) {
+        return Block(-1, 0);
+    }
+
+    glm::ivec3 blockPos = {
+        std::floor(abs(position.x) - abs(chunkX * MvChunk::CHUNK_SIZE)),
+        std::floor(abs(position.y) - abs(chunkY * MvChunk::CHUNK_SIZE)),
+        std::floor(abs(position.z) - abs(chunkZ * MvChunk::CHUNK_SIZE))
+    };
+    return Chunk->second->GetBlock(blockPos);
+}
 
 void MvWorld::SetWorldBlockAt(glm::ivec3 position, int blockType) {
     //TODO: make this for godsaken code to a helper function
@@ -279,7 +306,6 @@ void MvWorld::SetWorldBlockAt(glm::ivec3 position, int blockType) {
         std::floor(position.z - chunkZ * MvChunk::CHUNK_SIZE),
     };
     chunk->SetBlockAt(blockPos, blockType);
-    chunk->GenerateMesh(m_Device, GetNeighborChunks({chunk->GetPosition()}));
     // int blockType = chunk->GetBlock(blockPos.x, blockPos.y, blockPos.z);
 }
 

@@ -4,6 +4,8 @@
 #include "MvGameObject.hpp"
 
 
+class MvWorld;
+
 typedef struct s_block {
     int8_t type;
     int8_t light;
@@ -23,6 +25,8 @@ public:
 
     static constexpr int CHUNK_SIZE = 16;
 
+    //TODO: Change class Enum of blocks
+
     static const int AIR = 0;
     static const int STONE = 1;
     static const int DIRT = 2;
@@ -40,7 +44,7 @@ public:
 
 
 
-    MvChunk();
+    MvChunk(MvWorld &world);
 
     Block DATA[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE] = {0};
 
@@ -49,9 +53,13 @@ public:
 
 
     // float* CalculateAmbientOcclusions(int x, int y, int z);
-    float CalculateAmbientOcclusion(glm::ivec3 UpLeft, glm::ivec3 UpMiddle, glm::ivec3 UpRight);
+    // float CalculateAmbientOcclusion(glm::ivec3 UpLeft, glm::ivec3 UpMiddle, glm::ivec3 UpRight);
+    float CalculateAmbientOcclusion(glm::ivec3 Side1, glm::ivec3 Corner, glm::ivec3 Side2, const std::shared_ptr<MvChunk>& ChunkNeighbor);
 
-    void GenerateMesh(MvDevice &device, const std::array<std::shared_ptr<MvChunk>, 6>& ChunkNeighbors);
+    // float CalculateAmbientOcclusion(Block Side1, Block Corner, Block Side2);
+
+    MvModel::Builder GenerateMesh(const std::array<std::shared_ptr<MvChunk>, 6>& ChunkNeighbors);
+    Block GetBlock(glm::ivec3 vec, const std::shared_ptr<MvChunk>& ChunkNeighbor);
 
     void CalculateLight();
 
@@ -64,9 +72,14 @@ public:
 
     void DestroyBlockAt(glm::ivec3 vec);;
     void SetBlockAt(glm::ivec3 vec, int blockType);
+    void SetModel(std::shared_ptr<MvModel> model);
     bool HasMesh(){return bHasMesh;}
     bool GetRender(){return bRender;}
     void SetRender(bool render){bRender = render;}
+
+    MvWorld& World;
+
+
 
 
 private:
@@ -77,6 +90,8 @@ private:
     bool    bRender = false;
     glm::vec3 m_ChunkPosition;
     std::shared_ptr<MvModel> m_model{};
+
+
 
 
 

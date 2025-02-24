@@ -26,6 +26,7 @@ class MvWorld {
   std::array<std::shared_ptr<MvChunk>, 6> GetNeighborChunks(glm::ivec3 vec);
 
   void LoadChunksAtCoordinate(glm::vec3 position, int radius = 3);
+  Block GetWorldBlockAt(glm::ivec3 position);
   void SetWorldBlockAt(glm::ivec3 vec, int blockType);
   void CalculateRenderChunks(glm::vec3 origin, glm::vec3 direction, int maxChunkDistance, float fovRad);
 
@@ -48,6 +49,12 @@ class MvWorld {
     static FastNoiseLite DomainWarpGen;
     static FastNoiseLite m_noise_gen_peaks;
     static FastNoiseLite m_domain_warp_peaks;
+
+    //TODO: unique ptr chunks
+    //TODO: dirty map
+
+    // int RENDER_DISTANCE = 10;
+    // MvChunk chunks[RENDER_DISTANCE][RENDER_DISTANCE][RENDER_DISTANCE];
     std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> m_RenderChunks;
     std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> m_LoadedChunks;
 };
