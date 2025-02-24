@@ -17,9 +17,13 @@ class MvWorld {
   public:
   MvWorld(MvDevice &device);
 
-  std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> & GetChunks() {return m_ChunksLoaded;}
+  std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> & GetChunks() {return m_RenderChunks;}
+
+  void GenerateMeshForChunk(const std::shared_ptr<MvChunk> & shared);
 
   void UpdateWorld(float frameTime);;
+
+  std::array<std::shared_ptr<MvChunk>, 6> GetNeighborChunks(glm::ivec3 vec);
 
   void LoadChunksAtCoordinate(glm::vec3 position, int radius = 3);
   void SetWorldBlockAt(glm::ivec3 vec, int blockType);
@@ -44,8 +48,8 @@ class MvWorld {
     static FastNoiseLite DomainWarpGen;
     static FastNoiseLite m_noise_gen_peaks;
     static FastNoiseLite m_domain_warp_peaks;
-    std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> m_ChunksLoaded;
-    std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> m_ChunksUnLoaded;
+    std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> m_RenderChunks;
+    std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> m_LoadedChunks;
 };
 
 

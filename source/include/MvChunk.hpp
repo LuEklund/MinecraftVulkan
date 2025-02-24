@@ -1,3 +1,4 @@
+#include <array>
 #include <queue>
 
 #include "MvGameObject.hpp"
@@ -17,6 +18,7 @@ class MvChunk
 {
 public:
     static short GlobalLightLevel;
+    bool bDirty = true;
     std::queue<LightNode> sunlightBfsQueue;
 
     static constexpr int CHUNK_SIZE = 16;
@@ -49,7 +51,7 @@ public:
     // float* CalculateAmbientOcclusions(int x, int y, int z);
     float CalculateAmbientOcclusion(glm::ivec3 UpLeft, glm::ivec3 UpMiddle, glm::ivec3 UpRight);
 
-    void GenerateMesh(MvDevice &device);
+    void GenerateMesh(MvDevice &device, const std::array<std::shared_ptr<MvChunk>, 6>& ChunkNeighbors);
 
     void CalculateLight();
 
@@ -75,6 +77,7 @@ private:
     bool    bRender = false;
     glm::vec3 m_ChunkPosition;
     std::shared_ptr<MvModel> m_model{};
+
 
 
     // MvGameObject m_GameObject;

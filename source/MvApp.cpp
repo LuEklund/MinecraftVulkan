@@ -187,6 +187,7 @@ void MvApp::Run() {
 
             //Load chunks
             m_World->LoadChunksAtCoordinate(m_Camera->GetPosition(), 8);
+            m_World->UpdateWorld(frameTime);
 
             int frameIndex = m_renderer->GetFrameIndex();
             MvFrameInfo frameInfo{
@@ -218,8 +219,6 @@ void MvApp::Run() {
             };
             SkyBoxBuffer[frameIndex]->writeToBuffer(&CameraVectors);
             SkyBoxBuffer[frameIndex]->flush();
-
-            // m_World->UpdateWorld(frameTime);
 
 
             //render

@@ -53,6 +53,8 @@ void main()
     // AO darkens the fragment based on the factor (0.0 = fully shadowed, 1.0 = unshadowed)
     vec4 aoColor = fragAO * sampledColor;
 //    outColor = vec4(redScale, 1.f);
-    outColor = vec4(aoColor.rgb * sunlightIntensity, 1.0); // Output final color
+//    outColor = vec4(aoColor.rgb * sunlightIntensity, 1.0); // Output final color
+    outColor = vec4(aoColor.rgb, 1.0); // Output final color
+
 
 }

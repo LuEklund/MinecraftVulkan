@@ -3,9 +3,10 @@
 
 short MvChunk::GlobalLightLevel = 15;
 
-MvChunk::MvChunk() {
-}
+MvChunk::MvChunk()
+{
 
+}
 
 glm::vec4 MvChunk::CalculateUV(int x, int y) {
     float step = 1.0 / 2.f;
@@ -103,7 +104,7 @@ float MvChunk::CalculateAmbientOcclusion(glm::ivec3 Side1, glm::ivec3 Corner, gl
     }
 }
 
-void MvChunk::GenerateMesh(MvDevice &device) {
+void MvChunk::GenerateMesh(MvDevice &device, const std::array<std::shared_ptr<MvChunk>, 6>& ChunkNeighbors) {
     //TODO: PASS neighbour chunks to Chunk builder so we can use them for Ambient Occlusion
     MvModel::Builder modelBuilder{};
 
@@ -115,7 +116,7 @@ void MvChunk::GenerateMesh(MvDevice &device) {
 
 
 
-
+    //TODO: should be writtwn into helper functions AND maybe moved to world class some functionality?
     for (int x = 0; x < CHUNK_SIZE; x++) {
         for (int y = 0; y < CHUNK_SIZE; y++) {
             for (int z = 0; z < CHUNK_SIZE; z++) {
@@ -130,7 +131,9 @@ void MvChunk::GenerateMesh(MvDevice &device) {
                 float bz = static_cast<float>(z + start.z);
 
                 //Top face
-                if (y == CHUNK_SIZE - 1 || DATA[x][y + 1][z].type == AIR) {
+                //Get block above current block, take chunk above block if requried
+                Block blockAbove = (y == CHUNK_SIZE - 1 && ChunkNeighbors[3] != nullptr) ? ChunkNeighbors[3]->GetBlock({x,0,z}) : GetBlock({x,y + 1,z});
+                if (blockAbove.type == AIR){
                     modelBuilder.indices.push_back(size + 1);
                     modelBuilder.indices.push_back(size);
                     modelBuilder.indices.push_back(size + 2);
@@ -139,12 +142,8 @@ void MvChunk::GenerateMesh(MvDevice &device) {
                     modelBuilder.indices.push_back(size + 3);
 
 
-                    // Postion, Color, Normal, UV
                     // left-top-forward
-                    Block blockTop = GetBlock({x,y+1,z});
-                    float light = static_cast<float>(blockTop.light);
-                    // float light = static_cast<float>(15);
-                    // std::cout << light << std::endl;
+                    float light = static_cast<float>(blockAbove.light);
                     modelBuilder.vertices.push_back({
                         {bx, by + 1, bz + 1},
                         {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].y},
@@ -178,7 +177,9 @@ void MvChunk::GenerateMesh(MvDevice &device) {
 
                 }
                 //Bottom face
-                if (y == 0 || DATA[x][y - 1][z].type == AIR) {
+                Block blockBottom = (y == 0 && ChunkNeighbors[2] != nullptr) ? ChunkNeighbors[2]->GetBlock({x,CHUNK_SIZE - 1,z}) : GetBlock({x,y - 1,z});
+                // if (y == 0 || DATA[x][y - 1][z].type == AIR) {
+                if (blockBottom.type == AIR){
                     modelBuilder.indices.push_back(size + 3);
                     modelBuilder.indices.push_back(size + 1);
                     modelBuilder.indices.push_back(size);
@@ -186,7 +187,6 @@ void MvChunk::GenerateMesh(MvDevice &device) {
                     modelBuilder.indices.push_back(size);
                     modelBuilder.indices.push_back(size + 2);
 
-                    Block blockBottom = GetBlock({x,y-1,z});
                     float light = static_cast<float>(blockBottom.light);
                     modelBuilder.vertices.push_back({
                         {bx + 1, by, bz + 1},
@@ -218,7 +218,8 @@ void MvChunk::GenerateMesh(MvDevice &device) {
 
                 // ====================================================
                 //Front face
-                if (z == CHUNK_SIZE - 1 || DATA[x][y][z + 1].type == AIR) {
+                Block blockFront = (z == CHUNK_SIZE - 1 && ChunkNeighbors[5] != nullptr) ? ChunkNeighbors[5]->GetBlock({x,y,0}) : GetBlock({x,y,z + 1});
+                if (blockFront.type == AIR){
                     modelBuilder.indices.push_back(size);
                     modelBuilder.indices.push_back(size + 2);
                     modelBuilder.indices.push_back(size + 3);
@@ -226,7 +227,6 @@ void MvChunk::GenerateMesh(MvDevice &device) {
                     modelBuilder.indices.push_back(size + 3);
                     modelBuilder.indices.push_back(size + 1);
 
-                    Block blockFront = GetBlock({x,y,z + 1});
                     float light = static_cast<float>(blockFront.light);
                     // Left-Bottom
                     modelBuilder.vertices.push_back({
@@ -260,7 +260,9 @@ void MvChunk::GenerateMesh(MvDevice &device) {
                 }
 
                 //Back face
-                if (z == 0 || DATA[x][y][z - 1].type == AIR) {
+                Block blockBack = (z == 0 && ChunkNeighbors[4] != nullptr) ? ChunkNeighbors[4]->GetBlock({x,y,CHUNK_SIZE - 1}) : GetBlock({x,y,z - 1});
+                // if (z == 0 || DATA[x][y][z - 1].type == AIR) {
+                if (blockBack.type == AIR){
                     modelBuilder.indices.push_back(size + 2);
                     modelBuilder.indices.push_back(size + 3);
                     modelBuilder.indices.push_back(size + 1);
@@ -268,7 +270,6 @@ void MvChunk::GenerateMesh(MvDevice &device) {
                     modelBuilder.indices.push_back(size + 1);
                     modelBuilder.indices.push_back(size);
 
-                    Block blockBack = GetBlock({x,y,z -1});
                     float light = static_cast<float>(blockBack.light);
                     modelBuilder.vertices.push_back({
                         {bx + 1, by, bz},
@@ -298,7 +299,8 @@ void MvChunk::GenerateMesh(MvDevice &device) {
                 }
 
                 //Right face
-                if (x == CHUNK_SIZE - 1 || DATA[x + 1][y][z].type == AIR) {
+                Block blockRight = (x == CHUNK_SIZE - 1 && ChunkNeighbors[1] != nullptr) ? ChunkNeighbors[1]->GetBlock({0,y,z}) : GetBlock({x + 1,y,z});
+                if (blockRight.type == AIR){
                     modelBuilder.indices.push_back(size + 2);
                     modelBuilder.indices.push_back(size + 3);
                     modelBuilder.indices.push_back(size + 1);
@@ -306,7 +308,6 @@ void MvChunk::GenerateMesh(MvDevice &device) {
                     modelBuilder.indices.push_back(size + 1);
                     modelBuilder.indices.push_back(size);
 
-                    Block blockRight = GetBlock({x+1,y,z});
                     float light = static_cast<float>(blockRight.light);
                     modelBuilder.vertices.push_back({
                         {bx + 1, by, bz + 1},
@@ -336,7 +337,8 @@ void MvChunk::GenerateMesh(MvDevice &device) {
                 }
 
                 //Left face
-                if (x == 0 || DATA[x + -1][y][z].type == AIR) {
+                Block blockLeft = (x == 0 && ChunkNeighbors[0] != nullptr) ? ChunkNeighbors[0]->GetBlock({CHUNK_SIZE - 1,y,z}) : GetBlock({x - 1,y,z});
+                if (blockLeft.type == AIR) {
                     modelBuilder.indices.push_back(size);
                     modelBuilder.indices.push_back(size + 2);
                     modelBuilder.indices.push_back(size + 3);
@@ -344,7 +346,6 @@ void MvChunk::GenerateMesh(MvDevice &device) {
                     modelBuilder.indices.push_back(size + 3);
                     modelBuilder.indices.push_back(size + 1);
 
-                    Block blockLeft = GetBlock({x-1,y,z});
                     float light = static_cast<float>(blockLeft.light);
                     modelBuilder.vertices.push_back({
                         {bx, by, bz},
@@ -429,11 +430,13 @@ void MvChunk::CalculateLight() {
 
 void MvChunk::DestroyBlockAt(glm::ivec3 vec) {
     DATA[vec.x][vec.y][vec.z].type = 0;
+    bHasMesh = true;
     CalculateLight();
 }
 
 void MvChunk::SetBlockAt(glm::ivec3 vec, int blockType) {
     DATA[vec.x][vec.y][vec.z].type = blockType;
+    bHasMesh = true;
     CalculateLight();
 }
 
