@@ -77,6 +77,8 @@ public:
     bool GetRender(){return bRender;}
     void SetRender(bool render){bRender = render;}
 
+    void GenerateMeshForBlock(glm::ivec3 BlockPos, std::array<std::array<std::array<Block,3>,3>,3> Blocks, MvModel::Builder& modelBuilder, int& size) ;
+
     MvWorld& World;
 
 

@@ -106,6 +106,259 @@ float MvChunk::CalculateAmbientOcclusion(glm::ivec3 Side1, glm::ivec3 Corner, gl
 }
 
 
+// void MvChunk::GenerateMeshForBlock(glm::ivec3 BlockPos, std::array<std::array<std::array<Block,3>,3>,3> Blocks, MvModel::Builder& modelBuilder, int& size) {
+//     //Top face
+//     //Get block above current block, take chunk above block if requried
+//     // Block blockAbove = World.GetWorldBlockAt({cx,cy + 1,cz});
+//     if (Blocks[1][2][1].type == AIR){
+//
+//         modelBuilder.indices.push_back(size + 1);
+//         modelBuilder.indices.push_back(size);
+//         modelBuilder.indices.push_back(size + 2);
+//         modelBuilder.indices.push_back(size + 1);
+//         modelBuilder.indices.push_back(size + 2);
+//         modelBuilder.indices.push_back(size + 3);
+//
+//
+//         // left-top-forward
+//         float light = static_cast<float>(Blocks[1][2][1].light);
+//         modelBuilder.vertices.push_back({
+//             {bx, by + 1, bz + 1},
+//             {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].y},
+//             {light},
+//             CalculateAmbientOcclusion({ x-1, y+1, z }, { x-1, y+1, z+1 }, { x, y+1, z+1 }, ChunkNeighbors[3])
+//         });
+//
+//         // left-top-back
+//         modelBuilder.vertices.push_back({
+//             {bx, by + 1, bz},
+//             {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].y},
+//             {light},
+//             CalculateAmbientOcclusion({ x, y+1, z-1 }, { x-1, y+1, z-1 }, { x-1, y+1, z }, ChunkNeighbors[3])
+//         });
+//         // right-top-back
+//         modelBuilder.vertices.push_back({
+//             {bx + 1, by + 1, bz + 1},
+//             {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].w},
+//             {light},
+//             CalculateAmbientOcclusion({ x+1, y+1, z }, { x+1, y+1, z+1 }, { x, y+1, z+1 }, ChunkNeighbors[3])
+//         });
+//         // right-top-front
+//         modelBuilder.vertices.push_back({
+//             {bx + 1, by + 1, bz},
+//             {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].w},
+//             {light},
+//             CalculateAmbientOcclusion({ x, y+1, z-1 }, { x+1, y+1, z-1 }, { x+1, y+1, z }, ChunkNeighbors[3])
+//         });
+//         size += 4;
+//
+//
+//     }
+//     //Bottom face
+//     // Block blockBottom = World.GetWorldBlockAt({bx,by - 1,bz});
+//     Block blockBottom = (y == 0 && ChunkNeighbors[2] != nullptr) ? ChunkNeighbors[2]->GetBlock({x,CHUNK_SIZE - 1,z}) : GetBlock({x,y - 1,z});
+//     // if (y == 0 || DATA[x][y - 1][z].type == AIR) {
+//     if (blockBottom.type == AIR){
+//         modelBuilder.indices.push_back(size + 3);
+//         modelBuilder.indices.push_back(size + 1);
+//         modelBuilder.indices.push_back(size);
+//         modelBuilder.indices.push_back(size + 3);
+//         modelBuilder.indices.push_back(size);
+//         modelBuilder.indices.push_back(size + 2);
+//
+//         float light = static_cast<float>(blockBottom.light);
+//         modelBuilder.vertices.push_back({
+//             {bx + 1, by, bz + 1},
+//             {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].y},
+//             {light},
+//             CalculateAmbientOcclusion({ x, y -1, z+1 }, { x+1, y -1, z+1 }, { x+1, y-1, z }, ChunkNeighbors[2])
+//
+//         });
+//         modelBuilder.vertices.push_back({
+//             {bx + 1, by, bz},
+//             {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].y},
+//             {light},
+//             CalculateAmbientOcclusion({ x+1, y -1, z }, { x+1, y -1, z-1 }, { x, y-1, z-1}, ChunkNeighbors[2])
+//         });
+//         modelBuilder.vertices.push_back({
+//             {bx, by, bz + 1},
+//             {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].w},
+//             {light},
+//             CalculateAmbientOcclusion({ x-1, y -1, z }, { x-1, y -1, z+1 }, { x, y-1, z+1}, ChunkNeighbors[2])
+//         });
+//         modelBuilder.vertices.push_back({
+//             {bx, by, bz},
+//             {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].w},
+//             {light},
+//             CalculateAmbientOcclusion({ x, y -1, z-1}, { x-1, y -1, z-1 }, { x-1, y-1, z}, ChunkNeighbors[2])
+//         });
+//         size += 4;
+//     }
+//
+//     // ====================================================
+//     //Front face
+//     // Block blockFront = World.GetWorldBlockAt({bx,by,bz+1});
+//     Block blockFront = (z == CHUNK_SIZE - 1 && ChunkNeighbors[5] != nullptr) ? ChunkNeighbors[5]->GetBlock({x,y,0}) : GetBlock({x,y,z + 1});
+//     if (blockFront.type == AIR){
+//         modelBuilder.indices.push_back(size);
+//         modelBuilder.indices.push_back(size + 2);
+//         modelBuilder.indices.push_back(size + 3);
+//         modelBuilder.indices.push_back(size);
+//         modelBuilder.indices.push_back(size + 3);
+//         modelBuilder.indices.push_back(size + 1);
+//
+//         float light = static_cast<float>(blockFront.light);
+//         // Left-Bottom
+//         modelBuilder.vertices.push_back({
+//             {bx, by, bz + 1},
+//             {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].w},
+//             {light},
+//             CalculateAmbientOcclusion({ x-1, y, z+1}, { x-1, y -1, z+1 }, { x, y-1, z+1}, ChunkNeighbors[5])
+//         });
+//         // Left-Top
+//         modelBuilder.vertices.push_back({
+//             {bx, by + 1, bz + 1},
+//             {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].y},
+//             {light},
+//             CalculateAmbientOcclusion({ x-1, y, z+1}, { x-1, y +1, z+1 }, { x, y+1, z+1}, ChunkNeighbors[5])
+//         });
+//         // Right-Bottom
+//         modelBuilder.vertices.push_back({
+//             {bx + 1, by, bz + 1},
+//             {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].w},
+//             {light},
+//             CalculateAmbientOcclusion({ x+1, y, z+1}, { x+1, y -1, z+1 }, { x, y-1, z+1}, ChunkNeighbors[5])
+//         });
+//         // Right-Top
+//         modelBuilder.vertices.push_back({
+//             {bx + 1, by + 1, bz + 1},
+//             {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].y},
+//             {light},
+//             CalculateAmbientOcclusion({ x+1, y, z+1}, { x+1, y +1, z+1 }, { x, y+1, z+1}, ChunkNeighbors[5])
+//         });
+//         size += 4;
+//     }
+//
+//     //Back face
+//     // Block blockBack = World.GetWorldBlockAt({bx,by,bz-1});
+//     Block blockBack = (z == 0 && ChunkNeighbors[4] != nullptr) ? ChunkNeighbors[4]->GetBlock({x,y,CHUNK_SIZE - 1}) : GetBlock({x,y,z - 1});
+//     // if (z == 0 || DATA[x][y][z - 1].type == AIR) {
+//     if (blockBack.type == AIR){
+//         modelBuilder.indices.push_back(size + 2);
+//         modelBuilder.indices.push_back(size + 3);
+//         modelBuilder.indices.push_back(size + 1);
+//         modelBuilder.indices.push_back(size + 2);
+//         modelBuilder.indices.push_back(size + 1);
+//         modelBuilder.indices.push_back(size);
+//
+//         float light = static_cast<float>(blockBack.light);
+//         modelBuilder.vertices.push_back({
+//             {bx + 1, by, bz},
+//             {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].w},
+//             {light},
+//             CalculateAmbientOcclusion({ x+1, y, z-1}, { x+1, y -1, z-1 }, { x, y-1, z-1}, ChunkNeighbors[4])
+//         });
+//         modelBuilder.vertices.push_back({
+//             {bx + 1, by + 1, bz},
+//             {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].y},
+//             {light},
+//             CalculateAmbientOcclusion({ x+1, y, z-1}, { x+1, y +1, z-1 }, { x, y+1, z-1}, ChunkNeighbors[4])
+//         });
+//         modelBuilder.vertices.push_back({
+//             {bx, by, bz},
+//             {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].w},
+//             {light},
+//             CalculateAmbientOcclusion({ x-1, y, z-1}, { x-1, y -1, z-1 }, { x, y-1, z-1}, ChunkNeighbors[4])
+//         });
+//         modelBuilder.vertices.push_back({
+//             {bx, by + 1, bz},
+//             {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].y},
+//             {light},
+//             CalculateAmbientOcclusion({ x-1, y, z-1}, { x-1, y +1, z-1 }, { x, y+1, z-1}, ChunkNeighbors[4])
+//         });
+//         size += 4;
+//     }
+//
+//     //Right face
+//     // Block blockRight = World.GetWorldBlockAt({bx+1,by,bz});
+//     Block blockRight = (x == CHUNK_SIZE - 1 && ChunkNeighbors[1] != nullptr) ? ChunkNeighbors[1]->GetBlock({0,y,z}) : GetBlock({x + 1,y,z});
+//     if (blockRight.type == AIR){
+//         modelBuilder.indices.push_back(size + 2);
+//         modelBuilder.indices.push_back(size + 3);
+//         modelBuilder.indices.push_back(size + 1);
+//         modelBuilder.indices.push_back(size + 2);
+//         modelBuilder.indices.push_back(size + 1);
+//         modelBuilder.indices.push_back(size);
+//
+//         float light = static_cast<float>(blockRight.light);
+//         modelBuilder.vertices.push_back({
+//             {bx + 1, by, bz + 1},
+//             {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].w},
+//             {light},
+//             CalculateAmbientOcclusion({ x+1, y, z+1 }, { x+1, y -1, z+1 }, { x+1, y-1, z }, ChunkNeighbors[1])
+//         });
+//         modelBuilder.vertices.push_back({
+//             {bx + 1, by + 1, bz + 1},
+//             {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].y},
+//             {light},
+//             CalculateAmbientOcclusion({ x+1, y, z+1 }, { x+1, y +1, z+1 }, { x+1, y+1, z }, ChunkNeighbors[1])
+//         });
+//         modelBuilder.vertices.push_back({
+//             {bx + 1, by, bz},
+//             {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].w},
+//             {light},
+//             CalculateAmbientOcclusion({ x+1, y, z-1 }, { x+1, y -1, z-1 }, { x+1, y-1, z }, ChunkNeighbors[1])
+//         });
+//         modelBuilder.vertices.push_back({
+//            {bx + 1, by + 1, bz},
+//            {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].y},
+//            {light},
+//             CalculateAmbientOcclusion({ x+1, y, z-1 }, { x+1, y+1, z-1 }, { x+1, y+1, z }, ChunkNeighbors[1])
+//         });
+//         size += 4;
+//     }
+//
+//     //Left face
+//     // Block blockLeft = World.GetWorldBlockAt({bx-1,by,bz});
+//     Block blockLeft = (x == 0 && ChunkNeighbors[0] != nullptr) ? ChunkNeighbors[0]->GetBlock({CHUNK_SIZE - 1,y,z}) : GetBlock({x - 1,y,z});
+//     if (blockLeft.type == AIR) {
+//         modelBuilder.indices.push_back(size);
+//         modelBuilder.indices.push_back(size + 2);
+//         modelBuilder.indices.push_back(size + 3);
+//         modelBuilder.indices.push_back(size);
+//         modelBuilder.indices.push_back(size + 3);
+//         modelBuilder.indices.push_back(size + 1);
+//
+//         float light = static_cast<float>(blockLeft.light);
+//         modelBuilder.vertices.push_back({
+//             {bx, by, bz},
+//             {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].w},
+//             {light},
+//             CalculateAmbientOcclusion({ x-1, y, z-1 }, { x-1, y -1, z-1 }, { x-1, y-1, z }, ChunkNeighbors[0])
+//         });
+//         modelBuilder.vertices.push_back({
+//             {bx, by + 1, bz},
+//             {BLOCK_UVS[block.type].x, BLOCK_UVS[block.type].y},
+//             {light},
+//             CalculateAmbientOcclusion({ x-1, y, z-1 }, { x-1, y+1, z-1 }, { x-1, y+1, z }, ChunkNeighbors[0])
+//         });
+//         modelBuilder.vertices.push_back({
+//             {bx, by, bz + 1},
+//             {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].w},
+//             {light},
+//             CalculateAmbientOcclusion({ x-1, y, z+1 }, { x-1, y -1, z+1 }, { x-1, y-1, z }, ChunkNeighbors[0])
+//         });
+//         modelBuilder.vertices.push_back({
+//             {bx, by + 1, bz + 1},
+//             {BLOCK_UVS[block.type].z, BLOCK_UVS[block.type].y},
+//             {light},
+//             CalculateAmbientOcclusion({ x-1, y, z+1 }, { x-1, y +1, z+1 }, { x-1, y+1, z }, ChunkNeighbors[0])
+//         });
+//         size += 4;
+//     }
+// }
+
+
 
 MvModel::Builder MvChunk::GenerateMesh(const std::array<std::shared_ptr<MvChunk>, 6>& ChunkNeighbors) {
     MvModel::Builder modelBuilder{};

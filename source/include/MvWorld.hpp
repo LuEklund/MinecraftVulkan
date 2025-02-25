@@ -26,8 +26,8 @@ class MvWorld {
   std::array<std::shared_ptr<MvChunk>, 6> GetNeighborChunks(glm::ivec3 vec);
 
   void LoadChunksAtCoordinate(glm::vec3 position, int radius = 3);
-  Block GetWorldBlockAt(glm::ivec3 position);
-  void SetWorldBlockAt(glm::ivec3 vec, int blockType);
+  Block GetWorldBlockAt(glm::vec3 position);
+  void SetWorldBlockAt(glm::vec3 vec, int blockType);
   void CalculateRenderChunks(glm::vec3 origin, glm::vec3 direction, int maxChunkDistance, float fovRad);
 
   static float GetNoise(float x, float y);

@@ -213,9 +213,9 @@ void MvCamera::SetUpListeners(GLFWwindow *window) {
                 auto app = static_cast<MvApp *>(glfwGetWindowUserPointer(window));
                 glm::vec3 camPos = app->GetCamera().GetPosition();
                 std::cout << "Camera position: "
-                  << static_cast<int>(camPos.x) << ", "
-                  << static_cast<int>(camPos.y) << ", "
-                  << static_cast<int>(camPos.z) << std::endl;
+                  << std::floor(camPos.x) << ", "
+                  << std::floor(camPos.y) << ", "
+                  << std::floor(camPos.z) << std::endl;
             }
             if (key == GLFW_KEY_ENTER || key == GLFW_KEY_P) {
                 auto app = static_cast<MvApp *>(glfwGetWindowUserPointer(window));

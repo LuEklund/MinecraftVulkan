@@ -95,8 +95,8 @@ MvWorld::MvWorld(MvDevice &device) : m_Device(device)
     m_detail_domain_warp.SetFrequency(-0.059f);
 
 
-    // int size = 1;
-    // for (int x = -1; x < size-1; ++x) {
+    // int size = 2;
+    // for (int x = 0; x < size; ++x) {
     //     for (int y = 4; y < size + 4; ++y) {
     //         for (int z = 0; z < size; ++z) {
     //             std::shared_ptr<MvChunk> chunk = std::make_shared<MvChunk>(*this);
@@ -261,10 +261,10 @@ void MvWorld::LoadChunksAtCoordinate(glm::vec3 position, int radius) {
 
 }
 
-Block MvWorld::GetWorldBlockAt(glm::ivec3 position) {
-    int chunkX = position.x >= 0 ? position.x / MvChunk::CHUNK_SIZE : std::floor(position.x / (MvChunk::CHUNK_SIZE - 1));
-    int chunkZ = position.z >= 0 ? position.z / MvChunk::CHUNK_SIZE : std::floor(position.z / (MvChunk::CHUNK_SIZE - 1));
-    int chunkY = position.y >= 0 ? position.y / MvChunk::CHUNK_SIZE : std::floor(position.y / (MvChunk::CHUNK_SIZE - 1));
+Block MvWorld::GetWorldBlockAt(glm::vec3 position) {
+    int chunkX = std::floor(position.x / (MvChunk::CHUNK_SIZE));
+    int chunkZ = std::floor(position.z / (MvChunk::CHUNK_SIZE));
+    int chunkY = std::floor(position.y / (MvChunk::CHUNK_SIZE));
 
     auto Chunk = m_LoadedChunks.find(glm::vec3(chunkX, chunkY, chunkZ));
     if (Chunk == m_LoadedChunks.end()) {
@@ -272,18 +272,18 @@ Block MvWorld::GetWorldBlockAt(glm::ivec3 position) {
     }
 
     glm::ivec3 blockPos = {
-        std::floor(abs(position.x) - abs(chunkX * MvChunk::CHUNK_SIZE)),
-        std::floor(abs(position.y) - abs(chunkY * MvChunk::CHUNK_SIZE)),
-        std::floor(abs(position.z) - abs(chunkZ * MvChunk::CHUNK_SIZE))
+        std::floor(position.x - (chunkX * MvChunk::CHUNK_SIZE)),
+        std::floor(position.y - (chunkY * MvChunk::CHUNK_SIZE)),
+        std::floor(position.z - (chunkZ * MvChunk::CHUNK_SIZE)),
     };
+
     return Chunk->second->GetBlock(blockPos);
 }
 
-void MvWorld::SetWorldBlockAt(glm::ivec3 position, int blockType) {
-    //TODO: make this for godsaken code to a helper function
-    int chunkX = position.x >= 0 ? position.x / MvChunk::CHUNK_SIZE : std::floor(position.x / (MvChunk::CHUNK_SIZE - 1));
-    int chunkZ = position.z >= 0 ? position.z / MvChunk::CHUNK_SIZE : std::floor(position.z / (MvChunk::CHUNK_SIZE - 1));
-    int chunkY = position.y >= 0 ? position.y / MvChunk::CHUNK_SIZE : std::floor(position.y / (MvChunk::CHUNK_SIZE - 1));
+void MvWorld::SetWorldBlockAt(glm::vec3 position, int blockType) {
+    int chunkX = std::floor(position.x / (MvChunk::CHUNK_SIZE));
+    int chunkZ = std::floor(position.z / (MvChunk::CHUNK_SIZE));
+    int chunkY = std::floor(position.y / (MvChunk::CHUNK_SIZE));
 
 
     auto it = m_RenderChunks.begin();
@@ -301,9 +301,9 @@ void MvWorld::SetWorldBlockAt(glm::ivec3 position, int blockType) {
     // std::cout << chunkX << ", " << chunkY << ", " << chunkZ << std::endl;
 
     glm::ivec3 blockPos = {
-        std::floor(position.x - chunkX * MvChunk::CHUNK_SIZE),
-        std::floor(position.y - chunkY * MvChunk::CHUNK_SIZE),
-        std::floor(position.z - chunkZ * MvChunk::CHUNK_SIZE),
+        std::floor(position.x - (chunkX * MvChunk::CHUNK_SIZE)),
+        std::floor(position.y - (chunkY * MvChunk::CHUNK_SIZE)),
+        std::floor(position.z - (chunkZ * MvChunk::CHUNK_SIZE)),
     };
     chunk->SetBlockAt(blockPos, blockType);
     // int blockType = chunk->GetBlock(blockPos.x, blockPos.y, blockPos.z);
