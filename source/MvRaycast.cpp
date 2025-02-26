@@ -42,7 +42,7 @@ MvRaycastResult MvRaycast::CastRay(std::unordered_map<glm::vec3, Ref<MvChunk>> &
             std::floor(fPos.z - chunkZ * MvChunk::CHUNK_SIZE),
         };
         Block blockType = chunk->GetBlock(blockPos);
-        if (blockType.type == MvChunk::AIR)
+        if (blockType.type == BlockType::AIR)
             continue;
 
         result.Hit = true;

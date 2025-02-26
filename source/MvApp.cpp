@@ -186,7 +186,7 @@ void MvApp::Run() {
             m_Camera->SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
 
             //Load chunks
-            m_World->LoadChunksAtCoordinate(m_Camera->GetPosition(), 1);
+            m_World->LoadChunksAtCoordinate(m_Camera->GetPosition(), 4);
             m_World->UpdateWorld(frameTime);
 
             int frameIndex = m_renderer->GetFrameIndex();

@@ -231,12 +231,12 @@ void MvCamera::SetUpListeners(GLFWwindow *window) {
                 //TODO: needs to be moved into update func
                 if (key == GLFW_KEY_ENTER) {
                     if (HitRes.Hit) {
-                        HitRes.ChunkHit->DestroyBlockAt(HitRes.BlockPosInChunk);
+                        app->GetWorld().SetWorldBlockAt(HitRes.HitPos, BlockType::AIR);
                     }
                 }
                 else {
                     if (HitRes.Hit) {
-                         app->GetWorld().SetWorldBlockAt(HitRes.PrevPos, 1);
+                         app->GetWorld().SetWorldBlockAt(HitRes.PrevPos, BlockType::STONE);
                     }
                 }
 

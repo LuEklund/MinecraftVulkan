@@ -80,7 +80,7 @@ void MvRenderSystem::RenderChunks(const MvFrameInfo &frameInfo,std::unordered_ma
 		push.modelMatrix = {{1.f, 0.f, 0.f, 0.f},
 							{0.f, 1.f, 0.f, 0.f},
 							{0.f, 0.f, 1.f, 0.f},
-							{chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z, 1.f}};
+							{obj.first, 1.f}};
 
 		// modelMatrix
 		// push.modelMatrix = obj.transform.normalMatrix();

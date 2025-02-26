@@ -21,13 +21,16 @@ class MvWorld {
 
   void GenerateMeshForChunk(const std::shared_ptr<MvChunk> & shared);
 
+
+  std::array<std::array<std::array<Block , MvChunk::CHUNK_SIZE + 2>,MvChunk::CHUNK_SIZE + 2>,MvChunk::CHUNK_SIZE + 2> GetRelevantBlocks(const glm::vec<3, float> vec, const std::shared_ptr<MvChunk> & shared);
+
   void UpdateWorld(float frameTime);;
 
   std::array<std::shared_ptr<MvChunk>, 6> GetNeighborChunks(glm::ivec3 vec);
 
   void LoadChunksAtCoordinate(glm::vec3 position, int radius = 3);
   Block GetWorldBlockAt(glm::vec3 position);
-  void SetWorldBlockAt(glm::vec3 vec, int blockType);
+  void SetWorldBlockAt(glm::vec3 vec, BlockType blockType);
   void CalculateRenderChunks(glm::vec3 origin, glm::vec3 direction, int maxChunkDistance, float fovRad);
 
   static float GetNoise(float x, float y);
@@ -53,10 +56,9 @@ class MvWorld {
     //TODO: unique ptr chunks
     //TODO: dirty map
 
-    // int RENDER_DISTANCE = 10;
-    // MvChunk chunks[RENDER_DISTANCE][RENDER_DISTANCE][RENDER_DISTANCE];
     std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> m_RenderChunks;
     std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> m_LoadedChunks;
+    std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> m_DirtyChunks;
 };
 
 
