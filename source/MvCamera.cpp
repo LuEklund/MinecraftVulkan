@@ -216,6 +216,15 @@ void MvCamera::SetUpListeners(GLFWwindow *window) {
                   << std::floor(camPos.x) << ", "
                   << std::floor(camPos.y) << ", "
                   << std::floor(camPos.z) << std::endl;
+                std::cout << "Chunk position: 16x16x16!!! "
+                  << int(std::floor(camPos.x)) / 16 << ", "
+                  << int(std::floor(camPos.y)) / 16 << ", "
+                  << int(std::floor(camPos.z)) / 16 << std::endl;
+            }
+            if (key == GLFW_KEY_F) {
+                auto app = static_cast<MvApp *>(glfwGetWindowUserPointer(window));
+                glm::vec3 camPos = app->GetCamera().GetPosition();
+                app->GetWorld().LoadChunksAtCoordinate(camPos, 1);
             }
             if (key == GLFW_KEY_ENTER || key == GLFW_KEY_P) {
                 auto app = static_cast<MvApp *>(glfwGetWindowUserPointer(window));

@@ -12,6 +12,7 @@ enum class BlockType : int8_t{
     DIRT,
     GRASS,
     GRASS_2,
+    INVALID,
 };
 
 // constexpr glm::vec4 CalculateUV(int x, int y);
@@ -41,8 +42,7 @@ typedef struct s_block {
 } Block;
 
 typedef struct s_LightNode {
-    // s_LightNode(short indx) : index(indx){}
-    short index; //this is the x y z coordinate!
+    glm::vec3 BlockPos;
 } LightNode;
 
 
@@ -50,8 +50,6 @@ typedef struct s_LightNode {
 class MvChunk
 {
 public:
-    static short GlobalLightLevel;
-    std::queue<LightNode> sunlightBfsQueue;
 
     static constexpr int CHUNK_SIZE = 16;
 
@@ -67,7 +65,8 @@ public:
     MvModel::Builder GenerateMesh(const std::array<std::array<std::array<Block , CHUNK_SIZE + 2>,CHUNK_SIZE + 2>,CHUNK_SIZE + 2> &Blocks, glm::vec3 ChunkPos);
 
     float CalculateAmbientOcclusion(Block Side1, Block Corner, Block Side2);
-    void CalculateLight();
+    bool TryPropagateLight(int x, int y, int z, int lightLevel);
+    void ResetLight(std::queue<LightNode> &sunlightBfsQueue, glm::vec3 ChunkPos, short GlobalLightLevel);
 
     Block GetBlock(glm::ivec3 vec);
     void SetBlockAt(glm::ivec3 vec, BlockType blockType);
@@ -77,6 +76,7 @@ public:
     bool HasMesh(){return bHasMesh;}
     bool GetRender(){return bRender;}
     void SetRender(bool render){bRender = render;}
+    void SetLight(glm::ivec3 vec, short lightLevel);
 
 
 
@@ -84,7 +84,6 @@ public:
 
 private:
     float Continentalness(float x);
-    void LightPropagate(int x, int y, int z, int lightLevel);
 
     bool    bHasMesh = false;
     bool    bRender = false;

@@ -77,10 +77,14 @@ void MvRenderSystem::RenderChunks(const MvFrameInfo &frameInfo,std::unordered_ma
 		if (!chunk->HasMesh() || !chunk->GetRender()) continue;
 
 		SimplePushConstantData push{};
+		// push.modelMatrix = glm::mat4(1.0f);
+		// push.modelMatrix[3][0] = obj.first.x * 16.0f; // Apply the scaling here
+		// push.modelMatrix[3][1] = obj.first.y * 16.0f;
+		// push.modelMatrix[3][2] = obj.first.z * 16.0f;
 		push.modelMatrix = {{1.f, 0.f, 0.f, 0.f},
 							{0.f, 1.f, 0.f, 0.f},
 							{0.f, 0.f, 1.f, 0.f},
-							{obj.first, 1.f}};
+							{obj.first * float(MvChunk::CHUNK_SIZE), 1.f}};
 
 		// modelMatrix
 		// push.modelMatrix = obj.transform.normalMatrix();

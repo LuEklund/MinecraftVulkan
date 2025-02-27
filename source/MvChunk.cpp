@@ -1,8 +1,6 @@
 #include <iostream>
 #include "MvWorld.hpp"
 
-short MvChunk::GlobalLightLevel = 15;
-
 MvChunk::MvChunk()
 {
 
@@ -50,47 +48,45 @@ void MvChunk::GenerateChunk(glm::vec3 ChunkPos) {
                     DATA[x][y][z].type = BlockType::AIR;
             }
 
-            // for lights
-            for (int y = CHUNK_SIZE - 1; y >= 0; y--) {
-                if (DATA[x][y][z].type == BlockType::AIR) {
-                    DATA[x][y][z].light = GlobalLightLevel;
-                    short index = x * CHUNK_SIZE * CHUNK_SIZE + y * CHUNK_SIZE + z;
-                    sunlightBfsQueue.emplace(index);
-                }
-                else
-                    break;
-            }
+            // // for lights
+            // for (int y = CHUNK_SIZE - 1; y >= 0; y--) {
+            //     if (DATA[x][y][z].type == BlockType::AIR) {
+            //         DATA[x][y][z].light = GlobalLightLevel;
+            //         short index = x * CHUNK_SIZE * CHUNK_SIZE + y * CHUNK_SIZE + z;
+            //         sunlightBfsQueue.emplace(index);
+            //     }
+            //     else
+            //         break;
+            // }
         }
     }
-    // lights
-    while (!sunlightBfsQueue.empty()) {
-        LightNode &node = sunlightBfsQueue.front();
-        short index = node.index;
-        sunlightBfsQueue.pop();
-        int x = index / (CHUNK_SIZE * CHUNK_SIZE);
-        int y = (index % (CHUNK_SIZE * CHUNK_SIZE)) / CHUNK_SIZE;
-        int z = index % CHUNK_SIZE;
-        int lightLevel = DATA[x][y][z].light;
-        LightPropagate(x-1, y, z, lightLevel);
-        LightPropagate(x+1, y, z , lightLevel);
-        LightPropagate(x, y, z-1, lightLevel);
-        LightPropagate(x, y, z+1, lightLevel);
-        LightPropagate(x, y-1, z, lightLevel);
-        LightPropagate(x, y+1, z, lightLevel);
-    }
+    // // lights
+    // while (!sunlightBfsQueue.empty()) {
+    //     LightNode &node = sunlightBfsQueue.front();
+    //     short index = node.index;
+    //     sunlightBfsQueue.pop();
+    //     int x = index / (CHUNK_SIZE * CHUNK_SIZE);
+    //     int y = (index % (CHUNK_SIZE * CHUNK_SIZE)) / CHUNK_SIZE;
+    //     int z = index % CHUNK_SIZE;
+    //     int lightLevel = DATA[x][y][z].light;
+    //     LightPropagate(x-1, y, z, lightLevel);
+    //     LightPropagate(x+1, y, z , lightLevel);
+    //     LightPropagate(x, y, z-1, lightLevel);
+    //     LightPropagate(x, y, z+1, lightLevel);
+    //     LightPropagate(x, y-1, z, lightLevel);
+    //     LightPropagate(x, y+1, z, lightLevel);
+    // }
 }
 
-void MvChunk::LightPropagate(int x, int y, int z, int lightLevel) {
+bool MvChunk::TryPropagateLight(int x, int y, int z, int lightLevel) {
     if (x >= 0 && x < CHUNK_SIZE && y >= 0 && y < CHUNK_SIZE && z >= 0 && z < CHUNK_SIZE
-        && DATA[x][y][z].type == BlockType::AIR && DATA[x][y][z].light + 2 <= lightLevel)
-        {
+        && DATA[x][y][z].type == BlockType::AIR && DATA[x][y][z].light < (lightLevel - 1))
+    {
         DATA[x][y][z].light = lightLevel - 1;
-        short index = x * CHUNK_SIZE * CHUNK_SIZE + y * CHUNK_SIZE + z;
-        sunlightBfsQueue.emplace(index);
+        return true;
     }
+    return false;
 }
-
-
 
 float MvChunk::CalculateAmbientOcclusion(Block Side1, Block Corner, Block Side2) {
     int count = (Side1.type != BlockType::AIR) + (Corner.type != BlockType::AIR) + (Side2.type != BlockType::AIR);
@@ -110,8 +106,11 @@ MvModel::Builder MvChunk::GenerateMesh(const std::array<std::array<std::array<Bl
 
     int size = 0;
 
+    // glm::ivec3 VertStart = {
+    //     ChunkPos.x * (CHUNK_SIZE - 1), ChunkPos.y * (CHUNK_SIZE - 1), ChunkPos.z * (CHUNK_SIZE - 1)
+    // };
     glm::ivec3 VertStart = {
-        ChunkPos.x * (CHUNK_SIZE - 1), ChunkPos.y * (CHUNK_SIZE - 1), ChunkPos.z * (CHUNK_SIZE - 1)
+        0, 0, 0
     };
 
     //TODO: should be written into helper functions AND maybe moved to world class some functionality?
@@ -410,16 +409,14 @@ MvModel::Builder MvChunk::GenerateMesh(const std::array<std::array<std::array<Bl
     return modelBuilder;
 }
 
-void MvChunk::CalculateLight() {
+void MvChunk::ResetLight(std::queue<LightNode> &sunlightBfsQueue, glm::vec3 ChunkPos, short GlobalLightLevel) {
     for (int x = 0; x < CHUNK_SIZE; x++) {
         for (int z = 0; z < CHUNK_SIZE; z++) {
             int y = CHUNK_SIZE - 1;
             for (y; y >= 0; y--) {
                 if (DATA[x][y][z].type == BlockType::AIR) {
-
                     DATA[x][y][z].light = GlobalLightLevel;
-                    short index = x * CHUNK_SIZE * CHUNK_SIZE + y * CHUNK_SIZE + z;
-                    sunlightBfsQueue.emplace(index);
+                    sunlightBfsQueue.emplace(LightNode{{ChunkPos.x * CHUNK_SIZE + x, ChunkPos.y * CHUNK_SIZE + y, ChunkPos.z * CHUNK_SIZE + z}});
                 }
                 else
                     break;
@@ -429,32 +426,20 @@ void MvChunk::CalculateLight() {
             }
         }
     }
-
-    while (!sunlightBfsQueue.empty()) {
-        LightNode &node = sunlightBfsQueue.front();
-        short index = node.index;
-        sunlightBfsQueue.pop();
-        int x = index / (CHUNK_SIZE * CHUNK_SIZE);
-        int y = (index % (CHUNK_SIZE * CHUNK_SIZE)) / CHUNK_SIZE;
-        int z = index % CHUNK_SIZE;
-        int lightLevel = DATA[x][y][z].light;
-        LightPropagate(x-1, y, z, lightLevel);
-        LightPropagate(x+1, y, z , lightLevel);
-        LightPropagate(x, y, z-1, lightLevel);
-        LightPropagate(x, y, z+1, lightLevel);
-        LightPropagate(x, y-1, z, lightLevel);
-        LightPropagate(x, y+1, z, lightLevel);
-    }
 }
+
 
 
 void MvChunk::SetBlockAt(glm::ivec3 vec, BlockType blockType) {
     DATA[vec.x][vec.y][vec.z].type = blockType;
-    CalculateLight();
 }
 
 void MvChunk::SetModel(std::shared_ptr<MvModel> model) {
     m_model = model;
+}
+
+void MvChunk::SetLight(glm::ivec3 vec, short lightLevel) {
+    DATA[vec.x][vec.y][vec.z].light = lightLevel;
 }
 
 
@@ -462,19 +447,9 @@ Block MvChunk::GetBlock(glm::ivec3 vec) {
     if (vec.x < 0 || vec.x >= CHUNK_SIZE
         || vec.y < 0 || vec.y >= CHUNK_SIZE
         || vec.z < 0 || vec.z >= CHUNK_SIZE) {
-        Block invalidBlock{BlockType::AIR, 0};
+        Block invalidBlock{BlockType::INVALID, 0};
         return invalidBlock;
     }
     return DATA[vec.x][vec.y][vec.z];
 }
 
-float MvChunk::Continentalness(float x) {
-    if (x < 0)
-        return 0;
-    else if (x >= 0 && x < 8)
-        return 0;
-    else if (x >= 8 && x < 9.6f)
-        return pow(x - 8, 4);
-    else
-        return log(x-9.365f) + 8;
-}
