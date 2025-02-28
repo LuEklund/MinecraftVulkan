@@ -1,4 +1,7 @@
 #include <iostream>
+
+#include "Hash.hpp"
+#include "Hash.hpp"
 #include "MvWorld.hpp"
 
 MvChunk::MvChunk()
@@ -13,7 +16,7 @@ MvChunk::MvChunk()
 
 
 
-void MvChunk::GenerateChunk(glm::vec3 ChunkPos) {
+void MvChunk::GenerateChunk(glm::vec3 ChunkPos, short GlobalLightLevel) {
     for (int x = 0; x < CHUNK_SIZE; x++) {
         for (int z = 0; z < CHUNK_SIZE; z++) {
 
@@ -34,7 +37,6 @@ void MvChunk::GenerateChunk(glm::vec3 ChunkPos) {
 
             for (int y = 0; y < CHUNK_SIZE; y++) {
                 const int TotHeight = CHUNK_SIZE * static_cast<int>(ChunkPos.y) + y;
-
                 if (TotHeight < floor(scaled_height)) {
                     DATA[x][y][z].type = BlockType::STONE;
                 }
@@ -44,38 +46,26 @@ void MvChunk::GenerateChunk(glm::vec3 ChunkPos) {
                 else if (TotHeight < floor(scaled_height) + 4) {
                     DATA[x][y][z].type = BlockType::GRASS;
                 }
-                else
+                else {
                     DATA[x][y][z].type = BlockType::AIR;
+                    DATA[x][y][z].light = GlobalLightLevel;
+                }
+                // if (TotHeight < 64 + (int(ChunkPos.x) % 2) * 16) {
+                //     DATA[x][y][z].type = BlockType::STONE;
+                // }
+                // else if (TotHeight < 64 + 3) {
+                //     DATA[x][y][z].type = BlockType::DIRT;
+                // }
+                // else if (TotHeight < 64 + 4) {
+                //     DATA[x][y][z].type = BlockType::GRASS;
+                // }
+                // else
+                //     DATA[x][y][z].type = BlockType::AIR;
             }
 
-            // // for lights
-            // for (int y = CHUNK_SIZE - 1; y >= 0; y--) {
-            //     if (DATA[x][y][z].type == BlockType::AIR) {
-            //         DATA[x][y][z].light = GlobalLightLevel;
-            //         short index = x * CHUNK_SIZE * CHUNK_SIZE + y * CHUNK_SIZE + z;
-            //         sunlightBfsQueue.emplace(index);
-            //     }
-            //     else
-            //         break;
-            // }
+
         }
     }
-    // // lights
-    // while (!sunlightBfsQueue.empty()) {
-    //     LightNode &node = sunlightBfsQueue.front();
-    //     short index = node.index;
-    //     sunlightBfsQueue.pop();
-    //     int x = index / (CHUNK_SIZE * CHUNK_SIZE);
-    //     int y = (index % (CHUNK_SIZE * CHUNK_SIZE)) / CHUNK_SIZE;
-    //     int z = index % CHUNK_SIZE;
-    //     int lightLevel = DATA[x][y][z].light;
-    //     LightPropagate(x-1, y, z, lightLevel);
-    //     LightPropagate(x+1, y, z , lightLevel);
-    //     LightPropagate(x, y, z-1, lightLevel);
-    //     LightPropagate(x, y, z+1, lightLevel);
-    //     LightPropagate(x, y-1, z, lightLevel);
-    //     LightPropagate(x, y+1, z, lightLevel);
-    // }
 }
 
 bool MvChunk::TryPropagateLight(int x, int y, int z, int lightLevel) {
@@ -83,6 +73,15 @@ bool MvChunk::TryPropagateLight(int x, int y, int z, int lightLevel) {
         && DATA[x][y][z].type == BlockType::AIR && DATA[x][y][z].light < (lightLevel - 1))
     {
         DATA[x][y][z].light = lightLevel - 1;
+        return true;
+    }
+    return false;
+}
+
+bool MvChunk::TryBeGonePropagateLight(int x, int y, int z, int lightLevel) {
+    if (x >= 0 && x < CHUNK_SIZE && y >= 0 && y < CHUNK_SIZE && z >= 0 && z < CHUNK_SIZE
+        && DATA[x][y][z].type == BlockType::AIR && DATA[x][y][z].light < lightLevel)
+    {
         return true;
     }
     return false;
@@ -431,6 +430,8 @@ void MvChunk::ResetLight(std::queue<LightNode> &sunlightBfsQueue, glm::vec3 Chun
 
 
 void MvChunk::SetBlockAt(glm::ivec3 vec, BlockType blockType) {
+    // if (blockType != BlockType::AIR)
+    //     DATA[vec.x][vec.y][vec.z].light = 0;
     DATA[vec.x][vec.y][vec.z].type = blockType;
 }
 

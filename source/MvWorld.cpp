@@ -45,70 +45,6 @@ std::vector<glm::vec2> MvWorld::PeaksAndValleys = {
 
 
 
-
-
-
-MvWorld::MvWorld(MvDevice &device) : m_Device(device)
-{
-    m_NoiseGen.SetNoiseType(FastNoiseLite::NoiseType_Value);
-    m_NoiseGen.SetSeed(123456789);
-    m_NoiseGen.SetFrequency(0.0004f);
-    m_NoiseGen.SetFractalType(FastNoiseLite::FractalType_FBm);
-    m_NoiseGen.SetFractalOctaves(4);
-    m_NoiseGen.SetFractalLacunarity(2.73f);
-    m_NoiseGen.SetFractalGain(0.14f);
-    m_NoiseGen.SetFractalWeightedStrength(-9.51f);
-
-    DomainWarpGen.SetDomainWarpType(FastNoiseLite::DomainWarpType_OpenSimplex2);
-    DomainWarpGen.SetDomainWarpAmp(32.5f);
-    DomainWarpGen.SetSeed(123456789);
-    DomainWarpGen.SetFrequency(0.034f);
-
-    m_noise_gen_peaks.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-    m_noise_gen_peaks.SetSeed(123456789);
-    m_noise_gen_peaks.SetFrequency(0.002f);
-    m_noise_gen_peaks.SetFractalType(FastNoiseLite::FractalType_Ridged);
-    m_noise_gen_peaks.SetFractalOctaves(5);
-    m_noise_gen_peaks.SetFractalLacunarity(2.48f);
-    m_noise_gen_peaks.SetFractalGain(0.28f);
-    m_noise_gen_peaks.SetFractalWeightedStrength(0.16f);
-
-    m_domain_warp_peaks.SetDomainWarpType(FastNoiseLite::DomainWarpType_OpenSimplex2);
-    m_domain_warp_peaks.SetDomainWarpAmp(31.5f);
-    m_domain_warp_peaks.SetSeed(123456789);
-    m_domain_warp_peaks.SetFrequency(-0.029f);
-
-    m_detail_noise_gen.SetNoiseType(FastNoiseLite::NoiseType_Cellular);
-    m_detail_noise_gen.SetSeed(123456789);
-    m_detail_noise_gen.SetFrequency(-0.023f);
-    m_detail_noise_gen.SetFractalType(FastNoiseLite::FractalType_Ridged);
-    m_detail_noise_gen.SetFractalOctaves(5);
-    m_detail_noise_gen.SetFractalLacunarity(2.418f);
-    m_detail_noise_gen.SetFractalGain(0.440f);
-    m_detail_noise_gen.SetFractalWeightedStrength(-0.170f);
-    m_detail_noise_gen.SetCellularReturnType(FastNoiseLite::CellularReturnType_Distance);
-    m_detail_noise_gen.SetCellularDistanceFunction(FastNoiseLite::CellularDistanceFunction_EuclideanSq);
-    m_detail_noise_gen.SetCellularJitter(1.78f);
-    m_detail_domain_warp.SetDomainWarpType(FastNoiseLite::DomainWarpType_OpenSimplex2);
-    m_detail_domain_warp.SetDomainWarpAmp(43.5f);
-    m_detail_domain_warp.SetSeed(123456789);
-    m_detail_domain_warp.SetFrequency(-0.059f);
-
-
-    // int size = 5;
-    // for (int x = 0; x < size; ++x) {
-    //     for (int y = 4; y < MAX_CHUNK_HEIGTH; ++y) {
-    //         for (int z = 0; z < size; ++z) {
-    //             std::shared_ptr<MvChunk> chunk = std::make_shared<MvChunk>();
-    //             chunk->GenerateChunk({x,y,z});
-    //             m_RenderChunks[{x,y,z}] = chunk;
-    //             m_LoadedChunks[{x,y,z}] = chunk;
-    //             m_DirtyChunks[{x,y,z}] = chunk;
-    //         }
-    //     }
-    // }
-}
-
 float MvWorld::GetNoise(float x, float y) {
     float warpX = x, warpY = y;
     DomainWarpGen.DomainWarp(warpX, warpY);
@@ -158,6 +94,89 @@ double MvWorld::GetDetailNoise(double x, double y) {
 }
 
 
+MvWorld::MvWorld(MvDevice &device) : m_Device(device)
+{
+    m_NoiseGen.SetNoiseType(FastNoiseLite::NoiseType_Value);
+    m_NoiseGen.SetSeed(123456789);
+    m_NoiseGen.SetFrequency(0.0004f);
+    m_NoiseGen.SetFractalType(FastNoiseLite::FractalType_FBm);
+    m_NoiseGen.SetFractalOctaves(4);
+    m_NoiseGen.SetFractalLacunarity(2.73f);
+    m_NoiseGen.SetFractalGain(0.14f);
+    m_NoiseGen.SetFractalWeightedStrength(-9.51f);
+
+    DomainWarpGen.SetDomainWarpType(FastNoiseLite::DomainWarpType_OpenSimplex2);
+    DomainWarpGen.SetDomainWarpAmp(32.5f);
+    DomainWarpGen.SetSeed(123456789);
+    DomainWarpGen.SetFrequency(0.034f);
+
+    m_noise_gen_peaks.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+    m_noise_gen_peaks.SetSeed(123456789);
+    m_noise_gen_peaks.SetFrequency(0.002f);
+    m_noise_gen_peaks.SetFractalType(FastNoiseLite::FractalType_Ridged);
+    m_noise_gen_peaks.SetFractalOctaves(5);
+    m_noise_gen_peaks.SetFractalLacunarity(2.48f);
+    m_noise_gen_peaks.SetFractalGain(0.28f);
+    m_noise_gen_peaks.SetFractalWeightedStrength(0.16f);
+
+    m_domain_warp_peaks.SetDomainWarpType(FastNoiseLite::DomainWarpType_OpenSimplex2);
+    m_domain_warp_peaks.SetDomainWarpAmp(31.5f);
+    m_domain_warp_peaks.SetSeed(123456789);
+    m_domain_warp_peaks.SetFrequency(-0.029f);
+
+    m_detail_noise_gen.SetNoiseType(FastNoiseLite::NoiseType_Cellular);
+    m_detail_noise_gen.SetSeed(123456789);
+    m_detail_noise_gen.SetFrequency(-0.023f);
+    m_detail_noise_gen.SetFractalType(FastNoiseLite::FractalType_Ridged);
+    m_detail_noise_gen.SetFractalOctaves(5);
+    m_detail_noise_gen.SetFractalLacunarity(2.418f);
+    m_detail_noise_gen.SetFractalGain(0.440f);
+    m_detail_noise_gen.SetFractalWeightedStrength(-0.170f);
+    m_detail_noise_gen.SetCellularReturnType(FastNoiseLite::CellularReturnType_Distance);
+    m_detail_noise_gen.SetCellularDistanceFunction(FastNoiseLite::CellularDistanceFunction_EuclideanSq);
+    m_detail_noise_gen.SetCellularJitter(1.78f);
+    m_detail_domain_warp.SetDomainWarpType(FastNoiseLite::DomainWarpType_OpenSimplex2);
+    m_detail_domain_warp.SetDomainWarpAmp(43.5f);
+    m_detail_domain_warp.SetSeed(123456789);
+    m_detail_domain_warp.SetFrequency(-0.059f);
+
+    //==================================================================
+    //    ===================[PERLIN NOISE]=======================
+    //==================================================================
+
+
+    // int size = 5;
+    // for (int x = 0; x < size; ++x) {
+    //     for (int y = 4; y < MAX_CHUNK_HEIGTH; ++y) {
+    //         for (int z = 0; z < size; ++z) {
+    //             std::shared_ptr<MvChunk> chunk = std::make_shared<MvChunk>();
+    //             chunk->GenerateChunk({x,y,z});
+    //             m_RenderChunks[{x,y,z}] = chunk;
+    //             m_LoadedChunks[{x,y,z}] = chunk;
+    //             m_DirtyChunks[{x,y,z}] = chunk;
+    //         }
+    //     }
+    // }
+}
+
+// Neighbor[0]: Left (-x),
+// Neighbor[1]: Right (+x)
+// Neighbor[2]: Bottom (-y)
+// Neighbor[3]: Top (+y)
+// Neighbor[4]: Back (-z)
+// Neighbor[5]: Forward (+z)
+std::array<glm::ivec3, 6> GetRelativeCords() {
+    return std::array<glm::ivec3, 6> ({
+        {-1, 0, 0},
+        {1, 0, 0},
+        {0, -1, 0},
+        {0, 1, 0},
+        {0, 0, -1},
+        {0, 0, 1}
+    });
+}
+
+
 std::array<std::array<std::array<Block, MvChunk::CHUNK_SIZE + 2>, MvChunk::CHUNK_SIZE + 2>, MvChunk::CHUNK_SIZE + 2>
 MvWorld::GetRelevantBlocks(const glm::vec<3, float> vec, const std::shared_ptr<MvChunk> &shared) {
     std::array<std::array<std::array<Block, MvChunk::CHUNK_SIZE + 2>, MvChunk::CHUNK_SIZE + 2>, MvChunk::CHUNK_SIZE + 2> Blocks;
@@ -174,25 +193,85 @@ MvWorld::GetRelevantBlocks(const glm::vec<3, float> vec, const std::shared_ptr<M
     return Blocks;
 }
 
-// void MvWorld::LightPropagate(int x, int y, int z, int lightLevel) {
-//     Block Block = GetWorldBlockAt({x,y,z});
-//     if (Block.type == BlockType::AIR && Block.light + 2 <= lightLevel)
-//     {
-//         Block.light = lightLevel - 1;
-//         SetWorldBlockAt({x,y,z}, Block);
-//         sunlightBfsQueue.emplace(LightNode{{x,y,z}});
-//     }
-// }
+
+int posMod(int value, int modulus) {
+    return (value % modulus + modulus) % modulus;
+}
+
 
 void MvWorld::LightPropagate(int x, int y, int z, int lightLevel) {
     if (lightLevel <= 1) return;
-    auto Chunk = GetChunkBlockPos(glm::vec3(x,y,z));
+    glm::ivec3 ChunkPos = ConvertBlockPosToChunkPos({x,y,z});
+    auto Chunk = GetChunkChunkPos(glm::vec3(ChunkPos));
     if (!Chunk) return;
-    if (Chunk->TryPropagateLight(abs(x % 16), abs(y % 16), abs(z % 16), lightLevel))
-        sunlightBfsQueue.emplace(LightNode{{x,y,z}});
+    if (y % 16 == 0) {
+        std::array<glm::ivec3, 6> RelativeCords = GetRelativeCords();
+        for (int i = 0; i < 6; ++i) {
+            glm::ivec3 RelativePos = ChunkPos + RelativeCords[i];
+            auto NeighborChunk = m_LoadedChunks.find(RelativePos);
+            if (NeighborChunk != m_LoadedChunks.end()) {
+                m_DirtyMeshChunks[RelativePos] = NeighborChunk->second;
+            }
+        }
+    }
+    // Use a proper positive mod function
+    int localX = posMod(x, 16);
+    int localY = posMod(y, 16);
+    int localZ = posMod(z, 16);
+
+    if (Chunk->TryPropagateLight(localX, localY, localZ, lightLevel)) {
+        sunlightBfsQueue.emplace(LightNode{{x, y, z}});
+    }
+}
+
+void MvWorld::LightBeGonePropagate(int x, int y, int z, int lightLevel) {
+    if (lightLevel <= 1) return;
+    glm::ivec3 ChunkPos = ConvertBlockPosToChunkPos({x,y,z});
+    auto Chunk = GetChunkChunkPos(glm::vec3(ChunkPos));
+    if (!Chunk) return;
+    if (y % 16 == 0) {
+        std::array<glm::ivec3, 6> RelativeCords = GetRelativeCords();
+        for (int i = 0; i < 6; ++i) {
+            glm::ivec3 RelativePos = ChunkPos + RelativeCords[i];
+            auto NeighborChunk = m_LoadedChunks.find(RelativePos);
+            if (NeighborChunk != m_LoadedChunks.end()) {
+                m_DirtyMeshChunks[RelativePos] = NeighborChunk->second;
+            }
+        }
+    }
+    // Use a proper positive mod function
+    int localX = posMod(x, 16);
+    int localY = posMod(y, 16);
+    int localZ = posMod(z, 16);
+
+    if (Chunk->TryBeGonePropagateLight(localX, localY, localZ, lightLevel)) {
+        reverseSunlightBfsQueue.emplace(LightNode{{x, y, z}});
+    }
+    else {
+        sunlightBfsQueue.emplace(LightNode{{x, y, z}});
+    }
 }
 
 void MvWorld::UpdateLights() {
+    //Remove Lights
+    while (!reverseSunlightBfsQueue.empty()) {
+        LightNode &node = reverseSunlightBfsQueue.front();
+        glm::vec3 BlockPos = node.BlockPos;
+        reverseSunlightBfsQueue.pop();
+        int x = BlockPos.x;
+        int y = BlockPos.y;
+        int z = BlockPos.z;
+        int lightLevel = GetWorldBlockAt({x,y,z}).light;
+        LightBeGonePropagate(x-1, y, z, lightLevel);
+        LightBeGonePropagate(x+1, y, z , lightLevel);
+        LightBeGonePropagate(x, y, z-1, lightLevel);
+        LightBeGonePropagate(x, y, z+1, lightLevel);
+        LightBeGonePropagate(x, y-1, z, lightLevel);
+        LightBeGonePropagate(x, y+1, z, lightLevel);
+        SetWorldLightBlockAt({x,y,z}, 0);
+    }
+
+    //Fill Lights
     while (!sunlightBfsQueue.empty()) {
         LightNode &node = sunlightBfsQueue.front();
         glm::vec3 BlockPos = node.BlockPos;
@@ -220,89 +299,17 @@ bool MvWorld::HasDirectSkyLight(glm::ivec3 BlockPos) {
     return true;
 }
 
-
-void MvWorld::ResetLight(std::unordered_map<glm::vec<3, float>, std::shared_ptr<MvChunk>>::iterator it) {
-
-    // std::shared_ptr<MvChunk> AboveChunk = GetChunkChunkPos(glm::vec3(it->first.x, it->first.y + 1, it->first.z));
-    glm::ivec3 FirstBlockPos = {it->first.x * MvChunk::CHUNK_SIZE, it->first.y * MvChunk::CHUNK_SIZE, it->first.z * MvChunk::CHUNK_SIZE};
-    for (int x = 0; x < MvChunk::CHUNK_SIZE; x++) {
-        for (int z = 0; z < MvChunk::CHUNK_SIZE; z++) {
-            int y = MvChunk::CHUNK_SIZE - 1;
-            // Block BlockAbove = AboveChunk ? AboveChunk->GetBlock({x,0,z}) : Block(BlockType::AIR, 15);
-            if (HasDirectSkyLight(
-                    {FirstBlockPos.x + x,
-                               FirstBlockPos.y + y,
-                               FirstBlockPos.z + z})) {
-                for (y; y >= 0; y--) {
-                    if (it->second->GetBlock({x,y,z}).type == BlockType::AIR) {
-                        it->second->SetLight({x,y,z}, GlobalLightLevel);
-                        sunlightBfsQueue.emplace(LightNode{{
-                                    FirstBlockPos.x + x,
-                                     FirstBlockPos.y + y,
-                                     FirstBlockPos.z + z}});
-                    }
-                    else
-                        break;
-                }
-            }
-            for (y; y >= 0; y--) {
-                it->second->SetLight({x,y,z}, 0);
-            }
-        }
-    }
-}
-
 void MvWorld::UpdateWorld(float frameTime) {
-    for (auto it = m_DirtyChunks.begin(); it != m_DirtyChunks.end();) {
-        ResetLight(it);
-        it++;
-    }
     UpdateLights();
-    for (auto it = m_DirtyChunks.begin(); it != m_DirtyChunks.end();) {
+    for (auto it = m_DirtyMeshChunks.begin(); it != m_DirtyMeshChunks.end();) {
         MvModel::Builder modelBuilder = it->second->GenerateMesh(GetRelevantBlocks(it->first, it->second), it->first);
         if (it->second->HasMesh()) {
             it->second->SetModel(std::make_unique<MvModel>(m_Device, modelBuilder));
         }
-        it = m_DirtyChunks.erase(it);
+        it = m_DirtyMeshChunks.erase(it);
     }
-    // static float TimeElapsed = 0.0f;
-    // TimeElapsed += frameTime;
-    // MvChunk::GlobalLightLevel = static_cast<short>(7.5f * (std::sin(TimeElapsed) + 1));
-
-    // for (auto it = m_ChunksLoaded.begin(); it != m_ChunksLoaded.end(); ++it) {
-    //     it->second->CalculateLight();
-    //     it->second->GenerateMesh(m_Device);
-    // }
-    // std::cout << "Light Level: " << light << std::endl;
-    // std::cout << "Light Level2: " << 7.5f * (std::sin(TimeElapsed) + 1) << std::endl;
 }
 
-// 0 = Left -x, 1 = Right +x, 2 = Bottom -y, 3 = Top +y, 4 = Back -z, 5 = Forward +z
-std::array<std::unordered_map<glm::vec<3, float>, std::shared_ptr<MvChunk>>::iterator, 6> MvWorld::GetNeighborITChunks(glm::ivec3 ChunkPos) {
-    std::array<std::unordered_map<glm::vec<3, float>, std::shared_ptr<MvChunk>>::iterator, 6> Neighbors;
-    std::array<glm::ivec3, 6> RelativePos {
-            {{-1, 0, 0},{1, 0, 0},{0, -1, 0}, {0, 1, 0},{0, 0, -1}, {0, 0, 1}
-            }};
-
-    for (int i = 0; i < 6; ++i) {
-        glm::ivec3 NeighborPos = ChunkPos + RelativePos[i];
-        auto NeighborChunk = m_LoadedChunks.find(NeighborPos);
-        Neighbors[i] = NeighborChunk;
-    }
-    return Neighbors;
-}
-
-// 0 = Left -x, 1 = Right +x, 2 = Bottom -y, 3 = Top +y, 4 = Back -z, 5 = Forward +z
-std::array<std::shared_ptr<MvChunk>, 6> MvWorld::GetNeighborChunks(glm::ivec3 vec) {
-    std::array<std::shared_ptr<MvChunk>, 6> Neighbors;
-    Neighbors[0] = m_LoadedChunks.find({vec.x - 1, vec.y, vec.z}) != m_LoadedChunks.end() ? m_LoadedChunks.at({vec.x - 1, vec.y, vec.z}) : nullptr;
-    Neighbors[1] = m_LoadedChunks.find({vec.x + 1, vec.y, vec.z}) != m_LoadedChunks.end() ? m_LoadedChunks.at({vec.x + 1, vec.y, vec.z}) : nullptr;
-    Neighbors[2] = m_LoadedChunks.find({vec.x, vec.y - 1, vec.z}) != m_LoadedChunks.end() ? m_LoadedChunks.at({vec.x, vec.y - 1, vec.z}) : nullptr;
-    Neighbors[3] = m_LoadedChunks.find({vec.x, vec.y + 1, vec.z}) != m_LoadedChunks.end() ? m_LoadedChunks.at({vec.x, vec.y + 1, vec.z}) : nullptr;
-    Neighbors[4] = m_LoadedChunks.find({vec.x, vec.y, vec.z - 1}) != m_LoadedChunks.end() ? m_LoadedChunks.at({vec.x, vec.y, vec.z - 1}) : nullptr;
-    Neighbors[5] = m_LoadedChunks.find({vec.x, vec.y, vec.z + 1}) != m_LoadedChunks.end() ? m_LoadedChunks.at({vec.x, vec.y, vec.z + 1}) : nullptr;
-    return Neighbors;
-}
 
 void MvWorld::LoadChunksAtCoordinate(glm::vec3 position, int radius) {
     // std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> chunks;
@@ -325,11 +332,12 @@ void MvWorld::LoadChunksAtCoordinate(glm::vec3 position, int radius) {
                         continue ;
                     }
                     std::shared_ptr<MvChunk> chunk = std::make_shared<MvChunk>();
-                    chunk->GenerateChunk({x,y,z});
-                    m_DirtyChunks[{x,y,z}] = chunk;
+                    chunk->GenerateChunk({x,y,z}, GlobalLightLevel);
+                    m_DirtyMeshChunks[{x,y,z}] = chunk;
                     for (auto Neighbor : GetNeighborITChunks({x,y,z})) {
                         if (Neighbor != m_LoadedChunks.end()) {
-                            m_DirtyChunks[Neighbor->first] = Neighbor->second;;
+                            m_DirtyMeshChunks[Neighbor->first] = Neighbor->second;
+                            // std::cout << "Neigbour" << Neighbor->first.x << " " << Neighbor->first.y << " " << Neighbor->first.z << std::endl;
                         }
                     }
                     m_RenderChunks[{x,y,z}] = chunk;
@@ -353,11 +361,41 @@ void MvWorld::LoadChunksAtCoordinate(glm::vec3 position, int radius) {
             }
         }
     }
+}
+
+// 0 = Left -x, 1 = Right +x, 2 = Bottom -y, 3 = Top +y, 4 = Back -z, 5 = Forward +z
+std::array<std::unordered_map<glm::vec<3, float>, std::shared_ptr<MvChunk>>::iterator, 6> MvWorld::GetNeighborITChunks(glm::ivec3 ChunkPos) {
+    std::array<std::unordered_map<glm::vec<3, float>, std::shared_ptr<MvChunk>>::iterator, 6> Neighbors;
+    std::array<glm::ivec3, 6> RelativePos {
+                {{-1, 0, 0},{1, 0, 0},{0, -1, 0}, {0, 1, 0},{0, 0, -1}, {0, 0, 1}
+                }};
+
+    for (int i = 0; i < 6; ++i) {
+        glm::ivec3 NeighborPos = ChunkPos + RelativePos[i];
+        auto NeighborChunk = m_LoadedChunks.find(NeighborPos);
+        Neighbors[i] = NeighborChunk;
+    }
+    return Neighbors;
+}
+// 0 = Left -x, 1 = Right +x, 2 = Bottom -y, 3 = Top +y, 4 = Back -z, 5 = Forward +z
+std::array<std::shared_ptr<MvChunk>, 6> MvWorld::GetNeighborChunks(glm::ivec3 vec) {
+    std::array<std::shared_ptr<MvChunk>, 6> Neighbors;
+    Neighbors[0] = m_LoadedChunks.find({vec.x - 1, vec.y, vec.z}) != m_LoadedChunks.end() ? m_LoadedChunks.at({vec.x - 1, vec.y, vec.z}) : nullptr;
+    Neighbors[1] = m_LoadedChunks.find({vec.x + 1, vec.y, vec.z}) != m_LoadedChunks.end() ? m_LoadedChunks.at({vec.x + 1, vec.y, vec.z}) : nullptr;
+    Neighbors[2] = m_LoadedChunks.find({vec.x, vec.y - 1, vec.z}) != m_LoadedChunks.end() ? m_LoadedChunks.at({vec.x, vec.y - 1, vec.z}) : nullptr;
+    Neighbors[3] = m_LoadedChunks.find({vec.x, vec.y + 1, vec.z}) != m_LoadedChunks.end() ? m_LoadedChunks.at({vec.x, vec.y + 1, vec.z}) : nullptr;
+    Neighbors[4] = m_LoadedChunks.find({vec.x, vec.y, vec.z - 1}) != m_LoadedChunks.end() ? m_LoadedChunks.at({vec.x, vec.y, vec.z - 1}) : nullptr;
+    Neighbors[5] = m_LoadedChunks.find({vec.x, vec.y, vec.z + 1}) != m_LoadedChunks.end() ? m_LoadedChunks.at({vec.x, vec.y, vec.z + 1}) : nullptr;
+    return Neighbors;
+}
 
 
-
-
-
+glm::ivec3 MvWorld::ConvertBlockPosToChunkPos(glm::vec3 blockPos) {
+    return {
+        std::floor(blockPos.x / (MvChunk::CHUNK_SIZE)),
+        std::floor(blockPos.y / (MvChunk::CHUNK_SIZE)),
+        std::floor(blockPos.z / (MvChunk::CHUNK_SIZE))
+    };
 }
 
 std::shared_ptr<MvChunk> MvWorld::GetChunkChunkPos(glm::vec3 position) {
@@ -370,10 +408,8 @@ std::shared_ptr<MvChunk> MvWorld::GetChunkChunkPos(glm::vec3 position) {
 
 
  std::shared_ptr<MvChunk> MvWorld::GetChunkBlockPos(glm::vec3 position) {
-    int chunkX = std::floor(position.x / (MvChunk::CHUNK_SIZE));
-    int chunkZ = std::floor(position.z / (MvChunk::CHUNK_SIZE));
-    int chunkY = std::floor(position.y / (MvChunk::CHUNK_SIZE));
-    auto Chunk = m_LoadedChunks.find(glm::vec3(chunkX, chunkY, chunkZ));
+    glm::ivec3 ChunkPos = ConvertBlockPosToChunkPos(position);
+    auto Chunk = m_LoadedChunks.find(glm::vec3(ChunkPos));
     if (Chunk == m_LoadedChunks.end()) {
         return nullptr;
     }
@@ -381,70 +417,110 @@ std::shared_ptr<MvChunk> MvWorld::GetChunkChunkPos(glm::vec3 position) {
 }
 
 Block MvWorld::GetWorldBlockAt(glm::vec3 position) {
-    int chunkX = std::floor(position.x / (MvChunk::CHUNK_SIZE));
-    int chunkY = std::floor(position.y / (MvChunk::CHUNK_SIZE));
-    int chunkZ = std::floor(position.z / (MvChunk::CHUNK_SIZE));
+    glm::ivec3 ChunkPos = ConvertBlockPosToChunkPos(position);
 
-    auto Chunk = m_LoadedChunks.find(glm::vec3(chunkX, chunkY, chunkZ));
+    auto Chunk = m_LoadedChunks.find(glm::vec3(ChunkPos));
     if (Chunk == m_LoadedChunks.end()) {
         return Block(BlockType::INVALID, 0);
     }
 
     glm::ivec3 blockPos = {
-        std::floor(position.x - (chunkX * MvChunk::CHUNK_SIZE)),
-        std::floor(position.y - (chunkY * MvChunk::CHUNK_SIZE)),
-        std::floor(position.z - (chunkZ * MvChunk::CHUNK_SIZE)),
+        std::floor(position.x - (ChunkPos.x * MvChunk::CHUNK_SIZE)),
+        std::floor(position.y - (ChunkPos.y * MvChunk::CHUNK_SIZE)),
+        std::floor(position.z - (ChunkPos.z * MvChunk::CHUNK_SIZE)),
     };
 
     return Chunk->second->GetBlock(blockPos);
 }
 
+void MvWorld::SetWorldLightBlockAt(glm::vec3 position, short global_light_level) {
+    glm::ivec3 ChunkPos = ConvertBlockPosToChunkPos(position);
+
+    auto Chunk = m_LoadedChunks.find(glm::vec3(ChunkPos));
+    if (Chunk == m_LoadedChunks.end()) {
+        return;
+    }
+
+    glm::ivec3 blockPos = {
+        std::floor(position.x - (ChunkPos.x * MvChunk::CHUNK_SIZE)),
+        std::floor(position.y - (ChunkPos.y * MvChunk::CHUNK_SIZE)),
+        std::floor(position.z - (ChunkPos.z * MvChunk::CHUNK_SIZE)),
+    };
+
+    Chunk->second->SetLight(blockPos, global_light_level);
+}
+
 void MvWorld::SetWorldBlockAt(glm::vec3 position, BlockType blockType) {
-    int chunkX = std::floor(position.x / (MvChunk::CHUNK_SIZE));
-    int chunkZ = std::floor(position.z / (MvChunk::CHUNK_SIZE));
-    int chunkY = std::floor(position.y / (MvChunk::CHUNK_SIZE));
+    glm::ivec3 ChunkPos = ConvertBlockPosToChunkPos(position);
+
 
     // Check for valid chunk
-    if (m_RenderChunks.find(glm::vec3(chunkX, chunkY, chunkZ)) == m_RenderChunks.end()) {
+    if (m_LoadedChunks.find(glm::vec3(ChunkPos)) == m_LoadedChunks.end()) {
         return;
     }
 
     // safety LOL XD #C++
-    auto &chunk = m_RenderChunks[glm::vec3(chunkX, chunkY, chunkZ)];
+    auto &chunk = m_LoadedChunks[glm::vec3(ChunkPos)];
     if (!chunk) {
         return;
     }
 
     glm::ivec3 blockPos = {
-        std::floor(position.x - (chunkX * MvChunk::CHUNK_SIZE)),
-        std::floor(position.y - (chunkY * MvChunk::CHUNK_SIZE)),
-        std::floor(position.z - (chunkZ * MvChunk::CHUNK_SIZE)),
+        std::floor(position.x - (ChunkPos.x * MvChunk::CHUNK_SIZE)),
+        std::floor(position.y - (ChunkPos.y * MvChunk::CHUNK_SIZE)),
+        std::floor(position.z - (ChunkPos.z * MvChunk::CHUNK_SIZE)),
     };
-    std::array<std::shared_ptr<MvChunk>, 6> Neighbor = GetNeighborChunks({chunkX, chunkY, chunkZ});
-    if (Neighbor[0]) m_DirtyChunks[{chunkX - 1, chunkY, chunkZ}] = Neighbor[0];
-    if (Neighbor[1]) m_DirtyChunks[{chunkX + 1, chunkY, chunkZ}] = Neighbor[1];
-    if (Neighbor[2]) m_DirtyChunks[{chunkX, chunkY - 1, chunkZ}] = Neighbor[2];
-    if (Neighbor[3]) m_DirtyChunks[{chunkX, chunkY + 1, chunkZ}] = Neighbor[3];
-    if (Neighbor[4]) {
-        // for (int x = 0; x < 16; ++x) {
-        //     for (int y = 0; y < 16; ++y) {
-        //         for (int z = 0; z < 16; ++z) {
-        //             Neighbor[4]->SetBlockAt({x,y,z}, BlockType::GRASS_2);
-        //         }
-        //     }
-        // }
-        m_DirtyChunks[{chunkX, chunkY, chunkZ - 1}] = Neighbor[4];
+    std::array<std::shared_ptr<MvChunk>, 6> Neighbor = GetNeighborChunks(ChunkPos);
+    std::array<glm::ivec3, 6> relativeOffsets = GetRelativeCords();
+
+    m_DirtyMeshChunks[ChunkPos] = chunk;
+
+    //Mark neighbor chunks as dirty
+    for (int i = 0; i < 6; ++i) {
+        glm::ivec3 offset = relativeOffsets[i];
+        glm::ivec3 chunkCoord = {ChunkPos.x + offset.x, ChunkPos.y + offset.y, ChunkPos.z + offset.z};
+
+        if (Neighbor[i]) {
+            m_DirtyMeshChunks[chunkCoord] = Neighbor[i]; // Assign neighbor chunk
+        }
     }
-    if (Neighbor[5]) m_DirtyChunks[{chunkX, chunkY, chunkZ + 1}] = Neighbor[5];
-
-
-    m_DirtyChunks[{chunkX, chunkY, chunkZ}] = chunk;
     chunk->SetBlockAt(blockPos, blockType);
+
+    // update light acces for block
+    glm::vec3 LightBlockPos = {position.x, MAX_CHUNK_HEIGTH * MvChunk::CHUNK_SIZE - 1, position.z};
+    for (; LightBlockPos.y > 0; LightBlockPos.y--) {
+        if (GetWorldBlockAt(LightBlockPos).type == BlockType::AIR) {
+            SetWorldLightBlockAt(LightBlockPos, GlobalLightLevel);
+            sunlightBfsQueue.emplace(LightNode{{
+                        std::floor(LightBlockPos.x),
+                         std::floor(LightBlockPos.y),
+                         std::floor(LightBlockPos.z)}});
+        }
+        else
+            break;
+    }
+    //add block beneath to removelight
+    if (blockType != BlockType::AIR) {
+        for (int y = position.y; y > 0; --y) {
+            reverseSunlightBfsQueue.emplace(LightNode{{
+                                std::floor(position.x),
+                                 y,
+                                 std::floor(position.z)}});
+        }
+    }
+
+    for (int i = 0; i < 6; ++i) {
+        sunlightBfsQueue.emplace(LightNode{{
+                                        std::floor(position.x + relativeOffsets[i].x),
+                                         std::floor(position.y + relativeOffsets[i].y),
+                                         std::floor(position.z + relativeOffsets[i].z)}});
+    }
+
 }
 
 void MvWorld::CalculateRenderChunks(glm::vec3 origin, glm::vec3 direction, int maxChunkDistance, float fovRad) {
     for (auto it = m_RenderChunks.begin(); it != m_RenderChunks.end(); ) {
-        glm::vec3 chunkPosition = it->first * glm::vec3( MvChunk::CHUNK_SIZE); // Assuming this is chunk's world position
+        glm::vec3 chunkPosition = it->first * glm::vec3( MvChunk::CHUNK_SIZE);
         glm::vec3 chunkCenter = chunkPosition + MvChunk::CHUNK_SIZE * 0.5f;
 
         glm::vec3 toChunk = glm::normalize(chunkCenter - origin + direction * glm::vec3(MvChunk::CHUNK_SIZE));

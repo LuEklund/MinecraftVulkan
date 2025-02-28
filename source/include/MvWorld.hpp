@@ -16,6 +16,8 @@
 class MvWorld {
   public:
   static constexpr int MAX_CHUNK_HEIGTH = 8;
+  short GlobalLightLevel = 15;
+
 
   MvWorld(MvDevice &device);
 
@@ -30,7 +32,6 @@ class MvWorld {
   void UpdateLights(const glm::vec<3, float> vec);
 
 
-  void ResetLight(std::unordered_map<glm::vec<3, float>, std::shared_ptr<MvChunk>>::iterator it);
 
   void UpdateWorld(float frameTime);;
 
@@ -42,6 +43,10 @@ class MvWorld {
   std::shared_ptr<MvChunk> GetChunkBlockPos(glm::vec3 position);
 
   Block GetWorldBlockAt(glm::vec3 position);
+  glm::ivec3 ConvertBlockPosToChunkPos(glm::vec3 blockPos);
+
+  void SetWorldLightBlockAt(glm::vec3 vec, short global_light_level);
+
   // void SetWorldBlockLightAt(glm::ivec3 position, short lightLevel);
   void SetWorldBlockAt(glm::vec3 vec, BlockType blockType);
   void CalculateRenderChunks(glm::vec3 origin, glm::vec3 direction, int maxChunkDistance, float fovRad);
@@ -66,15 +71,17 @@ class MvWorld {
     static FastNoiseLite m_noise_gen_peaks;
     static FastNoiseLite m_domain_warp_peaks;
 
-    short GlobalLightLevel = 15;
     std::queue<LightNode> sunlightBfsQueue;
+    std::queue<LightNode> reverseSunlightBfsQueue;
     void LightPropagate(int x, int y, int z, int lightLevel);
-    bool HasDirectSkyLight(glm::ivec3 BlockPos);
+    void LightBeGonePropagate(int x, int y, int z, int lightLevel);
+
+  bool HasDirectSkyLight(glm::ivec3 BlockPos);
 
 
     std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> m_RenderChunks;
     std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> m_LoadedChunks;
-    std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> m_DirtyChunks;
+    std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> m_DirtyMeshChunks;
 };
 
 

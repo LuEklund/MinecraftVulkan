@@ -61,11 +61,14 @@ public:
 
     Block DATA[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE] = {};
 
-    void GenerateChunk(glm::vec3 ChunkPos);
+    void GenerateChunk(glm::vec3 ChunkPos, short GlobalLightLevel);
     MvModel::Builder GenerateMesh(const std::array<std::array<std::array<Block , CHUNK_SIZE + 2>,CHUNK_SIZE + 2>,CHUNK_SIZE + 2> &Blocks, glm::vec3 ChunkPos);
 
     float CalculateAmbientOcclusion(Block Side1, Block Corner, Block Side2);
     bool TryPropagateLight(int x, int y, int z, int lightLevel);
+
+    bool TryBeGonePropagateLight(int x, int y, int z, int lightLevel);
+
     void ResetLight(std::queue<LightNode> &sunlightBfsQueue, glm::vec3 ChunkPos, short GlobalLightLevel);
 
     Block GetBlock(glm::ivec3 vec);

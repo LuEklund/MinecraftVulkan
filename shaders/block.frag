@@ -62,6 +62,8 @@ void main()
         outColor = vec4(aoColor.rgb * sunlightIntensity, 1.0);
     }
 
+
+
 //    // Apply ambient occlusion
 //    vec4 aoColor = fragAO * sampledColor;
 ////    outColor = vec4(redScale, 1.f);

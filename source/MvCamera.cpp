@@ -207,8 +207,18 @@ glm::vec3 MvCamera::GetRight() const {
 // }
 
 void MvCamera::SetUpListeners(GLFWwindow *window) {
+    static bool isRed = false;
     glfwSetKeyCallback(window, [](GLFWwindow *window, int key, int scancode, int action, int mods) {
         if (action == GLFW_PRESS) {
+            if (key == GLFW_KEY_Q) {
+                // auto app = static_cast<MvApp *>(glfwGetWindowUserPointer(window));
+                // if (isRed) {
+                //     app->GetWorld().GlobalLightLevel = 15;
+                // }
+                // else
+                //     app->GetWorld().GlobalLightLevel = 4;
+                // isRed = !isRed;
+            }
             if (key == GLFW_KEY_R) {
                 auto app = static_cast<MvApp *>(glfwGetWindowUserPointer(window));
                 glm::vec3 camPos = app->GetCamera().GetPosition();
@@ -217,9 +227,11 @@ void MvCamera::SetUpListeners(GLFWwindow *window) {
                   << std::floor(camPos.y) << ", "
                   << std::floor(camPos.z) << std::endl;
                 std::cout << "Chunk position: 16x16x16!!! "
-                  << int(std::floor(camPos.x)) / 16 << ", "
-                  << int(std::floor(camPos.y)) / 16 << ", "
-                  << int(std::floor(camPos.z)) / 16 << std::endl;
+                  << int(std::floor(camPos.x / 16)) << ", "
+                  << int(std::floor(camPos.y / 16)) << ", "
+                  << int(std::floor(camPos.z / 16)) << std::endl;
+                std::cout << "Block Light:" << int(app->GetWorld().GetWorldBlockAt(camPos).light) << std::endl;
+
             }
             if (key == GLFW_KEY_F) {
                 auto app = static_cast<MvApp *>(glfwGetWindowUserPointer(window));
