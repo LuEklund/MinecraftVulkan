@@ -9,10 +9,10 @@
 #include "stdexcept"
 #include <cmath>
 
-MvTexture::MvTexture(MvDevice& Device, std::string texturePath)
+MvTexture::MvTexture(MvDevice& Device, std::string texturePath, bool flipVertical)
 : m_device(Device)
 {
-    CreateImageTexture(texturePath);
+    CreateImageTexture(texturePath, flipVertical);
     createTextureImageView();
     createTextureSampler();
 }
@@ -27,8 +27,9 @@ MvTexture::~MvTexture()
 
 
 
-void MvTexture::CreateImageTexture(const std::string &texturePath)
+void MvTexture::CreateImageTexture(const std::string &texturePath, bool flipVertical)
 {
+    stbi_set_flip_vertically_on_load(flipVertical);
     int texWidth, texHeight, texChannels;
     stbi_uc* pixels = stbi_load(texturePath.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
     VkDeviceSize imageSize = texWidth * texHeight * 4;

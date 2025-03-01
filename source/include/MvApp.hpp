@@ -65,6 +65,8 @@ private:
 	std::unique_ptr<MvCamera> m_Camera{};
 	//Texture
 	std::unique_ptr<MvTexture> m_texture;
+	std::unique_ptr<MvTexture> m_UITexture;
+
 
 	//SkyBox
 	std::unique_ptr<MvCubeMap> m_CubeMap;

@@ -4,13 +4,13 @@
 class MvTexture
 {
 public:
-    MvTexture(MvDevice& Device, std::string texturePath);
+    MvTexture(MvDevice& Device, std::string texturePath, bool flipVertical);
     ~MvTexture();
 
     VkImageView GetTextureImageView() const { return textureImageView; }
     VkSampler GetTextureSampler() const { return textureSampler; }
 private:
-    void CreateImageTexture(const std::string& texturePath);
+    void CreateImageTexture(const std::string& texturePath, bool flipVertical);
 
     VkImage textureImage;
     uint32_t mipLevels;

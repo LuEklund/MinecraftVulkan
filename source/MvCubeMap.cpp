@@ -26,6 +26,7 @@ MvCubeMap::~MvCubeMap()
 
 void MvCubeMap::CreateImageTexture()
 {
+    stbi_set_flip_vertically_on_load(false);
     std::vector<std::string> texturePaths = {
         "textures/SkyBox/Front.png", //Right
         "textures/SkyBox/Back.png", //Left

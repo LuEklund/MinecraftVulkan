@@ -78,14 +78,14 @@ void MvUIRenderSystem::CreatePipeline(VkRenderPass renderPass)
 
 void MvUIRenderSystem::RenderUI(const MvFrameInfo &frameInfo, MvUIModel &UI) {
 	m_pipeline->Bind(frameInfo.commandBuffer);
-	// vkCmdBindDescriptorSets(
-	// 	frameInfo.commandBuffer,
-	// 	VK_PIPELINE_BIND_POINT_GRAPHICS,
-	// 	m_pipelineLayout,
-	// 	0, 1,
-	// 	&frameInfo.globalDescriptorSet,
-	// 	0,
-	// 	nullptr);
+	vkCmdBindDescriptorSets(
+		frameInfo.commandBuffer,
+		VK_PIPELINE_BIND_POINT_GRAPHICS,
+		m_pipelineLayout,
+		0, 1,
+		&frameInfo.globalDescriptorSet,
+		0,
+		nullptr);
 
 	UI.bind(frameInfo.commandBuffer);
 	UI.draw(frameInfo.commandBuffer);

@@ -19,8 +19,8 @@ class MvUIModel
 public:
     struct UIVertex
     {
-        alignas(16) glm::vec2 position{};
-        alignas(16) glm::vec4 color{};
+        alignas(8) glm::vec2 position{};
+        alignas(8) glm::vec2 UV{};
 
         static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
         static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();

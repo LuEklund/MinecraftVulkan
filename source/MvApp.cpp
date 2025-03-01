@@ -40,10 +40,11 @@ MvApp::MvApp() {
     m_window = std::make_unique<MvWindow>(WIDTH, HEIGHT, "MC Vulkan");
     m_Device = std::make_unique<MvDevice>(*m_window);
     m_renderer = std::make_unique<MvRenderer>(*m_window, *m_Device);
-    m_texture = std::make_unique<MvTexture>(*m_Device, "textures/MvTexturesIris.png");
+    m_texture = std::make_unique<MvTexture>(*m_Device, "textures/MvTexturesIris.png", false);
+    m_UITexture = std::make_unique<MvTexture>(*m_Device, "textures/UI/HUD-MC-Vulkan.png", true);
     m_CubeMap = std::make_unique<MvCubeMap>(*m_Device);
     m_GlobalPool = MvDescriptorPool::Builder(*m_Device)
-            .setMaxSets(MvSwapChain::MAX_FRAMES_IN_FLIGHT * 2)
+            .setMaxSets(MvSwapChain::MAX_FRAMES_IN_FLIGHT * 3)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MvSwapChain::MAX_FRAMES_IN_FLIGHT)
             .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MvSwapChain::MAX_FRAMES_IN_FLIGHT)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MvSwapChain::MAX_FRAMES_IN_FLIGHT)
@@ -85,10 +86,10 @@ MvApp::MvApp() {
 
     MvUIModel::Builder UIbuilder;
     UIbuilder.vertices = {
-        {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f, 0.5f}}, // Bottom-left (Red)
-        {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f, 0.5f}},  // Bottom-right (Green)
-        {{0.5f,  0.5f}, {0.0f, 0.0f, 1.0f, 0.5f}},  // Top-right (Blue)
-        {{-0.5f,  0.5f}, {0.0f, 1.0f, 1.0f, 0.5f}}, // Top-left (Cyan)
+        {{-1.f, -1.f}, {0.0f, 0.0f}}, // Bottom-left (Red)
+        {{1.f, -1.f}, {1.0f, 0.0f}},  // Bottom-right (Green)
+        {{1.f,  1.f}, {1.0f, 1.0f}},  // Top-right (Blue)
+        {{-1.f,  1.f}, {0.0f, 1.0f}}, // Top-left (Cyan)
     };
 
     UIbuilder.indices = {
@@ -146,6 +147,7 @@ void MvApp::Run() {
 
     std::vector<VkDescriptorSet> globalDescriptorSets{MvSwapChain::MAX_FRAMES_IN_FLIGHT};
     std::vector<VkDescriptorSet> SkyBoxDescriptorSets{MvSwapChain::MAX_FRAMES_IN_FLIGHT};
+    std::vector<VkDescriptorSet> UIDescriptorSets{MvSwapChain::MAX_FRAMES_IN_FLIGHT};
 
     for (size_t i = 0; i < globalDescriptorSets.size(); i++) {
         auto bufferInfo = uboBuffers[i]->descriptorInfo();
@@ -170,6 +172,16 @@ void MvApp::Run() {
                 .writeBuffer(0, &bufferInfo)
                 .writeImage(1, &imageInfo)
                 .build(SkyBoxDescriptorSets[i]);
+    }
+    for (size_t i = 0; i < UIDescriptorSets.size(); i++) {
+        VkDescriptorImageInfo imageInfo{};
+        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        imageInfo.imageView = m_UITexture->GetTextureImageView();
+        imageInfo.sampler = m_UITexture->GetTextureSampler();
+
+        MvDescriptorWriter(*UISetLayout, *m_GlobalPool)
+                .writeImage(0, &imageInfo)
+                .build(UIDescriptorSets[i]);
     }
 
 
@@ -235,6 +247,14 @@ void MvApp::Run() {
                 SkyBoxDescriptorSets[frameIndex]
             };
 
+            MvFrameInfo UIframeInfo{
+                frameIndex,
+                frameTime,
+                CommandBuffer,
+                *m_Camera.get(),
+                UIDescriptorSets[frameIndex]
+            };
+
             //update
             GlobalUbo ubo{};
             ubo.projectionView = m_Camera->GetProjectionMatrix() * m_Camera->GetViewMatrix();
@@ -256,7 +276,7 @@ void MvApp::Run() {
             m_World->CalculateRenderChunks(m_Camera->GetPosition(), m_Camera->GetForward(), 3, m_Camera->GetFovRadians() * 0.8f);
             SkyBoxRenderSystem.RenderSkyBox(SkyframeInfo, *m_SkyBox);
             renderSystem.RenderChunks(frameInfo, m_World->GetChunks());
-            UIRenderSystem.RenderUI(frameInfo, *m_UI);
+            UIRenderSystem.RenderUI(UIframeInfo, *m_UI);
             m_renderer->EndSwapChainRenderPass(CommandBuffer);
             m_renderer->EndFrame();
         }
