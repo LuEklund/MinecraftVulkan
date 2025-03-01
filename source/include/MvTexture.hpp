@@ -4,7 +4,7 @@
 class MvTexture
 {
 public:
-    MvTexture(MvDevice& Device);
+    MvTexture(MvDevice& Device, std::string texturePath);
     ~MvTexture();
 
     VkImageView GetTextureImageView() const { return textureImageView; }

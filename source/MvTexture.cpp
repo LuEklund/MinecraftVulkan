@@ -9,16 +9,10 @@
 #include "stdexcept"
 #include <cmath>
 
-MvTexture::MvTexture(MvDevice& Device)
+MvTexture::MvTexture(MvDevice& Device, std::string texturePath)
 : m_device(Device)
 {
-    //Texture
-    // CreateImageTexture("textures/MvTextures.png");
-    // CreateImageTexture("textures/MvTexturesLogo.png");
-    // CreateImageTexture("textures/MvTexturesRibbit.png");
-    CreateImageTexture("textures/MvTexturesIris.png");
-    // CreateImageTexture("textures/Stune.png");
-    // CreateImageTexture("textures/RibbitCabaggeChad.png");
+    CreateImageTexture(texturePath);
     createTextureImageView();
     createTextureSampler();
 }

@@ -10,7 +10,7 @@
 #include <memory>
 
 #include "MvCubeMap.hpp"
-#include "Ref.hpp"
+#include "MvUIModel.hpp"
 
 
 
@@ -69,6 +69,10 @@ private:
 	//SkyBox
 	std::unique_ptr<MvCubeMap> m_CubeMap;
 	std::unique_ptr<MvModel> m_SkyBox;
+
+	//UI
+	std::unique_ptr<MvUIModel> m_UI;
+
 
 	//5. Descriptors
 	std::unique_ptr<MvDescriptorPool> m_GlobalPool;

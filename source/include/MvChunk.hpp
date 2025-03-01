@@ -1,7 +1,8 @@
 #include <array>
 #include <queue>
 
-#include "MvGameObject.hpp"
+// #include "MvGameObject.hpp"
+#include "MvModel.hpp"
 
 
 class MvWorld;

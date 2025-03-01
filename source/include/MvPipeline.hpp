@@ -9,7 +9,8 @@
 
 enum class PipelineType {
 	GRAPHICS,
-	SKYBOX
+	SKYBOX,
+	UI
 };
 
 struct CameraVectors {
@@ -71,5 +72,7 @@ private:
 
 	void createGraphicsPipeline(const PipelineConfigInfo& configInfo);
 	void createSkyBoxPipeline(const PipelineConfigInfo& configInfo);
+
+	void createUIPipeline(const PipelineConfigInfo &configInfo);
 };
 

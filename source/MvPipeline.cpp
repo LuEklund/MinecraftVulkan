@@ -1,5 +1,6 @@
 #include "MvPipeline.hpp"
 #include "MvModel.hpp"
+#include "MvUIModel.hpp"
 
 #include <cassert>
 #include <fstream>
@@ -14,6 +15,9 @@ MvPipeline::MvPipeline(MvDevice& eDevice, const PipelineConfigInfo& ConfigInfo, 
 {
 	if (Type == PipelineType::SKYBOX)
 		createSkyBoxPipeline(ConfigInfo);
+	else if (Type == PipelineType::UI) {
+		createUIPipeline(ConfigInfo);
+	}
 	else
 		createGraphicsPipeline(ConfigInfo);
 }
@@ -213,6 +217,89 @@ void MvPipeline::createSkyBoxPipeline(const PipelineConfigInfo &configInfo) {
 	std::cout << "Vertex Shader: " << vertexShaderCode.size() << " bytes" << std::endl;
 	std::cout << "Fragment Shader: " << fragShaderCode.size() << " bytes" << std::endl;
 
+}
+
+void MvPipeline::createUIPipeline(const PipelineConfigInfo& configInfo)
+{
+	assert(
+		configInfo.pipelineLayout != VK_NULL_HANDLE &&
+		"Cannot create graphics pipeline: no pipelineLayout provided in configInfo");
+	assert(
+		configInfo.renderPass != VK_NULL_HANDLE &&
+		"Cannot create graphics pipeline: no renderPass provided in configInfo");
+
+	std::vector<uint32_t> vertexShaderCode;
+	std::vector<uint32_t> fragShaderCode;
+	if (!CompileShader("shaders/UI.vert", Vertex, vertexShaderCode))
+	{
+		throw std::runtime_error("Failed to compile vertex shader");
+	}
+
+	if (!CompileShader("shaders/UI.frag", Fragment, fragShaderCode))
+	{
+		throw std::runtime_error("Failed to compile fragment shader");
+	}
+
+
+	CreateShaderModule(vertexShaderCode, &m_vertexShaderModule);
+	CreateShaderModule(fragShaderCode, &m_fragmentShaderModule);
+
+	VkPipelineShaderStageCreateInfo shaderStages[2];
+	shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
+	shaderStages[0].module = m_vertexShaderModule;
+	shaderStages[0].pName = "main";
+	shaderStages[0].flags = 0;
+	shaderStages[0].pNext = nullptr;
+	shaderStages[0].pSpecializationInfo = nullptr;
+
+	shaderStages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+	shaderStages[1].module = m_fragmentShaderModule;
+	shaderStages[1].pName = "main";
+	shaderStages[1].flags = 0;
+	shaderStages[1].pNext = nullptr;
+	shaderStages[1].pSpecializationInfo = nullptr;
+
+
+	auto bindingDescriptions = MvUIModel::UIVertex::getBindingDescriptions();
+	auto attributeDescriptions = MvUIModel::UIVertex::getAttributeDescriptions();
+
+	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
+	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+	vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint32_t>(bindingDescriptions.size());
+	vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+	vertexInputInfo.pVertexBindingDescriptions = bindingDescriptions.data();
+	vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+
+
+	VkGraphicsPipelineCreateInfo pipelineInfo{};
+	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+	pipelineInfo.stageCount = 2;
+	pipelineInfo.pStages = shaderStages;
+	pipelineInfo.pVertexInputState = &vertexInputInfo;
+	pipelineInfo.pInputAssemblyState = &configInfo.inputAssemblyInfo;
+	pipelineInfo.pViewportState = &configInfo.viewportInfo;
+	pipelineInfo.pRasterizationState = &configInfo.rasterizationInfo;
+	pipelineInfo.pMultisampleState = &configInfo.multisampleInfo;
+	pipelineInfo.pColorBlendState = &configInfo.colorBlendInfo;
+	pipelineInfo.pDepthStencilState = &configInfo.depthStencilInfo;
+	pipelineInfo.pDynamicState = &configInfo.dynamicStateInfo;
+
+	pipelineInfo.layout = configInfo.pipelineLayout;
+	pipelineInfo.renderPass = configInfo.renderPass;
+	pipelineInfo.subpass = configInfo.subpass;
+
+	pipelineInfo.basePipelineIndex = -1;
+	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+
+	if (vkCreateGraphicsPipelines(m_Device.GetDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_Pipeline) != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to create graphics pipeline!");
+	}
+
+	std::cout << "Vertex Shader: " << vertexShaderCode.size() << " bytes" << std::endl;
+	std::cout << "Fragment Shader: " << fragShaderCode.size() << " bytes" << std::endl;
 }
 
 

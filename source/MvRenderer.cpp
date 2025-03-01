@@ -152,6 +152,7 @@ void MvRenderer::BeginSwapChainRenderPass(VkCommandBuffer commandBuffer)
 
 	VkViewport viewport{};
 	viewport.x = 0.0f;
+	// viewport.y = 0.0f;
 	viewport.y = static_cast<float>(m_swapChain->GetSwapChainExtent().height);
 	viewport.width = static_cast<float>(m_swapChain->GetSwapChainExtent().width);
 	viewport.height = -static_cast<float>(m_swapChain->GetSwapChainExtent().height);

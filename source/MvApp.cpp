@@ -4,6 +4,7 @@
 #include "MvCamera.hpp"
 #include "MvRenderSystem.hpp"
 #include "MvSkyBoxRenderSystem.hpp"
+#include "MvUIRenderSystem.hpp"
 #include "MvBuffer.hpp"
 
 // libs
@@ -29,12 +30,17 @@ struct GlobalUbo {
 
 
 
-
+// CreateImageTexture("textures/MvTextures.png");
+// CreateImageTexture("textures/MvTexturesLogo.png");
+// CreateImageTexture("textures/MvTexturesRibbit.png");
+// CreateImageTexture("textures/MvTexturesIris.png");
+// CreateImageTexture("textures/Stune.png");
+// CreateImageTexture("textures/RibbitCabaggeChad.png");
 MvApp::MvApp() {
     m_window = std::make_unique<MvWindow>(WIDTH, HEIGHT, "MC Vulkan");
     m_Device = std::make_unique<MvDevice>(*m_window);
     m_renderer = std::make_unique<MvRenderer>(*m_window, *m_Device);
-    m_texture = std::make_unique<MvTexture>(*m_Device);
+    m_texture = std::make_unique<MvTexture>(*m_Device, "textures/MvTexturesIris.png");
     m_CubeMap = std::make_unique<MvCubeMap>(*m_Device);
     m_GlobalPool = MvDescriptorPool::Builder(*m_Device)
             .setMaxSets(MvSwapChain::MAX_FRAMES_IN_FLIGHT * 2)
@@ -75,6 +81,22 @@ MvApp::MvApp() {
         4, 5, 1,  1, 0, 4
     };
     m_SkyBox = std::make_unique<MvModel>(*m_Device, builder);
+
+
+    MvUIModel::Builder UIbuilder;
+    UIbuilder.vertices = {
+        {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f, 0.5f}}, // Bottom-left (Red)
+        {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f, 0.5f}},  // Bottom-right (Green)
+        {{0.5f,  0.5f}, {0.0f, 0.0f, 1.0f, 0.5f}},  // Top-right (Blue)
+        {{-0.5f,  0.5f}, {0.0f, 1.0f, 1.0f, 0.5f}}, // Top-left (Cyan)
+    };
+
+    UIbuilder.indices = {
+        0, 1, 2, // First triangle
+        2, 3, 0  // Second triangle
+    };
+    m_UI = std::make_unique<MvUIModel>(*m_Device, UIbuilder);
+
     glfwSetWindowUserPointer(m_window->GetWindow(), this);
 }
 
@@ -117,6 +139,10 @@ void MvApp::Run() {
         .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
         .build();
 
+    auto UISetLayout = MvDescriptorSetLayout::Builder(*m_Device)
+    .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+    .build();
+
 
     std::vector<VkDescriptorSet> globalDescriptorSets{MvSwapChain::MAX_FRAMES_IN_FLIGHT};
     std::vector<VkDescriptorSet> SkyBoxDescriptorSets{MvSwapChain::MAX_FRAMES_IN_FLIGHT};
@@ -154,6 +180,10 @@ void MvApp::Run() {
     MvSkyBoxRenderSystem SkyBoxRenderSystem(*m_Device,
                             m_renderer->GetSwapChainRenderPass(),
                             skySetLayout->getDescriptorSetLayout());
+
+    MvUIRenderSystem UIRenderSystem(*m_Device,
+                                m_renderer->GetSwapChainRenderPass(),
+                                UISetLayout->getDescriptorSetLayout());
 
 
 
@@ -226,6 +256,7 @@ void MvApp::Run() {
             m_World->CalculateRenderChunks(m_Camera->GetPosition(), m_Camera->GetForward(), 3, m_Camera->GetFovRadians() * 0.8f);
             SkyBoxRenderSystem.RenderSkyBox(SkyframeInfo, *m_SkyBox);
             renderSystem.RenderChunks(frameInfo, m_World->GetChunks());
+            UIRenderSystem.RenderUI(frameInfo, *m_UI);
             m_renderer->EndSwapChainRenderPass(CommandBuffer);
             m_renderer->EndFrame();
         }

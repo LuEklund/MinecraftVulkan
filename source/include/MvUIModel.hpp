@@ -14,15 +14,13 @@
 #include <memory>
 
 
-class MvModel
+class MvUIModel
 {
 public:
-    struct Vertex
+    struct UIVertex
     {
-        alignas(16) glm::vec3 position{};
-        alignas(8) glm::vec2 uv{};
-        alignas(8) float light{0.f};
-        alignas(4) float ambientOcclusion{1.f};
+        alignas(16) glm::vec2 position{};
+        alignas(16) glm::vec4 color{};
 
         static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
         static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
@@ -30,29 +28,26 @@ public:
 
     };
 
-    struct Builder 
+    struct Builder
     {
-        std::vector<Vertex> vertices{};
+        std::vector<UIVertex> vertices{};
         std::vector<uint32_t> indices{};
         
     };
     
-    MvModel(MvDevice& Device, const MvModel::Builder& builder);
-    ~MvModel();
+    MvUIModel(MvDevice& Device, const MvUIModel::Builder& builder);
+    ~MvUIModel();
 
-    MvModel(const MvModel&) = delete;
-    MvModel operator=(const MvModel&) = delete;
+    MvUIModel(const MvUIModel&) = delete;
+    MvUIModel operator=(const MvUIModel&) = delete;
 
 
     void bind(VkCommandBuffer commandBuffer);
     void draw(VkCommandBuffer commandBuffer);
 
-    uint32_t GetIndexCount() const { return m_indexCount; }
-    uint32_t GetVertexCount() const { return m_vertexCount; }
-
 
 private:
-    void CreateVertexBuffer(const std::vector<Vertex>& vertices);
+    void CreateVertexBuffer(const std::vector<UIVertex>& vertices);
     void CreateIndexBuffer(const std::vector<uint32_t>& indices);
     
     MvDevice& m_device;
