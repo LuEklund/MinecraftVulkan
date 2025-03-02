@@ -61,6 +61,7 @@ class MvWorld {
   static double GetPeaksNoise(double x, double y);
   static double GetDetailNoise(double x, double y);
 
+  glm::vec3 GetHigestPos(glm::vec3 pos);
   MvCamera &GetCamera() {return *m_Camera;};
 
   private:

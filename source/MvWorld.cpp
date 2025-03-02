@@ -3,6 +3,7 @@
 //
 #include "MvWorld.hpp"
 
+#include <filesystem>
 #include <iostream>
 #include <ostream>
 #include <unordered_map>
@@ -311,8 +312,19 @@ bool MvWorld::HasDirectSkyLight(glm::ivec3 BlockPos) {
     return true;
 }
 
+// glm::vec3 MvWorld::GetHigestPos(glm::vec3 pos) {
+//     int MAX_BLOCK_HEIGHT = MAX_CHUNK_HEIGTH * MvChunk::CHUNK_SIZE;
+//     while (pos.y < MAX_BLOCK_HEIGHT) {
+//         Block block = GetWorldBlockAt(pos);
+//         if (block.type != BlockType::AIR && block.type != BlockType::INVALID)
+//             return {pos.x, std::floor(pos.y), pos.z};
+//         pos.y++;
+//     }
+//     return pos;
+// }
+
 void MvWorld::UpdateWorld(GLFWwindow *window, float frameTime) {
-    m_Camera->Update(window, frameTime);
+
     LoadChunksAtCoordinate(m_Camera->GetPosition(), 4);
     UpdateLights();
     for (auto it = m_DirtyMeshChunks.begin(); it != m_DirtyMeshChunks.end();) {
@@ -323,8 +335,37 @@ void MvWorld::UpdateWorld(GLFWwindow *window, float frameTime) {
         it = m_DirtyMeshChunks.erase(it);
     }
     CalculateRenderChunks(m_Camera->GetPosition(), m_Camera->GetForward(), 3, m_Camera->GetFovRadians() * 0.8f);
-}
 
+    //Player update
+    m_Camera->Update(window, frameTime);
+    glm::vec3 curPos = m_Camera->GetPosition();
+    glm::vec3 newPos = curPos + m_Camera->moveDirection;
+    Block blockBelow = GetWorldBlockAt({curPos.x, std::floor(newPos.y) - 1, curPos.z});
+    if (GetWorldBlockAt({newPos.x, newPos.y, newPos.z}).type == BlockType::AIR && blockBelow.type == BlockType::AIR) {
+        m_Camera->SetPosition(newPos);
+    } else {
+        glm::vec3 axisRestrictedPosition = curPos;
+
+        if (GetWorldBlockAt({newPos.x, curPos.y, curPos.z}).type == BlockType::AIR
+            && GetWorldBlockAt({newPos.x, curPos.y - 1, curPos.z}).type == BlockType::AIR) {
+            axisRestrictedPosition.x = newPos.x;
+        }
+        if (GetWorldBlockAt({curPos.x, newPos.y, curPos.z}).type == BlockType::AIR
+            && GetWorldBlockAt({curPos.x, newPos.y - 1, curPos.z}).type == BlockType::AIR) {
+            axisRestrictedPosition.y = newPos.y;
+        }
+        if (GetWorldBlockAt({curPos.x, curPos.y, newPos.z}).type == BlockType::AIR
+            && GetWorldBlockAt({curPos.x, curPos.y - 1, newPos.z}).type == BlockType::AIR) {
+            axisRestrictedPosition.z = newPos.z;
+        }
+
+        //Special one block height
+        if (blockBelow.type != BlockType::AIR) {
+            axisRestrictedPosition.y = std::floor(newPos.y) + 1;
+        }
+        m_Camera->SetPosition({axisRestrictedPosition.x, axisRestrictedPosition.y, axisRestrictedPosition.z});
+    }
+}
 
 void MvWorld::LoadChunksAtCoordinate(glm::vec3 position, int radius) {
     // std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> chunks;

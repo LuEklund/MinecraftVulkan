@@ -51,7 +51,7 @@ void MvRenderSystem::CreatePipeline(VkRenderPass renderPass)
 	assert(m_pipelineLayout != nullptr && "Cannot create pipeline: pipeline before pipeline layout!");
 	PipelineConfigInfo PipelineConfig{};
 	MvPipeline::DefaultPipelineConfigInfo(PipelineConfig);
-
+	// PipelineConfig.rasterizationInfo.cullMode = VK_CULL_MODE_FRONT_BIT;
 	// PipelineConfigInfo pipelineConfig = MvPipeline::DefaultPipelineConfigInfo(m_swapChain->GetWidth(), m_swapChain->GetHeigth());
 	PipelineConfig.renderPass = renderPass;
 	PipelineConfig.pipelineLayout = m_pipelineLayout;

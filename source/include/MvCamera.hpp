@@ -41,6 +41,10 @@ public:
     glm::vec3 GetRight() const;
     float GetFovRadians() const {return FovRadians;};
 
+    //flags
+    glm::vec3 moveDirection;
+    bool bInAir = true;
+
 private:
     //properties
     float FovRadians;
@@ -49,7 +53,7 @@ private:
     glm::vec3 rotation{};
     float MoveSpeed = 3.f;
     float RotateSpeed = 1.5f;
-    float Gravity = 10.f;
+    float Gravity = -10.f;
 
     // view
     glm::mat4 m_projectionMatrix{1.f};

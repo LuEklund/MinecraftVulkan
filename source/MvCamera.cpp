@@ -145,7 +145,7 @@ void MvCamera::MoveInPlaneXZ(GLFWwindow *window, float deltaTime)
         MoveSpeed = 3.f;
     }
 
-    glm::vec3 moveDirection{0.f};
+    moveDirection = {0.f,0.f,0.f};
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
         moveDirection += forwardDitrection;
@@ -173,7 +173,7 @@ void MvCamera::MoveInPlaneXZ(GLFWwindow *window, float deltaTime)
 
     if (glm::dot(moveDirection, moveDirection) > std::numeric_limits<float>::epsilon())
     {
-        position += MoveSpeed * deltaTime * glm::normalize(moveDirection);
+        moveDirection = MoveSpeed * deltaTime * glm::normalize(moveDirection);
     }
 
 }
@@ -277,6 +277,7 @@ void MvCamera::Update(GLFWwindow *window, float deltaTime) {
     SetPerspectiveProjection(glm::radians(50.f), AspectRatio, 0.1f, 1000.f);
 
     const glm::vec3 upDirection = {0.f, 1.f, 0.f};
-    position -= upDirection * Gravity * deltaTime;
+    moveDirection += upDirection * Gravity * deltaTime * 0.1f;
+    // position -= upDirection * Gravity * deltaTime * 0.1f;
 }
 
