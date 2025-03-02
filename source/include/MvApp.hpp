@@ -40,7 +40,7 @@ public:
 
 
 	//Camera
-	const MvCamera &GetCamera() {return *m_Camera;};
+	// const MvCamera &GetCamera() {return *m_Camera;};
 
 private:
 	//singleton
@@ -62,7 +62,7 @@ private:
 	// std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> m_chunks;
 
 	//camera
-	std::unique_ptr<MvCamera> m_Camera{};
+	// std::unique_ptr<MvCamera> m_Camera{};
 	//Texture
 	std::unique_ptr<MvTexture> m_texture;
 	std::unique_ptr<MvTexture> m_UITexture;

@@ -7,6 +7,9 @@
 #include <ostream>
 #include <unordered_map>
 
+#include "MvCamera.hpp"
+#include "MvRenderer.hpp"
+
 FastNoiseLite MvWorld::m_NoiseGen;
 FastNoiseLite MvWorld::DomainWarpGen;
 FastNoiseLite MvWorld::m_noise_gen_peaks;
@@ -159,6 +162,15 @@ MvWorld::MvWorld(MvDevice &device) : m_Device(device)
     // }
 }
 
+void MvWorld::InitCamera(MvWindow &Window, MvRenderer &renderer) {
+    m_Camera = std::make_unique<MvCamera>();
+    m_Camera->SetUpListeners(Window.GetWindow());
+    m_Camera->SetViewTarget(glm::vec3{0.f, -2.f, 2.f}, glm::vec3{0.f, -1.f, -1.f});
+    m_Camera->SetPosition({ 0.f, 75.f, 0.f });
+    m_Camera->SetAspectRatio(renderer.GetAspectRatio());
+}
+
+
 // Neighbor[0]: Left (-x),
 // Neighbor[1]: Right (+x)
 // Neighbor[2]: Bottom (-y)
@@ -299,7 +311,9 @@ bool MvWorld::HasDirectSkyLight(glm::ivec3 BlockPos) {
     return true;
 }
 
-void MvWorld::UpdateWorld(float frameTime) {
+void MvWorld::UpdateWorld(GLFWwindow *window, float frameTime) {
+    m_Camera->Update(window, frameTime);
+    LoadChunksAtCoordinate(m_Camera->GetPosition(), 4);
     UpdateLights();
     for (auto it = m_DirtyMeshChunks.begin(); it != m_DirtyMeshChunks.end();) {
         MvModel::Builder modelBuilder = it->second->GenerateMesh(GetRelevantBlocks(it->first, it->second), it->first);
@@ -308,6 +322,7 @@ void MvWorld::UpdateWorld(float frameTime) {
         }
         it = m_DirtyMeshChunks.erase(it);
     }
+    CalculateRenderChunks(m_Camera->GetPosition(), m_Camera->GetForward(), 3, m_Camera->GetFovRadians() * 0.8f);
 }
 
 

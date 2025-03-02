@@ -199,48 +199,36 @@ void MvApp::Run() {
 
 
 
-    m_Camera = std::make_unique<MvCamera>();
-    m_Camera->SetUpListeners(m_window->GetWindow());
-    m_Camera->SetViewTarget(glm::vec3{0.f, -2.f, 2.f}, glm::vec3{0.f, -1.f, -1.f});
     auto currentTime = std::chrono::high_resolution_clock::now();
-    m_Camera->SetPosition({ 0.f, 75.f, 0.f });
-    m_Camera->SetAspectRatio(m_renderer->GetAspectRatio());
 
-    float aspect = m_renderer->GetAspectRatio();
+    m_World->InitCamera(*m_window, *m_renderer);
+
     //Update
     while (!m_window->ShouldClose()) {
         glfwPollEvents();
 
         if (auto CommandBuffer = m_renderer->BeginFrame()) {
-            // m_Camera->SetUpListeners(m_window->GetWindow());
-
-            // glm::vec4 cam_vec_forwards = {1.0f, 0.0f, 0.0f, 0.0f};
-            // glm::vec4 cam_vec_right = {0.0f, -1.0f, 0.0f, 0.0f};
-            // glm::vec4 cam_vec_up = {0.0f, 0.0f, 1.0f, 0.0f};
-
             auto newTime = std::chrono::high_resolution_clock::now();
             float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
             currentTime = newTime;
 
-            m_Camera->Update(m_window->GetWindow(), frameTime);
 
-            //Load chunks
-            m_World->LoadChunksAtCoordinate(m_Camera->GetPosition(), 4);
-            m_World->UpdateWorld(frameTime);
+            //Update World and its properties
+            m_World->UpdateWorld(m_window->GetWindow(), frameTime);
 
             int frameIndex = m_renderer->GetFrameIndex();
             MvFrameInfo frameInfo{
                 frameIndex,
                 frameTime,
                 CommandBuffer,
-                *m_Camera.get(),
+                m_World->GetCamera(),
                 globalDescriptorSets[frameIndex]
             };
             MvFrameInfo SkyframeInfo{
                 frameIndex,
                 frameTime,
                 CommandBuffer,
-                *m_Camera.get(),
+               m_World->GetCamera(),
                 SkyBoxDescriptorSets[frameIndex]
             };
 
@@ -248,21 +236,21 @@ void MvApp::Run() {
                 frameIndex,
                 frameTime,
                 CommandBuffer,
-                *m_Camera.get(),
+               m_World->GetCamera(),
                 UIDescriptorSets[frameIndex]
             };
 
             //update
             GlobalUbo ubo{};
-            ubo.projectionView = m_Camera->GetProjectionMatrix() * m_Camera->GetViewMatrix();
+            ubo.projectionView = m_World->GetCamera().GetProjectionMatrix() * m_World->GetCamera().GetViewMatrix();
             uboBuffers[frameIndex]->writeToBuffer(&ubo);
             uboBuffers[frameIndex]->flush();
 
 
             CameraVectors CameraVectors{
-                glm::vec4(m_Camera->GetForward(), 0.f),
-                glm::vec4(m_Camera->GetRight(), 0.f),
-                glm::vec4(glm::cross(m_Camera->GetRight(), m_Camera->GetForward()), 0.f)  // Recalculate up
+                glm::vec4(m_World->GetCamera().GetForward(), 0.f),
+                glm::vec4(m_World->GetCamera().GetRight(), 0.f),
+                glm::vec4(glm::cross(m_World->GetCamera().GetRight(), m_World->GetCamera().GetForward()), 0.f)  // Recalculate up
             };
             SkyBoxBuffer[frameIndex]->writeToBuffer(&CameraVectors);
             SkyBoxBuffer[frameIndex]->flush();
@@ -270,7 +258,6 @@ void MvApp::Run() {
 
             //render
             m_renderer->BeginSwapChainRenderPass(CommandBuffer);
-            m_World->CalculateRenderChunks(m_Camera->GetPosition(), m_Camera->GetForward(), 3, m_Camera->GetFovRadians() * 0.8f);
             SkyBoxRenderSystem.RenderSkyBox(SkyframeInfo, *m_SkyBox);
             renderSystem.RenderChunks(frameInfo, m_World->GetChunks());
             UIRenderSystem.RenderUI(UIframeInfo, *m_UI);

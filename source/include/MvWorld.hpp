@@ -9,8 +9,8 @@
 #include "Hash.hpp"
 #include <unordered_map>
 #include "FastNoiseLite.h"
-
-
+#include "MvCamera.hpp"
+#include "MvRenderer.hpp"
 
 
 class MvWorld {
@@ -20,6 +20,8 @@ class MvWorld {
 
 
   MvWorld(MvDevice &device);
+
+  void InitCamera(MvWindow &Window, MvRenderer &renderer);
 
   std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> & GetChunks() {return m_RenderChunks;}
 
@@ -33,7 +35,7 @@ class MvWorld {
 
 
 
-  void UpdateWorld(float frameTime);;
+  void UpdateWorld(GLFWwindow *window, float frameTime);;
 
   std::array<std::unordered_map<glm::vec<3, float>, std::shared_ptr<MvChunk>>::iterator, 6> GetNeighborITChunks(glm::ivec3 vec);
     std::array<std::shared_ptr<MvChunk>, 6> GetNeighborChunks(glm::ivec3 vec);
@@ -59,6 +61,8 @@ class MvWorld {
   static double GetPeaksNoise(double x, double y);
   static double GetDetailNoise(double x, double y);
 
+  MvCamera &GetCamera() {return *m_Camera;};
+
   private:
     MvDevice& m_Device;
     static std::vector<glm::vec2> Continentalness;
@@ -78,6 +82,7 @@ class MvWorld {
 
   bool HasDirectSkyLight(glm::ivec3 BlockPos);
 
+    std::unique_ptr<MvCamera> m_Camera{};
 
     std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> m_RenderChunks;
     std::unordered_map<glm::vec3, std::shared_ptr<MvChunk>> m_LoadedChunks;

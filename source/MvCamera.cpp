@@ -221,7 +221,7 @@ void MvCamera::SetUpListeners(GLFWwindow *window) {
             }
             if (key == GLFW_KEY_R) {
                 auto app = static_cast<MvApp *>(glfwGetWindowUserPointer(window));
-                glm::vec3 camPos = app->GetCamera().GetPosition();
+                glm::vec3 camPos = app->GetWorld().GetCamera().GetPosition();
                 std::cout << "Camera position: "
                   << std::floor(camPos.x) << ", "
                   << std::floor(camPos.y) << ", "
@@ -235,17 +235,17 @@ void MvCamera::SetUpListeners(GLFWwindow *window) {
             }
             if (key == GLFW_KEY_F) {
                 auto app = static_cast<MvApp *>(glfwGetWindowUserPointer(window));
-                glm::vec3 camPos = app->GetCamera().GetPosition();
+                glm::vec3 camPos = app->GetWorld().GetCamera().GetPosition();
                 app->GetWorld().LoadChunksAtCoordinate(camPos, 1);
             }
             if (key == GLFW_KEY_ENTER || key == GLFW_KEY_P) {
                 auto app = static_cast<MvApp *>(glfwGetWindowUserPointer(window));
-                glm::vec3 camPos = app->GetCamera().GetPosition();
-                glm::vec3 camRot = app->GetCamera().GetRotation();
+                glm::vec3 camPos = app->GetWorld().GetCamera().GetPosition();
+                glm::vec3 camRot = app->GetWorld().GetCamera().GetRotation();
                 float yaw = camRot.y;   // Rotation around Y-axis (horizontal)
                 float pitch = camRot.x; // Rotation around X-axis (vertical)
                 // Calculate forward direction based on yaw and pitch
-                glm::vec3 forwardDirection = app->GetCamera().GetForward();
+                glm::vec3 forwardDirection = app->GetWorld().GetCamera().GetForward();
                 // std::cout << "pitch: " << pitch << std::endl;
                 MvRaycastResult HitRes = MvRaycast::CastRay(app->GetWorld().GetChunks(), camPos, forwardDirection, 10.f);
 

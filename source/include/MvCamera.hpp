@@ -54,5 +54,6 @@ private:
     // view
     glm::mat4 m_projectionMatrix{1.f};
     glm::mat4 m_viewMatrix{1.f};
+
 };
 
