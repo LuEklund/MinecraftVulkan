@@ -204,7 +204,7 @@ void MvApp::Run() {
     m_Camera->SetViewTarget(glm::vec3{0.f, -2.f, 2.f}, glm::vec3{0.f, -1.f, -1.f});
     auto currentTime = std::chrono::high_resolution_clock::now();
     m_Camera->SetPosition({ 0.f, 75.f, 0.f });
-
+    m_Camera->SetAspectRatio(m_renderer->GetAspectRatio());
 
     float aspect = m_renderer->GetAspectRatio();
     //Update
@@ -222,10 +222,7 @@ void MvApp::Run() {
             float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
             currentTime = newTime;
 
-            m_Camera->MoveInPlaneXZ(m_window->GetWindow(), frameTime);
-            m_Camera->SetViewYXZ();
-
-            m_Camera->SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
+            m_Camera->Update(m_window->GetWindow(), frameTime);
 
             //Load chunks
             m_World->LoadChunksAtCoordinate(m_Camera->GetPosition(), 4);

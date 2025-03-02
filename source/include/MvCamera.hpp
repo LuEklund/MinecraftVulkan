@@ -6,8 +6,6 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 
-
-
 class MvCamera
 {
    
@@ -28,12 +26,16 @@ public:
 
     void SetUpListeners(GLFWwindow *window);
 
+    void Update(GLFWwindow *window, float deltaTime);
+
     //camera movement
     void MoveInPlaneXZ(GLFWwindow *window, float deltaTime);
     void SetPosition(const glm::vec3 &position);
 
     //Getters
-    glm::vec3 GetPosition() const {return position;};
+    glm::vec3 GetPosition() const {return position;}
+
+    void SetAspectRatio(float inAspectRatio) {AspectRatio = inAspectRatio;};
     glm::vec3 GetRotation() const {return rotation;};
     glm::vec3 GetForward() const;
     glm::vec3 GetRight() const;
@@ -42,10 +44,12 @@ public:
 private:
     //properties
     float FovRadians;
+    float AspectRatio;
     glm::vec3 position{};
     glm::vec3 rotation{};
     float MoveSpeed = 3.f;
     float RotateSpeed = 1.5f;
+    float Gravity = 10.f;
 
     // view
     glm::mat4 m_projectionMatrix{1.f};

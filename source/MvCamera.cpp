@@ -268,5 +268,15 @@ void MvCamera::SetUpListeners(GLFWwindow *window) {
 
         }
     });
+
+}
+
+void MvCamera::Update(GLFWwindow *window, float deltaTime) {
+    MoveInPlaneXZ(window, deltaTime);
+    SetViewYXZ();
+    SetPerspectiveProjection(glm::radians(50.f), AspectRatio, 0.1f, 1000.f);
+
+    const glm::vec3 upDirection = {0.f, 1.f, 0.f};
+    position -= upDirection * Gravity * deltaTime;
 }
 
