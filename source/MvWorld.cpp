@@ -229,7 +229,7 @@ void MvWorld::LightBeGonePropagate(int x, int y, int z, int lightLevel) {
     glm::ivec3 ChunkPos = ConvertBlockPosToChunkPos({x,y,z});
     auto Chunk = GetChunkChunkPos(glm::vec3(ChunkPos));
     if (!Chunk) return;
-    if (y % 16 == 0) {
+    // if (y % 16 == 0) {
         std::array<glm::ivec3, 6> RelativeCords = GetRelativeCords();
         for (int i = 0; i < 6; ++i) {
             glm::ivec3 RelativePos = ChunkPos + RelativeCords[i];
@@ -238,7 +238,7 @@ void MvWorld::LightBeGonePropagate(int x, int y, int z, int lightLevel) {
                 m_DirtyMeshChunks[RelativePos] = NeighborChunk->second;
             }
         }
-    }
+    // }
     // Use a proper positive mod function
     int localX = posMod(x, 16);
     int localY = posMod(y, 16);

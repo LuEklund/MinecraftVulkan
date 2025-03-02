@@ -247,7 +247,7 @@ void MvCamera::SetUpListeners(GLFWwindow *window) {
                 // Calculate forward direction based on yaw and pitch
                 glm::vec3 forwardDirection = app->GetCamera().GetForward();
                 // std::cout << "pitch: " << pitch << std::endl;
-                MvRaycastResult HitRes = MvRaycast::CastRay(app->GetWorld().GetChunks(), camPos, forwardDirection, 4.f);
+                MvRaycastResult HitRes = MvRaycast::CastRay(app->GetWorld().GetChunks(), camPos, forwardDirection, 10.f);
 
                 //TODO: needs to be moved into update func
                 if (key == GLFW_KEY_ENTER) {

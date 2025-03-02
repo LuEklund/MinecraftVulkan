@@ -206,6 +206,7 @@ void MvApp::Run() {
     m_Camera->SetPosition({ 0.f, 75.f, 0.f });
 
 
+    float aspect = m_renderer->GetAspectRatio();
     //Update
     while (!m_window->ShouldClose()) {
         glfwPollEvents();
@@ -224,7 +225,6 @@ void MvApp::Run() {
             m_Camera->MoveInPlaneXZ(m_window->GetWindow(), frameTime);
             m_Camera->SetViewYXZ();
 
-            float aspect = m_renderer->GetAspectRatio();
             m_Camera->SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
 
             //Load chunks
